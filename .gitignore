@@ -1,0 +1,20 @@
+# Runtime state
+.instar/state/
+.instar/logs/
+.instar/*.tmp
+
+# Secrets
+.instar/config.json
+.instar/machine/
+.instar/secrets/
+
+# Backups (local only)
+.instar/backups/
+
+# Derived data
+.instar/memory.db
+.instar/memory.db-*
+
+# Claude Code
+.claude/projects/
+.claude/todos/
