@@ -1,0 +1,21 @@
+{
+  "projectName": "CLAUDE.md — Roland",
+  "projectDir": "/Users/rolandcanyon/.instar/agents/Roland",
+  "gitRemote": null,
+  "gitBranch": "main",
+  "totalFiles": 6,
+  "directories": [
+    {
+      "name": "logs",
+      "description": "Project directory",
+      "fileCount": 1
+    }
+  ],
+  "keyFiles": [
+    "package.json",
+    "CLAUDE.md"
+  ],
+  "projectType": "unknown",
+  "deploymentTargets": [],
+  "generatedAt": "2026-03-27T23:30:25.897Z"
+}

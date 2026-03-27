@@ -1,0 +1,14 @@
+{
+  "name": "Roland",
+  "port": 4040,
+  "path": "/Users/rolandcanyon/.instar/agents/Roland",
+  "capabilities": [
+    "threadline",
+    "mcp"
+  ],
+  "description": "Roland Instar agent",
+  "threadlineVersion": "1.0",
+  "publicKey": "940e28313f36fe81750e936283d86e308eae644b3fbc1f8a3fb49a03f5b2da05",
+  "framework": "instar",
+  "updatedAt": "2026-03-27T23:30:25.915Z"
+}
