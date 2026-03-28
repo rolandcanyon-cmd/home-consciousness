@@ -25,6 +25,18 @@
         "requireConsent": false,
         "pairingPhoneNumber": "+14084424360"
       }
+    },
+    {
+      "type": "imessage",
+      "enabled": true,
+      "config": {
+        "cliPath": "/Users/rolandcanyon/homebrew/bin/imsg",
+        "authorizedSenders": [
+          "+14084424360"
+        ],
+        "autoReconnect": true,
+        "maxReconnectAttempts": 10
+      }
     }
   ],
   "monitoring": {
