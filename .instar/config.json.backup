@@ -71,5 +71,6 @@
   "contextSigningKey": "281950af93854cf620e869bbbc5af1c9cd492c79ac36f9117f5c6f1ea5f7562c",
   "threadline": {
     "relayEnabled": false
-  }
+  },
+  "dashboardPin": "242446"
 }

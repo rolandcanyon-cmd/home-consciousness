@@ -1,12 +1,13 @@
-# Project Map: CLAUDE.md — Roland
+# Project Map: roland-house-agent
 
 **Type**: unknown
 **Path**: /Users/rolandcanyon/.instar/agents/Roland
 **Branch**: main
-**Total Files**: 6
+**Total Files**: 8
 
 ## Directory Structure
 
+- **test/** (2 files) — Project directory
 - **logs/** (1 files) — Project directory
 
 ## Key Files
@@ -14,4 +15,4 @@
 - package.json
 - CLAUDE.md
 
-*Generated: 2026-03-27T23:57:37.459Z*
+*Generated: 2026-03-28T05:33:00.302Z*

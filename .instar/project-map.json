@@ -1,10 +1,15 @@
 {
-  "projectName": "CLAUDE.md — Roland",
+  "projectName": "roland-house-agent",
   "projectDir": "/Users/rolandcanyon/.instar/agents/Roland",
   "gitRemote": null,
   "gitBranch": "main",
-  "totalFiles": 6,
+  "totalFiles": 8,
   "directories": [
+    {
+      "name": "test",
+      "description": "Project directory",
+      "fileCount": 2
+    },
     {
       "name": "logs",
       "description": "Project directory",
@@ -17,5 +22,5 @@
   ],
   "projectType": "unknown",
   "deploymentTargets": [],
-  "generatedAt": "2026-03-27T23:57:37.459Z"
+  "generatedAt": "2026-03-28T05:33:00.302Z"
 }
