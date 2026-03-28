@@ -1,0 +1,75 @@
+{
+  "projectName": "Roland",
+  "projectDir": "/Users/rolandcanyon/.instar/agents/Roland",
+  "port": 4040,
+  "agentType": "standalone",
+  "sessions": {
+    "tmuxPath": "/opt/homebrew/bin/tmux",
+    "claudePath": "/opt/homebrew/bin/claude",
+    "maxSessions": 10,
+    "protectedSessions": [
+      "Roland-server"
+    ]
+  },
+  "scheduler": {
+    "enabled": true,
+    "maxParallelJobs": 2
+  },
+  "messaging": [
+    {
+      "type": "whatsapp",
+      "enabled": true,
+      "config": {
+        "backend": "baileys",
+        "authMethod": "pairing-code",
+        "requireConsent": false,
+        "pairingPhoneNumber": "+14084424360"
+      }
+    }
+  ],
+  "monitoring": {
+    "quotaTracking": true,
+    "memoryMonitoring": true,
+    "healthCheckIntervalMs": 30000
+  },
+  "authToken": "ef6b150b-3a93-4426-a3b3-43e8ff1081af",
+  "externalOperations": {
+    "enabled": true,
+    "sentinel": {
+      "enabled": true
+    },
+    "services": {},
+    "readOnlyServices": [],
+    "trust": {
+      "floor": "collaborative",
+      "autoElevateEnabled": true,
+      "elevationThreshold": 5
+    }
+  },
+  "tunnel": {
+    "enabled": true,
+    "type": "quick"
+  },
+  "gitBackup": {
+    "enabled": true,
+    "autoPush": true
+  },
+  "userRegistrationPolicy": "invite-only",
+  "agentAutonomy": "collaborative",
+  "recoveryKeyHash": "8e558cb6f6584b086bc1d14e84f00c2165e06afe1845dfe0f2e2473bd1d753d5",
+  "users": [
+    {
+      "id": "u_8e1275c1e31f8785",
+      "name": "Adrian",
+      "role": "admin",
+      "communicationStyle": "direct",
+      "autonomyPreference": "proactive",
+      "joinedAt": "2026-03-27T23:27:20.112Z",
+      "status": "active"
+    }
+  ],
+  "contextSigningKey": "281950af93854cf620e869bbbc5af1c9cd492c79ac36f9117f5c6f1ea5f7562c",
+  "threadline": {
+    "relayEnabled": false
+  }
+}
