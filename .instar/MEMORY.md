@@ -29,6 +29,20 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Small increments with immediate testing catches issues early
 - Unit tests for business logic, integration tests for external systems
 
+### iMessage Integration (2026-03-28)
+- Test sends confirmed working as of 2026-03-28
+- Requirements: Mac account must be logged in AND permissions explicitly granted
+- Both iCloud/Messages authentication and macOS permissions (Full Disk Access, Automation) are needed
+
+### WhatsApp Integration Architecture (2026-03-28)
+- Instar uses Baileys library with strong reconnection (exponential backoff + circuit breaker)
+- Auto-fetches latest WA Web version to prevent 405 errors from stale protocol
+- Tracks outbound message IDs to prevent processing own echoes (self-chat loop prevention)
+- Has built-in audio transcription (Groq/OpenAI Whisper) for voice messages
+- OpenClaw patterns worth adopting: credential backup, message grace period, session freshness TTL
+- Current re-auth requirement likely due to machine sleep/wake cycles and lack of session validation
+- Low-hanging improvements: backup credentials before write, 60s grace period for historical messages on reconnect
+
 ## Patterns & Preferences
 
 - Adrian prefers direct communication
@@ -50,6 +64,23 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Lutron (lighting control via Smart Bridge)
 - LIFX (smart bulbs)
 - ecobee (thermostat)
+
+## Operational Patterns
+
+### System Behavior (2026-03-28)
+- WhatsApp connection requires periodic re-authentication via QR code
+- Machine experiences frequent brief sleep/wake cycles (~10-40 seconds)
+- Cloudflare tunnel URLs regenerate after each wake cycle (quick tunnel mode)
+- Git sync encounters issues due to unconfigured upstream branch
+- Version mismatch resolved: now running v0.24.16 (was showing v0.24.13)
+- No quota state file present - jobs running in fail-open mode
+
+### Stability Observations
+- Server restarts cleanly after shutdowns
+- Auto-start via LaunchAgent is working (self-healed configuration)
+- Job scheduler running all configured jobs despite quota warnings
+- Coherence monitor reports all checks passing
+- Multiple job sessions completing successfully
 
 ## Growth Notes
 
