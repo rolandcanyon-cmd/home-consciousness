@@ -37,8 +37,17 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Reply flow: Claude → imessage-reply.sh → imsg send (direct) + POST /imessage/reply (server notify for logging/stall)
 - Session routing follows Telegram pattern: SessionChannelRegistry, StallDetector, conversation context injection
 - Plan at: ~/.claude/plans/scalable-zooming-sunbeam.md
-- Step 1 (NativeBackend) complete: 12 BDD tests passing
+- Steps 1-7 complete: 92 BDD tests passing across 3 tiers
+- WAL fix critical: must open chat.db WITHOUT readonly flag (readonly can't read WAL)
+- Use `query_only = ON` pragma instead of `readonly: true`
 - Source repo: /Users/rolandcanyon/instar-dev (branch feat/imessage-adapter)
+- Fork: github.com/rolandcanyon-cmd/instar (branch pushed)
+- Shadow-install: installed from fork, dist copied from dev build
+- BLOCKER: spawned sessions die in ~30s — waitForClaudeReady times out, message injection fails silently
+- Root cause: SessionManager.waitForClaudeReady() in /Users/rolandcanyon/instar-dev/src/core/SessionManager.ts can't detect Claude 2.1.86's ready state. Claude starts, hooks load, but the REPL prompt pattern isn't matched within the 30s timeout. Message gets injected too early ("still alive — attempting injection anyway") and Claude ignores it or exits.
+- Two claude binaries on this machine: /opt/homebrew/bin/claude (2.0.37 OLD) and ~/homebrew/bin/claude (2.1.86 CURRENT). Config claudePath must point to the 2.1.86 one.
+- This affects ALL messaging adapters (Telegram would fail the same way) — it's a session lifecycle bug, not iMessage-specific
+- NEXT SESSION: debug waitForClaudeReady() — read the function, check what ready pattern it looks for, compare against actual Claude 2.1.86 tmux output, fix the detection
 - Prerequisites: macOS, Messages.app signed in, imsg CLI, FDA on node, Automation on terminal
 
 ### WhatsApp Integration Architecture (2026-03-28)
@@ -79,7 +88,8 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Machine experiences frequent brief sleep/wake cycles (~10-40 seconds)
 - Cloudflare tunnel URLs regenerate after each wake cycle (quick tunnel mode)
 - Git sync encounters issues due to unconfigured upstream branch
-- Version mismatch resolved: now running v0.24.16 (was showing v0.24.13)
+- Version mismatch resolved: now running v0.24.18-beta.0 (upgraded from v0.24.16)
+- v0.24.18 adds: Slack messaging adapter (Socket Mode, browser-automated setup), autonomous mode skill, platform badges on dashboard, cross-platform alerts
 - No quota state file present - jobs running in fail-open mode
 
 ### Stability Observations
