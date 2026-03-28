@@ -30,9 +30,16 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Unit tests for business logic, integration tests for external systems
 
 ### iMessage Integration (2026-03-28)
-- Test sends confirmed working as of 2026-03-28
-- Requirements: Mac account must be logged in AND permissions explicitly granted
-- Both iCloud/Messages authentication and macOS permissions (Full Disk Access, Automation) are needed
+- Building iMessage adapter for Instar PR (JKHeadley/instar, branch feat/imessage-adapter)
+- Architecture: NativeBackend (SQLite read-only) for receive, imsg CLI for send from tmux sessions
+- Key constraint: LaunchAgent can READ chat.db (with FDA on node) but CANNOT send (no Automation permission)
+- Sending must happen from Claude Code sessions via imessage-reply.sh → imsg send CLI
+- Reply flow: Claude → imessage-reply.sh → imsg send (direct) + POST /imessage/reply (server notify for logging/stall)
+- Session routing follows Telegram pattern: SessionChannelRegistry, StallDetector, conversation context injection
+- Plan at: ~/.claude/plans/scalable-zooming-sunbeam.md
+- Step 1 (NativeBackend) complete: 12 BDD tests passing
+- Source repo: /Users/rolandcanyon/instar-dev (branch feat/imessage-adapter)
+- Prerequisites: macOS, Messages.app signed in, imsg CLI, FDA on node, Automation on terminal
 
 ### WhatsApp Integration Architecture (2026-03-28)
 - Instar uses Baileys library with strong reconnection (exponential backoff + circuit breaker)
