@@ -45,11 +45,6 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Source repo: /Users/rolandcanyon/instar-dev (branch feat/imessage-adapter)
 - Fork: github.com/rolandcanyon-cmd/instar (branch pushed)
 - Shadow-install: installed from fork, dist copied from dev build
-- BLOCKER: spawned sessions die in ~30s — waitForClaudeReady times out, message injection fails silently
-- Root cause: SessionManager.waitForClaudeReady() in /Users/rolandcanyon/instar-dev/src/core/SessionManager.ts can't detect Claude 2.1.86's ready state. Claude starts, hooks load, but the REPL prompt pattern isn't matched within the 30s timeout. Message gets injected too early ("still alive — attempting injection anyway") and Claude ignores it or exits.
-- Two claude binaries on this machine: /opt/homebrew/bin/claude (2.0.37 OLD) and ~/homebrew/bin/claude (2.1.86 CURRENT). Config claudePath must point to the 2.1.86 one.
-- This affects ALL messaging adapters (Telegram would fail the same way) — it's a session lifecycle bug, not iMessage-specific
-- NEXT SESSION: debug waitForClaudeReady() — read the function, check what ready pattern it looks for, compare against actual Claude 2.1.86 tmux output, fix the detection
 - Prerequisites: macOS, Messages.app signed in, imsg CLI, FDA on node, Automation on terminal
 
 ### WhatsApp Integration Architecture (2026-03-28)
