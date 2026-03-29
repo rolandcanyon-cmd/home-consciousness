@@ -3,7 +3,9 @@
 **Name**: Adrian
 **Role**: Admin
 **Communication Style**: Direct
-**Timezone**: Not yet detected
+**Location**: 14450 Roland Canyon Rd, Corral de Tierra, CA 93908
+**Elevation**: ~600ft (above the cold air inversion layer)
+**Timezone**: America/Los_Angeles
 
 ## Context
 

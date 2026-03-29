@@ -5,6 +5,8 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 ## Key Facts
 
 - House consciousness agent initialized on 2026-03-27
+- Named "Roland" after Roland Canyon Rd — the house's address
+- House iCloud account: rolandcanyon@icloud.com (used for device registrations)
 - Primary user: Adrian
 - Purpose: IoT orchestration, knowledge graph maintenance, troubleshooting
 - Multi-user setup with invite-only registration
@@ -75,11 +77,32 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - LIFX Mini W (10.0.0.137) - Lightbulb
 - LIFX Mini W (10.0.0.251) - Lightbulb
 
+### Weather Station
+- Tempest by WeatherFlow, station ID 125865
+- URL: https://tempestwx.com/station/125865/
+- Location: 14450 Roland Canyon Rd, Corral de Tierra (36.55593, -121.7179), ~600ft elevation
+- Microclimate note: sits above cold air inversion — warmer than valley floor readings
+- Data: temp, humidity, pressure, wind, UV, solar, rain, lightning
+- Page is JS-rendered — requires Playwright to scrape (no public API without token)
+
+### Pool System
+- Hayward OmniLogic — pool/spa controller
+- Cloud portal: https://www.haywardomnilogic.com (login with house iCloud account)
+- MSP ID: D772343ECC3A4EC5 (active backyard "Roland")
+- Old entry "do not use" (MSP ID: 5A59BA800B8C92EE) — Lost Link status
+- Equipment: heater, variable-speed filter pump (Low/Med/High/Custom), water features, cleaner, lights (spa)
+- Pool: heater, filter pump, water features, cleaner
+- Spa: heater, filter pump, lights, spa features
+- Water quality module: NOT installed (dashboard shows -- for chlorine/pH/ORP, dispensing/chlorinating labels are cosmetic)
+- Schedules and telemetry history available via web portal
+- Address registered: 14450 Roland Canyon Rd, Salinas, CA
+
 ### Known Ecosystems
 - Apple HomeKit (unified layer)
 - Lutron (lighting control via Smart Bridge)
 - LIFX (smart bulbs)
 - ecobee (thermostat)
+- WeatherFlow Tempest (weather station)
 
 ## Operational Patterns
 
