@@ -168,12 +168,24 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - v0.24.18 adds: Slack messaging adapter (Socket Mode, browser-automated setup), autonomous mode skill, platform badges on dashboard, cross-platform alerts
 - No quota state file present - jobs running in fail-open mode
 
+### Job Scheduler Execution Gaps (2026-03-29)
+- **Critical discovery via overseer-maintenance job**: 80% of maintenance jobs have never executed
+- Only 1 of 5 maintenance jobs running: memory-hygiene (every 12h) works, others silently fail
+- **Never-run jobs**: project-map-refresh, coherence-audit, memory-export, capability-audit
+- **Root causes**:
+  - Skill-based jobs broken when referenced skills don't exist (.claude/skills/ directory empty)
+  - Script-based jobs mysteriously skipped despite gates passing when tested manually
+  - Zero observability — no error logs, no gate failure logs, jobs just don't trigger
+- Git sync degraded but not broken: pull fails on missing upstream, but commits still happen hourly
+- **Key insight**: Overseer meta-monitoring layer working correctly — caught gaps that individual jobs couldn't see
+- Architectural needs: scheduler execution visibility, job definition validation at load time, gate evaluation logging
+
 ### Stability Observations
 - Server restarts cleanly after shutdowns
 - Auto-start via LaunchAgent is working (self-healed configuration)
-- Job scheduler running all configured jobs despite quota warnings
+- Health-check job running consistently every 5 minutes (17+ successful runs in 4-hour window)
 - Coherence monitor reports all checks passing
-- Multiple job sessions completing successfully
+- Overseer system functioning correctly (guardian, learning, maintenance all reporting)
 
 ## Growth Notes
 
