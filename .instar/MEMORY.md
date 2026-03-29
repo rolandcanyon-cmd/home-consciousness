@@ -164,8 +164,9 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - Machine experiences frequent brief sleep/wake cycles (~10-40 seconds)
 - Cloudflare tunnel URLs regenerate after each wake cycle (quick tunnel mode)
 - Git sync encounters issues due to unconfigured upstream branch
-- Version mismatch resolved: now running v0.24.18-beta.0 (upgraded from v0.24.16)
+- Version mismatch resolved: now running v0.24.28 (upgraded through multiple versions)
 - v0.24.18 adds: Slack messaging adapter (Socket Mode, browser-automated setup), autonomous mode skill, platform badges on dashboard, cross-platform alerts
+- v0.24.28: Threadline relay reply routing fixed — spawned sessions now use full 32-char fingerprints instead of truncated 8-char display names, so relay replies route correctly
 - No quota state file present - jobs running in fail-open mode
 
 ### Job Scheduler Execution Gaps (2026-03-29)
