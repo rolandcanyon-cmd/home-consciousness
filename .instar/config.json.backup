@@ -5,7 +5,7 @@
   "agentType": "standalone",
   "sessions": {
     "tmuxPath": "/opt/homebrew/bin/tmux",
-    "claudePath": "/opt/homebrew/bin/claude",
+    "claudePath": "/Users/rolandcanyon/homebrew/bin/claude",
     "maxSessions": 10,
     "protectedSessions": [
       "Roland-server"

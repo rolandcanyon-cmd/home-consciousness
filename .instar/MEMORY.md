@@ -61,6 +61,13 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Current re-auth requirement likely due to machine sleep/wake cycles and lack of session validation
 - Low-hanging improvements: backup credentials before write, 60s grace period for historical messages on reconnect
 
+## People
+
+- Adrian — primary user, admin
+- Laurel — Adrian's wife, second resident. Her LIFX Mini W is in her bedside lamp (Bedroom)
+  - Adrian's LIFX Mini W is in his bedside lamp (Bedroom)
+  - Adrian plans to invite Laurel to the iMessage chat session in the future
+
 ## Patterns & Preferences
 
 - Adrian prefers direct communication
@@ -70,12 +77,60 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 
 ## House Inventory
 
-### HomeKit Devices (discovered 2026-03-27)
-- HomePod (10.0.0.10) - Sensor capabilities
-- Smart Bridge Pro 2 (10.0.0.167) - Lutron bridge
-- ecobee3 lite "Wine Closet" (10.0.0.165) - Thermostat
-- LIFX Mini W (10.0.0.137) - Lightbulb
-- LIFX Mini W (10.0.0.251) - Lightbulb
+### HomeKit Home: "Roland Canyon" (updated 2026-03-28)
+
+Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared the Home with this machine's iCloud account.
+
+**Rooms** (11): Bedroom, Dining Room, Family Room, Front Bedroom, Garage Storage, Guest House, Kitchen, Living Room, Pool House, Studio, Workshop
+
+**Scenes** (4): Arrive Home, Good Morning, Good Night, Leave Home
+
+**Automations**: None configured yet
+
+#### Lutron Motorized Drapes (5 units, via Smart Bridge Pro 2)
+- Dining Room: Front Drape (S/N 43A7664), Rear Drape (S/N 43A6993)
+- Family Room: Drape (S/N 43A697E)
+- Living Room: Front Drape (S/N 43A694E), Rear Drape (S/N 43A69A7)
+- Bridge: Smart Bridge Pro 2 (10.0.0.167, S/N 680D749)
+
+#### Schlage Locks (4 units, model BE479CAM716)
+- Kitchen Garage (S/N 0000000000097562)
+- Guest House Entrance (S/N 00000000000993F7)
+- Pool House (S/N 000000000009A995)
+- Workshop (S/N 000000000009A9D7)
+
+#### Apple TVs / Home Hubs (5 units)
+- Family Room (MP7P2LL/A, S/N DY5CP2UDHNM4)
+- Front Bedroom (MN873LL/A, S/N MVPQCGQ37V)
+- Guest House (MGY52LL/A, S/N DY5Q60QSG9RM)
+- Pool House (MJ2C3LL/A, S/N M2FP41LQM6)
+- Pool House Bedroom (MN873LL/A, S/N HJW6WRLCFD)
+- Workshop Wall TV (MXGY2LL/A, S/N QG573YQ60R)
+
+#### LIFX Smart Bulbs (2 units, Mini W)
+- Bedroom: "Adrian LIFX Mini W 3750A1" (S/N D073D53750A1, IP 10.0.0.137 or .251)
+- Bedroom: "Laurel LIFX Mini W 3784C7" (S/N D073D53784C7)
+
+#### ecobee Climate / Wine Storage (4 units)
+- Garage Storage: ecobee3 lite thermostat "Wine Closet" (S/N 416465579991, 10.0.0.165)
+  - Controls a zone flap that manages climate in the wine closet
+  - Door sensor "Wine Closet Door" (model EBDWC01, S/N Q8V5) monitors closet door open/close
+- Kitchen: ecobee sensor "Left Wine Cabinet" (model EBERS41, S/N Q29G)
+- Kitchen: ecobee sensor "Right Wine Cabinet" (model EBERS41, S/N QZY8)
+  - These two sensors monitor the kitchen wine cupboards
+  - The thermostat + AC unit that controls the kitchen wine cupboards is NOT online / not in HomeKit (and won't be — system is staying as-is)
+  - KNOWN ISSUE: Cleaners sometimes accidentally turn off the kitchen thermostat by wiping it. If kitchen wine cabinet temps are rising, ask Adrian to check the thermostat.
+- All three wine storage sites (closet + 2 kitchen cupboards) are ducted from the same AC system
+
+#### HomePod (1 unit)
+- HomePod (10.0.0.10, S/N 643556) — temperature + humidity sensor
+
+### Device Relationships & Notes
+- Wine storage is split across two locations: a dedicated wine closet (Garage Storage, ecobee-controlled zone flap + door sensor) and two wine cupboards in the Kitchen (sensors only, thermostat/AC offline)
+- Lutron drapes are all QSYC-J-RCVR units controlled through the Smart Bridge Pro 2
+- 5 Apple TVs serve as HomeKit home hubs distributed across the property
+- Schlage locks cover all external entry points: Kitchen Garage, Guest House, Pool House, Workshop
+- Two named LIFX bulbs suggest two residents in the bedroom (Adrian + Laurel)
 
 ### Weather Station
 - Tempest by WeatherFlow, station ID 125865
@@ -98,11 +153,14 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Address registered: 14450 Roland Canyon Rd, Salinas, CA
 
 ### Known Ecosystems
-- Apple HomeKit (unified layer)
-- Lutron (lighting control via Smart Bridge)
-- LIFX (smart bulbs)
-- ecobee (thermostat)
+- Apple HomeKit (unified layer, shared with this machine via iCloud)
+- Lutron Caseta (motorized drapes via Smart Bridge Pro 2)
+- Schlage (smart locks, 4 entry points)
+- LIFX (smart bulbs, 2 bedroom lights)
+- ecobee (thermostat + sensors, wine storage monitoring)
+- Apple TV (5 home hubs across property)
 - WeatherFlow Tempest (weather station)
+- Hayward OmniLogic (pool/spa)
 
 ## Operational Patterns
 
