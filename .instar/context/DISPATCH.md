@@ -18,6 +18,11 @@
 | explaining-features | `.instar/context/architecture.md` | System architecture, feature inventory, multi-user/multi-machine distinctions. ALWAYS consult /capabilities first. |
 | multi-user-setup | `.instar/context/architecture.md` | System architecture, feature inventory, multi-user/multi-machine distinctions. ALWAYS consult /capabilities first. |
 | multi-machine-setup | `.instar/context/architecture.md` | System architecture, feature inventory, multi-user/multi-machine distinctions. ALWAYS consult /capabilities first. |
+| researching | `.instar/context/research-navigation.md` | Canonical source hierarchy — check state files BEFORE broad searches. Web fetch optimization via smart-fetch. |
+| searching-broadly | `.instar/context/research-navigation.md` | Canonical source hierarchy — check state files BEFORE broad searches. Web fetch optimization via smart-fetch. |
+| spawning-agents | `.instar/context/research-navigation.md` | Canonical source hierarchy — check state files BEFORE broad searches. Web fetch optimization via smart-fetch. |
+| web-fetching | `.instar/context/research-navigation.md` | Canonical source hierarchy — check state files BEFORE broad searches. Web fetch optimization via smart-fetch. |
+| checking-state | `.instar/context/research-navigation.md` | Canonical source hierarchy — check state files BEFORE broad searches. Web fetch optimization via smart-fetch. |
 
 ## Always-Loaded Context (Tier 0)
 
