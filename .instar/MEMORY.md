@@ -44,8 +44,13 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Use `query_only = ON` pragma instead of `readonly: true`
 - Source repo: /Users/rolandcanyon/instar-dev (branch feat/imessage-adapter)
 - Fork: github.com/rolandcanyon-cmd/instar (branch pushed)
-- Shadow-install: installed from fork, dist copied from dev build
+- Shadow-install: installed from fork, dist copied from dev build + iMessage adapter files manually copied
 - Prerequisites: macOS, Messages.app signed in, imsg CLI, FDA on node, Automation on terminal
+- Rebased onto main (v0.25.8) on 2026-03-31, resolved builtin-manifest.json conflicts
+- Fixed context injection: wireIMessageRouting was writing context files but discarding the return value (sessions never saw conversation history)
+- Fixed session lifecycle: added waitForClaudeReady + kill-and-respawn for stuck/dead sessions (matching Slack pattern)
+- Fixed lookback flood: empty messages from NativeBackend lookback (reactions, tapbacks) now filtered before routing
+- REMAINING ISSUE: iMessage sessions spawn but die within ~90s — session exits after processing injected message instead of staying at prompt. Needs investigation into why Claude Code sessions don't persist (may be related to session spawn configuration or missing --dangerously-skip-permissions flag)
 
 ### WhatsApp Integration Architecture (2026-03-28)
 - Instar uses Baileys library with strong reconnection (exponential backoff + circuit breaker)
