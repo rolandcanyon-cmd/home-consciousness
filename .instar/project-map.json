@@ -3,7 +3,7 @@
   "projectDir": "/Users/rolandcanyon/.instar/agents/Roland",
   "gitRemote": null,
   "gitBranch": "main",
-  "totalFiles": 16,
+  "totalFiles": 18,
   "directories": [
     {
       "name": "test",
@@ -22,5 +22,5 @@
   ],
   "projectType": "unknown",
   "deploymentTargets": [],
-  "generatedAt": "2026-04-01T03:26:15.931Z"
+  "generatedAt": "2026-04-01T07:07:23.203Z"
 }

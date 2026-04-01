@@ -86,11 +86,12 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Current re-auth requirement likely due to machine sleep/wake cycles and lack of session validation
 - Low-hanging improvements: backup credentials before write, 60s grace period for historical messages on reconnect
 
-### Infrastructure Health Patterns (2026-03-31)
-- **Cloudflare tunnel instability**: Quick tunnels fail consistently after sleep/wake cycles, exhausting retries (exit code 1)
-  - All 5 retry attempts fail, then marked "unavailable until server restart"
-  - Sleep/wake detector tries to restart tunnel but fails with same exit code
-  - Pattern: every 5-minute wake cycle triggers failure → needs investigation or switch to named tunnel
+### Infrastructure Health Patterns (2026-04-01)
+- **Cloudflare tunnel resilience improved**: Quick tunnels now restart successfully after sleep/wake cycles
+  - Previous failures (exit code 1, retry exhaustion) appear resolved
+  - Sleep/wake detector consistently restarts tunnel with new URLs after each wake
+  - Pattern: 10-40s sleep cycles followed by successful tunnel restart (observed ~20 times in 4 hours)
+  - Each wake generates new tunnel URL as expected with quick tunnel mode
 - **Session cleanup**: SessionManager reliably cleans up stale sessions every ~hour
   - Pattern: one stale session cleaned per hour (normal operation)
 - **Quota tracking**: No quota state file causes warnings but jobs run in fail-open mode (safe default)
