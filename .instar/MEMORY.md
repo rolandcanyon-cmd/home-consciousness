@@ -106,6 +106,10 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - **Deferred restart pattern**: Update detected active sessions (memory-hygiene, overseer-guardian) and deferred restart for 5 minutes
   - This prevents disrupting critical jobs during update application
 - **Feedback auto-forwarded**: System automatically reported the migration degradation upstream via feedback webhook
+- **v0.26.1 stable operation**: Server has been running cleanly since 18:41 UTC after restart
+  - Coherence checks all passing (7/7)
+  - WhatsApp pairing code generation working but no active connections (expected without user pairing)
+  - Jobs running regularly with health check and reflection trigger at 19:00 UTC
 
 ## People
 
