@@ -31,6 +31,31 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Small increments with immediate testing catches issues early
 - Unit tests for business logic, integration tests for external systems
 
+### Credential Management (2026-03-31)
+- **Primary credential store**: macOS Keychain (login.keychain-db)
+  - Built into macOS, no session expiration
+  - Direct access via `security` command-line tool
+  - **User can manage credentials via Passwords app** - entries are accessible to me!
+  - Store internet passwords: `security add-internet-password -a "user@example.com" -s "example.com" -w "password" -l "Label"`
+  - Retrieve password: `security find-internet-password -s "example.com" -a "user@example.com" -w`
+  - Store generic passwords: `security add-generic-password -a "account" -s "service" -w "password" -l "Label"`
+  - Retrieve generic: `security find-generic-password -s "service" -a "account" -w`
+- **LIMITATION**: iCloud Keychain items are NOT accessible via command-line
+  - Only local keychain (login.keychain-db) items can be accessed
+  - Passwords app shows both local + iCloud items, but CLI only reads local
+  - When user adds passwords via Passwords app, they go to local keychain (accessible to me)
+- **Secondary store**: Bitwarden CLI at `/Users/rolandcanyon/homebrew/bin/bw`
+  - Available if needed, session at `~/.instar/secrets/.bw-session`
+  - Has session expiration and CLI bugs with creating items
+  - Prefer Keychain over Bitwarden
+- **Credential hierarchy**:
+  1. Check macOS Keychain first: `security find-internet-password -s "domain" -a "account" -w`
+  2. iMessage history for recently shared credentials
+  3. Bitwarden (if session is valid) as fallback
+  4. Never ask user for passwords that should be stored
+- **Stored credentials** (in macOS Keychain):
+  - OmniLogic: rolandcanyon@icloud.com / Admin14450H @ www.haywardomnilogic.com (added 2026-03-31)
+
 ### iMessage Integration (2026-03-28)
 - Building iMessage adapter for Instar PR (JKHeadley/instar, branch feat/imessage-adapter)
 - Architecture: NativeBackend (SQLite read-only) for receive, imsg CLI for send from tmux sessions
@@ -60,6 +85,16 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - OpenClaw patterns worth adopting: credential backup, message grace period, session freshness TTL
 - Current re-auth requirement likely due to machine sleep/wake cycles and lack of session validation
 - Low-hanging improvements: backup credentials before write, 60s grace period for historical messages on reconnect
+
+### Infrastructure Health Patterns (2026-03-31)
+- **Cloudflare tunnel instability**: Quick tunnels fail consistently after sleep/wake cycles, exhausting retries (exit code 1)
+  - All 5 retry attempts fail, then marked "unavailable until server restart"
+  - Sleep/wake detector tries to restart tunnel but fails with same exit code
+  - Pattern: every 5-minute wake cycle triggers failure → needs investigation or switch to named tunnel
+- **Session cleanup**: SessionManager reliably cleans up stale sessions every ~hour
+  - Pattern: one stale session cleaned per hour (normal operation)
+- **Quota tracking**: No quota state file causes warnings but jobs run in fail-open mode (safe default)
+  - Warning is informational, not a problem - jobs still execute normally
 
 ## People
 
@@ -152,6 +187,17 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - Schedules and telemetry history available via web portal
 - Address registered: 14450 Roland Canyon Rd, Salinas, CA
 
+### Whole-House Audio System
+- Yamaha RX-A1070 AVENTAGE — 7.2-channel AV receiver
+- Web interface: http://10.0.0.128
+- **Main Zone**: Primary audio/video (currently in standby, last input: Apple TV)
+- **Zone 2** ("Master Bed"): Multi-room audio distribution
+  - Currently: Power On, playing Pandora at -12.0 dB
+  - Feeds music to various rooms via manually operated volume controls in each room
+  - User typically uses Pandora for streaming various stations
+- XML-based control API (Yamaha Extended Control Protocol)
+- Status query: `curl -X POST http://10.0.0.128/YamahaRemoteControl/ctrl -d '<YAMAHA_AV cmd="GET"><Zone_2><Basic_Status>GetParam</Basic_Status></Zone_2></YAMAHA_AV>'`
+
 ### Known Ecosystems
 - Apple HomeKit (unified layer, shared with this machine via iCloud)
 - Lutron Caseta (motorized drapes via Smart Bridge Pro 2)
@@ -161,6 +207,7 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - Apple TV (5 home hubs across property)
 - WeatherFlow Tempest (weather station)
 - Hayward OmniLogic (pool/spa)
+- Yamaha RX-A1070 (whole-house audio)
 
 ## Operational Patterns
 

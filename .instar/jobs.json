@@ -536,5 +536,25 @@
       "role:supervisor"
     ],
     "telegramNotify": "on-alert"
+  },
+  {
+    "slug": "morning-weather-report",
+    "name": "Morning Weather Report",
+    "description": "Fetch current weather from Tempest station and send a friendly morning greeting via iMessage.",
+    "schedule": "0 7 * * *",
+    "priority": "medium",
+    "expectedDurationMinutes": 2,
+    "model": "haiku",
+    "enabled": true,
+    "execute": {
+      "type": "skill",
+      "value": "morning-weather"
+    },
+    "tags": [
+      "cat:user-service",
+      "role:worker",
+      "exec:skill"
+    ],
+    "telegramNotify": false
   }
 ]
