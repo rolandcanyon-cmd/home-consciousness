@@ -96,6 +96,16 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - **Quota tracking**: No quota state file causes warnings but jobs run in fail-open mode (safe default)
   - Warning is informational, not a problem - jobs still execute normally
 
+### Auto-Update System Behavior (2026-04-01)
+- **Successful v0.25.10 update applied** at 07:02 UTC after 5-minute coalesce window
+- **Post-update migration degradation**: `instar migrate` failed with `__dirname is not defined` error
+  - Error suggests Node.js ESM module issue (likely missing import.meta.url conversion)
+  - Degradation handler marked as non-critical: "data may not be upgraded" but agent continues operating
+  - Migration failure did not prevent successful restart — system appears resilient to migration errors
+- **Deferred restart pattern**: Update detected active sessions (memory-hygiene, overseer-guardian) and deferred restart for 5 minutes
+  - This prevents disrupting critical jobs during update application
+- **Feedback auto-forwarded**: System automatically reported the migration degradation upstream via feedback webhook
+
 ## People
 
 - Adrian — primary user, admin
