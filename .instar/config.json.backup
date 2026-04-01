@@ -84,5 +84,8 @@
   "threadline": {
     "relayEnabled": false
   },
+  "updates": {
+    "autoApply": true
+  },
   "dashboardPin": "242446"
 }
