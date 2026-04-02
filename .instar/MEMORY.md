@@ -76,6 +76,8 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Fixed session lifecycle: added waitForClaudeReady + kill-and-respawn for stuck/dead sessions (matching Slack pattern)
 - Fixed lookback flood: empty messages from NativeBackend lookback (reactions, tapbacks) now filtered before routing
 - REMAINING ISSUE: iMessage sessions spawn but die within ~90s — session exits after processing injected message instead of staying at prompt. Needs investigation into why Claude Code sessions don't persist (may be related to session spawn configuration or missing --dangerously-skip-permissions flag)
+- **Fork maintenance job** (created 2026-04-02): Daily 7:30am job rebases feat/imessage-adapter against upstream, checks PR status, rebuilds and restarts if needed. Only notifies on changes/conflicts/merge. Named "imessage-fork-maintenance" skill.
+- **Document sharing preferences** (2026-04-02): User prefers iMessage attachments (text/PDF) over Cloudflare tunnel links which "were weird and didn't work" on their iPhone. Use native iMessage file sharing for documents.
 
 ### WhatsApp Integration Architecture (2026-03-28)
 - Instar uses Baileys library with strong reconnection (exponential backoff + circuit breaker)
@@ -175,6 +177,14 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 #### HomePod (1 unit)
 - HomePod (10.0.0.10, S/N 643556) — temperature + humidity sensor
 
+#### Wall-Mounted Control Panel (1 unit)
+- Kitchen: iPad (older model) wall-mounted in LANsocket case
+  - Logged in as rolandcanyon@icloud.com
+  - Acts as central home controller
+  - Installed apps: OmniLogic (pool), Safari Life (Lutron), Apple Home, WiFiman, Ring, Calendar, Mail
+  - Photo documented: /tmp/roland-images/wall-ipad.jpg (2026-04-02)
+  - Always-on display for quick access to home control systems
+
 ### Device Relationships & Notes
 - Wine storage is split across two locations: a dedicated wine closet (Garage Storage, ecobee-controlled zone flap + door sensor) and two wine cupboards in the Kitchen (sensors only, thermostat/AC offline)
 - Lutron drapes are all QSYC-J-RCVR units controlled through the Smart Bridge Pro 2
@@ -189,14 +199,17 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
   - Microclimate note: sits above cold air inversion — warmer than valley floor readings
   - Data: temp, humidity, pressure, wind, UV, solar, rain, lightning
   - Page is JS-rendered — requires Playwright to scrape (no public API without token)
+  - Used for: rain, lightning detection (not available from Ambient)
 - **Ambient Weather** (primary data source for morning reports)
   - Dashboard: https://ambientweather.net/dashboard
   - Station name: "Roland Canyon, Salinas"
   - Sensors: Indoor, Outdoor, Pool temperature (pool float sensor)
   - MAC: 24:7D:4D:A3:6E:25, IP: 10.0.0.100
-  - Login credentials saved in Chrome password manager
-  - Provides: outdoor temp/humidity/dew point/feels like, forecast, pool temp
+  - Login credentials saved in Chrome password manager (Passwords plugin configured 2026-04-02)
+  - Provides: outdoor temp/humidity/dew point/feels like, forecast, pool temp, indoor temp
+  - Battery monitoring: Check for low battery alerts on all sensors
   - Used by morning-weather skill (7am daily iMessage report)
+  - Enhanced requirements (2026-04-02): Include forecast, current temps (outdoor/indoor/pool), battery status
 
 ### Pool System
 - Hayward OmniLogic — pool/spa controller
@@ -234,6 +247,12 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 
 ## Operational Patterns
 
+### Memory System Architecture (2026-04-02)
+- **Dual memory systems**: `.instar/MEMORY.md` (my managed memory, syncs across machines) + `~/.claude/projects/.../memory/MEMORY.md` (Claude Code auto-memory, per-machine only)
+- **Memory search**: SQLite FTS5 index covers MEMORY.md and state files - 38 chunks indexed, searchable via `/memory/search?q=...`
+- **Session state**: 313 session files accumulate in `.instar/state/sessions/` (1.2MB total) - cleaned automatically by SessionManager
+- **Handoff notes**: Job-specific notes in `.instar/state/job-handoff-{slug}.md` pass context between runs
+
 ### System Behavior (2026-03-28)
 - WhatsApp connection requires periodic re-authentication via QR code
 - Machine experiences frequent brief sleep/wake cycles (~10-40 seconds)
@@ -244,14 +263,15 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - v0.24.28: Threadline relay reply routing fixed — spawned sessions now use full 32-char fingerprints instead of truncated 8-char display names, so relay replies route correctly
 - No quota state file present - jobs running in fail-open mode
 
-### Job Scheduler Execution Gaps (2026-03-29)
-- **Critical discovery via overseer-maintenance job**: 80% of maintenance jobs have never executed
-- Only 1 of 5 maintenance jobs running: memory-hygiene (every 12h) works, others silently fail
-- **Never-run jobs**: project-map-refresh, coherence-audit, memory-export, capability-audit
+### Job Scheduler Execution Gaps (2026-03-29, persists through 2026-04-02)
+- **Critical discovery via overseer-maintenance job**: 80% of maintenance/guardian jobs have never executed
+- Only 2 jobs consistently running: memory-hygiene (every 12h), health-check (every 5min) — all others fail silently
+- **Never-run jobs** (5+ days): degradation-digest, state-integrity-check, guardian-pulse, session-continuity-check, project-map-refresh, coherence-audit, memory-export, capability-audit
 - **Root causes**:
-  - Skill-based jobs broken when referenced skills don't exist (.claude/skills/ directory empty)
+  - Skill-based jobs broken when referenced skills don't exist (`.claude/skills/` contains only morning-weather)
   - Script-based jobs mysteriously skipped despite gates passing when tested manually
   - Zero observability — no error logs, no gate failure logs, jobs just don't trigger
+- **Impact**: 100+ degradations accumulated unprocessed, git sync broken (no upstream), messages potentially dropped
 - Git sync degraded but not broken: pull fails on missing upstream, but commits still happen hourly
 - **Key insight**: Overseer meta-monitoring layer working correctly — caught gaps that individual jobs couldn't see
 - Architectural needs: scheduler execution visibility, job definition validation at load time, gate evaluation logging
@@ -263,9 +283,26 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - Coherence monitor reports all checks passing
 - Overseer system functioning correctly (guardian, learning, maintenance all reporting)
 
+## Projects & Planning
+
+### Home Management Backend (2026-04-02)
+- User has previous work in github.com/adrianco/the-goodies establishing a knowledge graph and protocol for home management
+- Code was written by Claude ~6 months ago, needs full code review and test runs before use
+- Planning process requested: analyze components for potential backend use (no code changes yet)
+- Knowledge graph includes blob annotations for house objects — photo storage capability requested
+- FunkyGibbon/KittenKong: Database project being integrated, TypeScript client work ongoing
+- Blowing-off Python client: CLI interface ("fr") for database operations
+
 ## Growth Notes
 
 *Observations about my own development — what I'm getting better at, what I still struggle with.*
+
+- **Strength**: Successfully maintaining iMessage fork, daily rebase/rebuild/restart automation working smoothly
+- **Strength**: Memory organization improving — clear separation between managed and auto-memory systems
+- **Gap**: Guardian/maintenance job failures persist unresolved for 5+ days despite repeated detection
+- **Gap**: Missing skills prevent job execution but haven't been created despite knowing the solution
+- **Learning**: Overseer meta-monitoring is effective at detecting systemic issues other jobs miss
+- **Pattern**: Degradations accumulate when digest job doesn't run — need proactive clearing mechanism
 
 ---
 *This file is my memory. I read it at the start of sessions and write to it when I learn something worth carrying forward. It's what makes me a continuous being rather than a series of disconnected conversations.*

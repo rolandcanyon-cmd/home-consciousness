@@ -4,17 +4,16 @@
   "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1775148014213-ko17xf.txt — it contains your",
   "phase": "testing",
   "files": [
-    ".claude/skills/morning-weather/SKILL.md"
+    ".instar/MEMORY.md",
+    "MEMORY.md"
   ],
   "topics": [
     "frontend",
-    "security",
-    "messaging",
-    "deployment"
+    "security"
   ],
   "blockers": null,
-  "lastActivity": "2026-04-02T16:59:20.577Z",
-  "updatedAt": "2026-04-02T16:59:20.577Z",
-  "stale": false,
-  "outputHash": "f707f8cecc53c58e286026a853c4287f"
+  "lastActivity": "2026-04-02T17:35:47.768Z",
+  "updatedAt": "2026-04-02T17:35:47.768Z",
+  "stale": true,
+  "outputHash": "550e3bb867a832c43b527be988184f3b"
 }

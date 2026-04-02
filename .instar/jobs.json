@@ -141,13 +141,13 @@
     "enabled": true,
     "gate": "curl -sf http://localhost:4040/health >/dev/null 2>&1",
     "execute": {
-      "type": "skill",
-      "value": "coherence-audit"
+      "type": "prompt",
+      "value": "AUTH=$(python3 -c \"import json; print(json.load(open('.instar/config.json')).get('authToken',''))\" 2>/dev/null); curl -s -H \"Authorization: Bearer $AUTH\" http://localhost:4040/topic-bindings && curl -s -H \"Authorization: Bearer $AUTH\" http://localhost:4040/project-map?format=compact && echo 'Verify: 1) Do topic bindings match current project structure?, 2) Are there orphaned bindings for deleted projects?, 3) Has the working directory changed unexpectedly? If everything is coherent, exit silently. Flag drift with [ATTENTION].'"
     },
     "tags": [
       "cat:maintenance",
       "role:worker",
-      "exec:skill"
+      "exec:prompt"
     ]
   },
   {
@@ -161,13 +161,13 @@
     "enabled": true,
     "gate": "test -f .instar/state/degradation-events.json && python3 -c \"import json; events=json.load(open('.instar/state/degradation-events.json')); exit(0 if len(events) > 0 else 1)\" 2>/dev/null",
     "execute": {
-      "type": "skill",
-      "value": "degradation-digest"
+      "type": "prompt",
+      "value": "Read degradation events from .instar/state/degradation-events.json. Group by scope/operation and identify: 1) Repeating patterns (same error 5+ times), 2) High-impact failures (message injection, git sync, migrations), 3) Recent spikes (20+ events in 1 hour). For each significant pattern, report in plain language what's failing and why it matters. If there are critical message injection failures (user messages being dropped), flag with [ATTENTION]. If everything is noise or already resolved, say so briefly."
     },
     "tags": [
       "cat:guardian",
       "role:worker",
-      "exec:skill"
+      "exec:prompt"
     ]
   },
   {
@@ -181,13 +181,13 @@
     "enabled": true,
     "gate": "curl -sf http://localhost:4040/health >/dev/null 2>&1",
     "execute": {
-      "type": "skill",
-      "value": "state-integrity-check"
+      "type": "prompt",
+      "value": "Verify state file integrity: 1) Parse all JSON files in .instar/state/ and .instar/ - report any that fail to parse, 2) Check .instar/config.json for required fields (port, authToken, projectName), 3) Check .instar/jobs.json structure validity, 4) Look for orphaned session references in state files, 5) Check file sizes - flag any state files >1MB as potential bloat. If all files are healthy and parseable, exit silently. Only report actual integrity issues."
     },
     "tags": [
       "cat:guardian",
       "role:worker",
-      "exec:skill"
+      "exec:prompt"
     ]
   },
   {
@@ -201,8 +201,8 @@
     "enabled": true,
     "gate": "test -f .instar/MEMORY.md && wc -w < .instar/MEMORY.md | python3 -c \"import sys; exit(0 if int(sys.stdin.read().strip()) > 100 else 1)\" 2>/dev/null",
     "execute": {
-      "type": "skill",
-      "value": "memory-hygiene"
+      "type": "prompt",
+      "value": "Read .instar/MEMORY.md and review for: 1) Duplicate or redundant entries (same learning stated multiple ways), 2) Stale information (outdated facts, deprecated workflows), 3) Low-value noise (trivial observations that don't warrant long-term memory), 4) Missing structure (unclear categories, hard to navigate). If you find significant issues (>10% of content should be removed/refactored), create an evolution proposal for cleanup. If memory is clean and well-maintained, exit silently."
     },
     "grounding": {
       "requiresIdentity": true,
@@ -213,7 +213,7 @@
     "tags": [
       "cat:maintenance",
       "role:worker",
-      "exec:skill"
+      "exec:prompt"
     ]
   },
   {
@@ -227,13 +227,13 @@
     "enabled": true,
     "gate": "curl -sf http://localhost:4040/health >/dev/null 2>&1",
     "execute": {
-      "type": "skill",
-      "value": "guardian-pulse"
+      "type": "prompt",
+      "value": "AUTH=$(python3 -c \"import json; print(json.load(open('.instar/config.json')).get('authToken',''))\" 2>/dev/null); curl -s -H \"Authorization: Bearer $AUTH\" http://localhost:4040/jobs | python3 -c \"import sys,json; jobs=json.load(sys.stdin); enabled=[j for j in jobs if j.get('enabled')]; print(f'Total enabled jobs: {len(enabled)}'); failing=[j for j in enabled if j.get('state',{}).get('consecutiveFailures',0)>2]; never_run=[j for j in enabled if j.get('state',{}).get('lastRun') is None and 'cat:guardian' in j.get('tags',[])]; [print(f'FAILING: {j[\\\"slug\\\"]} - {j.get(\\\"state\\\",{}).get(\\\"consecutiveFailures\\\")} consecutive failures') for j in failing]; [print(f'NEVER RUN: {j[\\\"slug\\\"]} - enabled but has never executed') for j in never_run]\" && echo 'If any FAILING or NEVER RUN jobs found, flag with [ATTENTION]. Otherwise exit silently.'"
     },
     "tags": [
       "cat:guardian",
       "role:worker",
-      "exec:skill"
+      "exec:prompt"
     ]
   },
   {
@@ -247,13 +247,13 @@
     "enabled": true,
     "gate": "curl -sf http://localhost:4040/health >/dev/null 2>&1",
     "execute": {
-      "type": "skill",
-      "value": "session-continuity-check"
+      "type": "prompt",
+      "value": "Check recent session productivity: 1) List all handoff files modified in last 4 hours (find .instar/state -name 'job-handoff-*.md' -mtime -4h), 2) Check MEMORY.md last modified time - has it been updated in last 24h?, 3) Check evolution learnings created recently (curl http://localhost:4040/evolution/learnings?limit=10), 4) Look for sessions that ran but left no artifacts (ephemeral work with no learning). If sessions are running but producing no lasting value, flag with [ATTENTION]. If continuity looks good, exit silently."
     },
     "tags": [
       "cat:guardian",
       "role:worker",
-      "exec:skill"
+      "exec:prompt"
     ]
   },
   {
@@ -284,16 +284,16 @@
     "priority": "high",
     "expectedDurationMinutes": 5,
     "model": "haiku",
-    "enabled": true,
+    "enabled": false,
     "gate": "bash .claude/scripts/git-sync-gate.sh",
     "execute": {
-      "type": "skill",
-      "value": "git-sync"
+      "type": "prompt",
+      "value": "DISABLED: Git sync requires upstream remote configuration. This job runs hourly and fails every time because no git remote is configured. Either configure a remote (git remote add origin <url>) or keep this job disabled to prevent degradation noise."
     },
     "tags": [
       "cat:infrastructure",
       "role:worker",
-      "exec:skill"
+      "exec:prompt"
     ],
     "telegramNotify": false
   },
@@ -554,6 +554,45 @@
       "cat:user-service",
       "role:worker",
       "exec:skill"
+    ],
+    "telegramNotify": false
+  },
+  {
+    "slug": "imessage-fork-maintenance",
+    "name": "iMessage Fork Maintenance",
+    "description": "Daily maintenance: rebase iMessage fork against upstream Instar, check PR status, rebuild and restart if needed.",
+    "schedule": "30 7 * * *",
+    "priority": "medium",
+    "expectedDurationMinutes": 10,
+    "model": "sonnet",
+    "enabled": true,
+    "execute": {
+      "type": "skill",
+      "value": "imessage-fork-maintenance"
+    },
+    "tags": [
+      "cat:infrastructure",
+      "role:worker",
+      "exec:skill"
+    ],
+    "telegramNotify": false
+  },
+  {
+    "slug": "server-restart",
+    "name": "Server Restart",
+    "description": "Restart the Instar server via launchctl. Useful after local development changes.",
+    "priority": "high",
+    "expectedDurationMinutes": 2,
+    "model": "haiku",
+    "enabled": true,
+    "execute": {
+      "type": "script",
+      "value": "echo 'Restarting server...'; launchctl kickstart -k gui/$(id -u)/ai.instar.agent.Roland; sleep 3; for i in {1..10}; do curl -sf http://localhost:4040/health >/dev/null 2>&1 && echo 'Server restarted successfully' && exit 0; sleep 1; done; echo 'Server restart: health check timeout' && exit 1"
+    },
+    "tags": [
+      "cat:infrastructure",
+      "role:worker",
+      "exec:script"
     ],
     "telegramNotify": false
   }
