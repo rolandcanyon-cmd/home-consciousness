@@ -4,24 +4,19 @@
   "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1775162656338-s4ka88.txt — it contains your",
   "phase": "testing",
   "files": [
-    "CLAUDE.md",
-    "../../../instar-dev/src/messaging/imessage/types.ts",
+    "src/messaging/imessage/IMessageAdapter.ts",
     "../../../instar-dev/src/messaging/imessage/IMessageAdapter.ts",
-    "../../../instar-dev/dist/messaging/imessage/IMessageAdapter.js",
-    ".instar/config.json",
-    ".instar/jobs.json"
+    "server.ts"
   ],
   "topics": [
-    "frontend",
     "testing",
     "security",
     "messaging",
-    "deployment",
-    "api"
+    "deployment"
   ],
   "blockers": null,
-  "lastActivity": "2026-04-02T22:42:42.704Z",
-  "updatedAt": "2026-04-02T22:42:42.704Z",
+  "lastActivity": "2026-04-02T22:48:56.149Z",
+  "updatedAt": "2026-04-02T22:48:56.149Z",
   "stale": false,
-  "outputHash": "0cdc165d136cc032d4d2693ae69ffa88"
+  "outputHash": "47d8eddde608be9627d416685ee52938"
 }

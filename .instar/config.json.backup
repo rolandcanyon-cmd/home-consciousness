@@ -38,7 +38,7 @@
         "maxReconnectAttempts": 10,
         "immediateAck": {
           "enabled": true,
-          "typingDuration": "30s",
+          "message": "Got it, thinking...",
           "cooldownSeconds": 30
         }
       }
