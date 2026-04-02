@@ -182,13 +182,21 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - Schlage locks cover all external entry points: Kitchen Garage, Guest House, Pool House, Workshop
 - Two named LIFX bulbs suggest two residents in the bedroom (Adrian + Laurel)
 
-### Weather Station
-- Tempest by WeatherFlow, station ID 125865
-- URL: https://tempestwx.com/station/125865/
-- Location: 14450 Roland Canyon Rd, Corral de Tierra (36.55593, -121.7179), ~600ft elevation
-- Microclimate note: sits above cold air inversion — warmer than valley floor readings
-- Data: temp, humidity, pressure, wind, UV, solar, rain, lightning
-- Page is JS-rendered — requires Playwright to scrape (no public API without token)
+### Weather Stations
+- **Tempest by WeatherFlow**, station ID 125865
+  - URL: https://tempestwx.com/station/125865/
+  - Location: 14450 Roland Canyon Rd, Corral de Tierra (36.55593, -121.7179), ~600ft elevation
+  - Microclimate note: sits above cold air inversion — warmer than valley floor readings
+  - Data: temp, humidity, pressure, wind, UV, solar, rain, lightning
+  - Page is JS-rendered — requires Playwright to scrape (no public API without token)
+- **Ambient Weather** (primary data source for morning reports)
+  - Dashboard: https://ambientweather.net/dashboard
+  - Station name: "Roland Canyon, Salinas"
+  - Sensors: Indoor, Outdoor, Pool temperature (pool float sensor)
+  - MAC: 24:7D:4D:A3:6E:25, IP: 10.0.0.100
+  - Login credentials saved in Chrome password manager
+  - Provides: outdoor temp/humidity/dew point/feels like, forecast, pool temp
+  - Used by morning-weather skill (7am daily iMessage report)
 
 ### Pool System
 - Hayward OmniLogic — pool/spa controller
