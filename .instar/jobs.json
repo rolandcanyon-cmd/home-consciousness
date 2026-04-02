@@ -576,24 +576,5 @@
       "exec:skill"
     ],
     "telegramNotify": false
-  },
-  {
-    "slug": "server-restart",
-    "name": "Server Restart",
-    "description": "Restart the Instar server via launchctl. Useful after local development changes.",
-    "priority": "high",
-    "expectedDurationMinutes": 2,
-    "model": "haiku",
-    "enabled": true,
-    "execute": {
-      "type": "script",
-      "value": "echo 'Restarting server...'; launchctl kickstart -k gui/$(id -u)/ai.instar.agent.Roland; sleep 3; for i in {1..10}; do curl -sf http://localhost:4040/health >/dev/null 2>&1 && echo 'Server restarted successfully' && exit 0; sleep 1; done; echo 'Server restart: health check timeout' && exit 1"
-    },
-    "tags": [
-      "cat:infrastructure",
-      "role:worker",
-      "exec:script"
-    ],
-    "telegramNotify": false
   }
 ]
