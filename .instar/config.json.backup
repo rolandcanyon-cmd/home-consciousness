@@ -35,7 +35,12 @@
           "+14084424360"
         ],
         "autoReconnect": true,
-        "maxReconnectAttempts": 10
+        "maxReconnectAttempts": 10,
+        "immediateAck": {
+          "enabled": true,
+          "message": "Got it, thinking...",
+          "cooldownSeconds": 30
+        }
       }
     }
   ],

@@ -543,8 +543,8 @@
     "description": "Fetch current weather from Tempest station and send a friendly morning greeting via iMessage.",
     "schedule": "0 7 * * *",
     "priority": "medium",
-    "expectedDurationMinutes": 2,
-    "model": "haiku",
+    "expectedDurationMinutes": 5,
+    "model": "sonnet",
     "enabled": true,
     "execute": {
       "type": "skill",
