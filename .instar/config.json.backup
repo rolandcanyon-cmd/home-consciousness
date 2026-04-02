@@ -47,7 +47,17 @@
   "monitoring": {
     "quotaTracking": true,
     "memoryMonitoring": true,
-    "healthCheckIntervalMs": 30000
+    "healthCheckIntervalMs": 30000,
+    "promptGate": {
+      "enabled": true,
+      "autoApprove": {
+        "enabled": true,
+        "fileCreation": true,
+        "fileEdits": true,
+        "planApproval": false
+      },
+      "dryRun": false
+    }
   },
   "authToken": "ef6b150b-3a93-4426-a3b3-43e8ff1081af",
   "externalOperations": {
@@ -87,10 +97,17 @@
   ],
   "contextSigningKey": "281950af93854cf620e869bbbc5af1c9cd492c79ac36f9117f5c6f1ea5f7562c",
   "threadline": {
-    "relayEnabled": false
+    "relayEnabled": false,
+    "visibility": "public",
+    "capabilities": [
+      "chat"
+    ]
   },
   "updates": {
     "autoApply": true
   },
-  "dashboardPin": "242446"
+  "dashboardPin": "242446",
+  "_instar_migrations": [
+    "defaults-unknown-2026-04-02T22:27:43.113Z"
+  ]
 }

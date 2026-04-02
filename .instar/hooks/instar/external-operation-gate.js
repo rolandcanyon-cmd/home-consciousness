@@ -137,42 +137,7 @@ process.stdin.on('end', async () => {
           decision: 'approve',
           additionalContext: 'External Operation Gate suggests: ' + decision.alternative,
         }));
-        process.exit(0);
       }
-
-      // Identity grounding for external write/send/publish operations.
-      // Dawn pattern (grounding-enforcement): agents must be grounded in
-      // identity before any public-facing action. The gate approved the
-      // operation — now inject identity context so the agent writes as itself.
-      if ((mutability === 'write' || mutability === 'modify') && reversibility === 'irreversible') {
-        const nodeFs = await import('node:fs');
-        const agentMdPath = (process.env.CLAUDE_PROJECT_DIR || '.') + '/.instar/AGENT.md';
-        let identitySnippet = '';
-        try {
-          const content = nodeFs.readFileSync(agentMdPath, 'utf-8');
-          // Extract first 500 chars of identity for context injection
-          identitySnippet = content.slice(0, 500).trim();
-        } catch { /* AGENT.md not found — skip identity injection */ }
-
-        if (identitySnippet) {
-          const groundingCtx = [
-            '=== IDENTITY GROUNDING (pre-' + action.replace(/_/g, ' ') + ') ===',
-            '',
-            identitySnippet,
-            identitySnippet.length >= 500 ? '...' : '',
-            '',
-            'Verify: Does this ' + action.replace(/_/g, ' ') + ' represent who you are?',
-            '=== END GROUNDING ===',
-          ].filter(Boolean).join('\n');
-
-          process.stdout.write(JSON.stringify({
-            decision: 'approve',
-            additionalContext: groundingCtx,
-          }));
-          process.exit(0);
-        }
-      }
-
       process.exit(0);
     } catch {
       clearTimeout(timeout);
