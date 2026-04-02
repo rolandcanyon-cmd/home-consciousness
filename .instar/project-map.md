@@ -3,10 +3,11 @@
 **Type**: unknown
 **Path**: /Users/rolandcanyon/.instar/agents/Roland
 **Branch**: main
-**Total Files**: 61
+**Total Files**: 77
 
 ## Directory Structure
 
+- **the-goodies-typescript/** (17 files) — Project directory
 - **test/** (2 files) — Project directory
 - **logs/** (1 files) — Project directory
 
@@ -15,4 +16,4 @@
 - package.json
 - CLAUDE.md
 
-*Generated: 2026-04-02T17:01:47.366Z*
+*Generated: 2026-04-02T22:25:51.519Z*
