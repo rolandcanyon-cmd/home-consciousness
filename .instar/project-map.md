@@ -3,7 +3,7 @@
 **Type**: unknown
 **Path**: /Users/rolandcanyon/.instar/agents/Roland
 **Branch**: main
-**Total Files**: 21
+**Total Files**: 24
 
 ## Directory Structure
 
@@ -15,4 +15,4 @@
 - package.json
 - CLAUDE.md
 
-*Generated: 2026-04-01T18:41:12.792Z*
+*Generated: 2026-04-01T21:46:23.117Z*

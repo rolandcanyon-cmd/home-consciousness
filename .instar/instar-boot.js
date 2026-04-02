@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const SHADOW = "/Users/rolandcanyon/.instar/agents/Roland/.instar/shadow-install/node_modules/instar/dist/cli.js";
+const SHADOW = "/Users/rolandcanyon/.instar/agents/Roland/.instar/shadow-install/node_modules/@rolandcanyon-cmd/instar/dist/cli.js";
 const SHADOW_DIR = "/Users/rolandcanyon/.instar/agents/Roland/.instar/shadow-install";
 const CRASH_FILE = "/Users/rolandcanyon/.instar/agents/Roland/.instar/state/boot-crashes.txt";
 const NODE_SYMLINK = "/Users/rolandcanyon/.instar/agents/Roland/.instar/bin/node";
@@ -65,7 +65,7 @@ selfHealNodeSymlink();
 // Verify shadow install exists
 if (!fs.existsSync(SHADOW)) {
   process.stderr.write('ERROR: Shadow install not found at ' + SHADOW + '\n');
-  process.stderr.write('Run: npm install instar --prefix ' + "/Users/rolandcanyon/.instar/agents/Roland/.instar/shadow-install" + '\n');
+  process.stderr.write('Run: npm install @rolandcanyon-cmd/instar --prefix ' + "/Users/rolandcanyon/.instar/agents/Roland/.instar/shadow-install" + '\n');
   process.exit(1);
 }
 
