@@ -31,7 +31,7 @@
       "enabled": true,
       "config": {
         "cliPath": "/Users/rolandcanyon/homebrew/bin/imsg",
-        "authorizedSenders": [
+        "authorizedContacts": [
           "+14084424360"
         ],
         "autoReconnect": true,
