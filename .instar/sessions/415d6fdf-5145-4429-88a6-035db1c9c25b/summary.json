@@ -4,22 +4,20 @@
   "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1775245427457-v707nw.txt — it contains your",
   "phase": "testing",
   "files": [
-    "README.md",
-    "docs/PROPOSAL-messaging-outbound-safety.md",
-    "src/commands/server.ts"
+    "src/data/builtin-manifest.json",
+    "src/messaging/imessage/IMessageAdapter.ts",
+    "src/messaging/imessage/NativeBackend.ts",
+    "messaging-platform-parity.md"
   ],
   "topics": [
-    "database",
-    "testing",
+    "frontend",
     "security",
     "messaging",
-    "deployment",
-    "api",
-    "monitoring"
+    "deployment"
   ],
   "blockers": null,
-  "lastActivity": "2026-04-03T19:45:20.299Z",
-  "updatedAt": "2026-04-03T19:45:20.299Z",
+  "lastActivity": "2026-04-03T19:46:41.936Z",
+  "updatedAt": "2026-04-03T19:46:41.936Z",
   "stale": false,
-  "outputHash": "0823cf5d45eafed1e96580d431b95de4"
+  "outputHash": "bbc59e231657b893b3c93cb38d2f9061"
 }
