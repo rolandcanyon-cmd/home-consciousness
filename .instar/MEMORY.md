@@ -79,6 +79,11 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - **Fork maintenance job** (created 2026-04-02): Daily 7:30am job rebases feat/imessage-adapter against upstream, checks PR status, rebuilds and restarts if needed. Only notifies on changes/conflicts/merge. Named "imessage-fork-maintenance" skill.
 - **Document sharing preferences** (2026-04-02): User prefers iMessage attachments (text/PDF) over Cloudflare tunnel links which "were weird and didn't work" on their iPhone. Use native iMessage file sharing for documents.
 
+### Slack Integration (2026-04-04)
+- **Session resume fixed** (v0.26.2): When a Slack session dies, the next message in that channel now properly resumes the previous session instead of starting fresh
+- Bug was: resume UUID saved to wrong file (topic-resume-map.json vs slack-channel-resume-map.json) with mismatched ID formats
+- Now: heartbeat writes to both files correctly, enabling seamless session continuity
+
 ### WhatsApp Integration Architecture (2026-03-28)
 - Instar uses Baileys library with strong reconnection (exponential backoff + circuit breaker)
 - Auto-fetches latest WA Web version to prevent 405 errors from stale protocol
