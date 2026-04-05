@@ -77,6 +77,7 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Fixed lookback flood: empty messages from NativeBackend lookback (reactions, tapbacks) now filtered before routing
 - REMAINING ISSUE: iMessage sessions spawn but die within ~90s — session exits after processing injected message instead of staying at prompt. Needs investigation into why Claude Code sessions don't persist (may be related to session spawn configuration or missing --dangerously-skip-permissions flag)
 - **Fork maintenance job** (created 2026-04-02): Daily 7:30am job rebases feat/imessage-adapter against upstream, checks PR status, rebuilds and restarts if needed. Only notifies on changes/conflicts/merge. Named "imessage-fork-maintenance" skill.
+- **Typing indicator status** (2026-04-05): Now functional in imsg 0.5.0 with `imsg typing --to +number --duration 5s`. Limitation: requires existing conversation thread in Messages.app — fails with "Chat not found" if no prior chat exists.
 - **Document sharing preferences** (2026-04-02): User prefers iMessage attachments (text/PDF) over Cloudflare tunnel links which "were weird and didn't work" on their iPhone. Use native iMessage file sharing for documents.
 
 ### Slack Integration (2026-04-04)
@@ -98,6 +99,17 @@ This is my long-term memory — the thread of continuity across sessions. Each s
   - Previous failures (exit code 1, retry exhaustion) appear resolved
   - Sleep/wake detector consistently restarts tunnel with new URLs after each wake
   - Pattern: 10-40s sleep cycles followed by successful tunnel restart (observed ~20 times in 4 hours)
+
+### Job Scheduler Bug (2026-04-05)
+- **Critical issue identified**: Jobs with intervals >30 minutes fail to execute despite being scheduled and enabled
+  - Affects 4 out of 5 guardian monitoring jobs (state-integrity-check, guardian-pulse, session-continuity-check, degradation-digest)
+  - Only health-check (*/5 minutes) executes correctly - longer interval jobs never trigger
+  - Issue persists for 150+ hours (6+ days) across 6 overseer-guardian runs
+  - Jobs show as scheduled with nextScheduled timestamps but execution never occurs
+  - Previous misdiagnosis blamed missing skills - actual issue is scheduler execution failure for longer cron intervals
+  - Likely root cause: Scheduler bug with cron parsing for multi-hour intervals or silent session spawn failures
+  - Workaround options: Temporarily convert all jobs to 5-minute intervals or create external cron-based runner
+  - Creates illusion of health while providing zero actual monitoring - critical blindspot
   - Each wake generates new tunnel URL as expected with quick tunnel mode
 - **Session cleanup**: SessionManager reliably cleans up stale sessions every ~hour
   - Pattern: one stale session cleaned per hour (normal operation)
@@ -290,13 +302,23 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 
 ## Projects & Planning
 
-### Home Management Backend (2026-04-02)
+### Home Management Backend / Kittenkong (2026-04-02, updated 2026-04-05)
 - User has previous work in github.com/adrianco/the-goodies establishing a knowledge graph and protocol for home management
 - Code was written by Claude ~6 months ago, needs full code review and test runs before use
 - Planning process requested: analyze components for potential backend use (no code changes yet)
 - Knowledge graph includes blob annotations for house objects — photo storage capability requested
 - FunkyGibbon/KittenKong: Database project being integrated, TypeScript client work ongoing
 - Blowing-off Python client: CLI interface ("fr") for database operations
+- **Architecture Decision (2026-04-05)**: Kittenkong will be the PRIMARY source of truth for all house knowledge
+  - My MEMORY.md should ONLY store how to USE kittenkong, not duplicate house data
+  - Multiple clients (not just Roland/Instar) will access the same backend for consistency
+  - Prevents divergence between different agents/interfaces
+- **BDD Test Suite Created (2026-04-05)**:
+  - Ported from blowing-off Python implementation using Given/When/Then structure
+  - 32 tests in client.test.ts covering CRUD, search, sync, and MCP tool execution
+  - 13 tests in models.test.ts for Entity, EntityRelationship, and SyncMetadata
+  - Test-first approach: Tests written before implementation per user preference
+  - Current state: Most client methods are stubs throwing "Not yet implemented"
 
 ## Growth Notes
 

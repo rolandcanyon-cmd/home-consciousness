@@ -52,14 +52,6 @@ let data = '';
 process.stdin.on('data', chunk => data += chunk);
 process.stdin.on('end', async () => {
   try {
-    // Never block headless/job sessions — there's no human to dismiss the block,
-    // so it hangs the session permanently. This was causing overnight failures.
-    if (process.env.INSTAR_SESSION_ID && !process.env.TERM_PROGRAM) {
-      process.stdout.write(JSON.stringify({ decision: 'approve' }));
-      process.exit(0);
-      return;
-    }
-
     const state = loadState();
     const now = Date.now();
     const depth = state.implementationDepth || 0;
