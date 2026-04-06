@@ -52,9 +52,8 @@ let data = '';
 process.stdin.on('data', chunk => data += chunk);
 process.stdin.on('end', async () => {
   try {
-    // Never block headless/job sessions — there's no human to dismiss the block,
-    // so it hangs the session permanently. INSTAR_SESSION_ID is set for all
-    // server-spawned sessions; TERM_PROGRAM is absent in headless tmux.
+    // Never block headless/job sessions — no human to dismiss the block.
+    // INSTAR_SESSION_ID is set for all server-spawned sessions.
     if (process.env.INSTAR_SESSION_ID && !process.env.TERM_PROGRAM) {
       process.stdout.write(JSON.stringify({ decision: 'approve' }));
       process.exit(0);
