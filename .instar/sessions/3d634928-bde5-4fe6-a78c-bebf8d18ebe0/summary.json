@@ -1,0 +1,20 @@
+{
+  "sessionId": "3d634928-bde5-4fe6-a78c-bebf8d18ebe0",
+  "tmuxSession": "Roland-im-b93de418",
+  "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1775489044509-1uc71i.txt — it contains your",
+  "phase": "testing",
+  "files": [
+    "CLAUDE.md"
+  ],
+  "topics": [
+    "testing",
+    "security",
+    "messaging",
+    "api"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-06T15:25:20.308Z",
+  "updatedAt": "2026-04-06T15:25:20.308Z",
+  "stale": true,
+  "outputHash": "44a9cecc3491c50499ca020fdf304ccc"
+}

@@ -240,16 +240,20 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - Schedules and telemetry history available via web portal
 - Address registered: 14450 Roland Canyon Rd, Salinas, CA
 
-### Whole-House Audio System
+### Whole-House Audio System (2026-04-05)
 - Yamaha RX-A1070 AVENTAGE — 7.2-channel AV receiver
 - Web interface: http://10.0.0.128
-- **Main Zone**: Primary audio/video (currently in standby, last input: Apple TV)
-- **Zone 2** ("Master Bed"): Multi-room audio distribution
-  - Currently: Power On, playing Pandora at -12.0 dB
+- **Main Zone**: Primary audio/video for TV in family room (leave untouched)
+- **Zone 2** ("Master Bed"): Multi-room audio distribution for whole house
   - Feeds music to various rooms via manually operated volume controls in each room
-  - User typically uses Pandora for streaming various stations
+  - Common use: Pandora stations (33 stations including Pink Floyd, Santana, Adrian's Prog Radio)
+  - Created `/zone2-pandora` skill for voice control of station selection
 - XML-based control API (Yamaha Extended Control Protocol)
-- Status query: `curl -X POST http://10.0.0.128/YamahaRemoteControl/ctrl -d '<YAMAHA_AV cmd="GET"><Zone_2><Basic_Status>GetParam</Basic_Status></Zone_2></YAMAHA_AV>'`
+  - Zone control: Power, input selection, volume
+  - Pandora control: List stations (8 visible at a time from 33 total), navigate, select, play
+  - Station list supports Direct_Sel to jump to specific line, then Cursor>Sel to start playback
+  - Status query: `curl -X POST http://10.0.0.128/YamahaRemoteControl/ctrl -d '<YAMAHA_AV cmd="GET"><Zone_2><Basic_Status>GetParam</Basic_Status></Zone_2></YAMAHA_AV>'`
+  - Play info: `curl -X POST http://10.0.0.128/YamahaRemoteControl/ctrl -d '<YAMAHA_AV cmd="GET"><Pandora><Play_Info>GetParam</Play_Info></Pandora></YAMAHA_AV>'`
 
 ### Known Ecosystems
 - Apple HomeKit (unified layer, shared with this machine via iCloud)

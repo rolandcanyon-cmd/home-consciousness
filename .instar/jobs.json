@@ -166,7 +166,6 @@
     },
     "tags": [
       "cat:guardian",
-      "role:worker",
       "exec:prompt"
     ]
   },
@@ -186,7 +185,6 @@
     },
     "tags": [
       "cat:guardian",
-      "role:worker",
       "exec:prompt"
     ]
   },
@@ -232,7 +230,6 @@
     },
     "tags": [
       "cat:guardian",
-      "role:worker",
       "exec:prompt"
     ]
   },
@@ -252,7 +249,6 @@
     },
     "tags": [
       "cat:guardian",
-      "role:worker",
       "exec:prompt"
     ]
   },
