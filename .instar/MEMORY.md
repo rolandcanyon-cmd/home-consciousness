@@ -98,6 +98,25 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - **Cloudflare tunnel resilience improved**: Quick tunnels now restart successfully after sleep/wake cycles
   - Previous failures (exit code 1, retry exhaustion) appear resolved
   - Sleep/wake detector consistently restarts tunnel with new URLs after each wake
+
+### Git Sync Configuration Issue (2026-04-07)
+- **Recurring degradation**: Git pull failing with "no tracking information for the current branch"
+  - Appears in feedback system 7+ times in recent hours
+  - Root cause: Local branch not set to track remote branch
+  - Fix needed: `git branch --set-upstream-to=origin/main main`
+  - Impact: Hourly git-sync job unable to pull changes, but commits and pushes still work
+  - This prevents multi-machine state synchronization from working properly
+
+### FunkyGibbon Backup Strategy (2026-04-07)
+- **Comprehensive backup plan created** for FunkyGibbon HomeKit registry:
+  - Three-tier strategy: Hot backups (while running), cold backups (stopped), JSON exports (portable)
+  - Storage requirements: ~100-500MB for full year of versioned archives
+  - Retention policy: Hourly (24), daily (30), weekly (12), monthly (12)
+  - Implementation approach: SQLite backup API for hot backups, scheduled automation, integrity verification
+  - CLI and REST API interfaces for management
+  - Full disaster recovery procedures including point-in-time recovery
+  - 4-week development timeline with 8 phases from infrastructure to monitoring
+  - Plan documented and ready for PR to the-goodies repository
   - Pattern: 10-40s sleep cycles followed by successful tunnel restart (observed ~20 times in 4 hours)
 
 ### Job Scheduler Bug (2026-04-05)
@@ -143,6 +162,7 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Never modify IoT device configurations without confirmation
 - Build understanding of the house over time
 - Adrian wants comprehensive solutions, not minimal implementations - build the full system
+- **Default license**: Apache 2.0 for all projects (changed from MIT on 2026-04-06)
 
 ## House Inventory
 

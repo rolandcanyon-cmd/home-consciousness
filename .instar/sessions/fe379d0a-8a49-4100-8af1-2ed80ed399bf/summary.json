@@ -1,0 +1,23 @@
+{
+  "sessionId": "fe379d0a-8a49-4100-8af1-2ed80ed399bf",
+  "tmuxSession": "Roland-im-b93de418",
+  "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1775542358316-3qf0p6.txt — it contains your",
+  "phase": "testing",
+  "files": [
+    "../../plans/funkygibbon-backup-strategy.md",
+    ".instar/plans/funkygibbon-backup-strategy.md"
+  ],
+  "topics": [
+    "database",
+    "testing",
+    "security",
+    "messaging",
+    "deployment",
+    "api"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-07T06:16:40.750Z",
+  "updatedAt": "2026-04-07T06:16:40.750Z",
+  "stale": true,
+  "outputHash": "6eb23747cbcf472714e29769fb85a46f"
+}
