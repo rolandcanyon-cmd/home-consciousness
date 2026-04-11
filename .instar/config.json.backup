@@ -58,6 +58,9 @@
         "planApproval": false
       },
       "dryRun": false
+    },
+    "watchdog": {
+      "enabled": true
     }
   },
   "authToken": "ef6b150b-3a93-4426-a3b3-43e8ff1081af",
@@ -80,7 +83,7 @@
   },
   "gitBackup": {
     "enabled": true,
-    "autoPush": true
+    "autoPush": false
   },
   "userRegistrationPolicy": "invite-only",
   "agentAutonomy": "collaborative",
@@ -109,6 +112,7 @@
   },
   "dashboardPin": "242446",
   "_instar_migrations": [
-    "defaults-unknown-2026-04-02T22:27:43.113Z"
+    "defaults-unknown-2026-04-02T22:27:43.113Z",
+    "defaults-unknown-2026-04-11T05:04:26.470Z"
   ]
 }

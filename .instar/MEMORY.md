@@ -152,7 +152,7 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - **Quota tracking**: No quota state file causes warnings but jobs run in fail-open mode (safe default)
   - Warning is informational, not a problem - jobs still execute normally
 
-### Auto-Update System Behavior (2026-04-01)
+### Auto-Update System Behavior (2026-04-01, latest v0.28.4+)
 - **Successful v0.25.10 update applied** at 07:02 UTC after 5-minute coalesce window
 - **Post-update migration degradation**: `instar migrate` failed with `__dirname is not defined` error
   - Error suggests Node.js ESM module issue (likely missing import.meta.url conversion)
@@ -165,6 +165,24 @@ This is my long-term memory — the thread of continuity across sessions. Each s
   - Coherence checks all passing (7/7)
   - WhatsApp pairing code generation working but no active connections (expected without user pairing)
   - Jobs running regularly with health check and reflection trigger at 19:00 UTC
+
+### Instar v0.28.2–v0.28.4+ Upgrades (2026-04-11)
+**Recent stability and bug fixes**:
+- **Lifeline crash-proofing** (v0.28.2): Shutdown errors are caught and logged, agent won't crash during restart
+- **409 Conflict auto-recovery** (v0.28.2): Telegram polling conflicts auto-resolve every 20 failures instead of getting stuck
+- **Settings JSON self-healing** (v0.28.2): Git merge conflicts in config are auto-repaired on startup
+- **Config field passthrough fix** (vNEXT): ALL config.json fields now properly load (was silently dropping safety, evolution, autonomy settings)
+- **Startup grace period** (v0.28.4): Job gates now evaluated after 5s at startup instead of immediately (prevents scheduler blocking)
+- **Quota stale data** (v0.28.4): When quota data is >30min old, jobs run in fail-open mode instead of blocking
+- **Dashboard toggles fixed** (vNEXT): Feature toggles and autonomy profile changes now actually persist
+- **Degradation digest now runs** (vNEXT): Was blocked by wrong file path, now fixed
+- **Job state reset API** (vNEXT): POST /jobs/:slug/reset-state can recover stuck pending jobs
+- **Message disambiguation** (vNEXT): "hold on" in conversation no longer misclassified as pause command
+- **Slack session continuity** (v0.28.3): Context preserved after compaction events
+- **iMessage 1:1 DMs** (v0.28.3): Now always reach agent regardless of mention settings
+- **Better context diagnostics** (vNEXT): Context endpoint now returns contextDir path for troubleshooting
+
+**Impact**: Agent is now more resilient to crashes, restarts, and config issues. Scheduled jobs should execute reliably. Custom config settings are respected. Degradation monitoring actively running.
 
 ## People
 

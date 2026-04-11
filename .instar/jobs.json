@@ -159,10 +159,10 @@
     "expectedDurationMinutes": 1,
     "model": "haiku",
     "enabled": true,
-    "gate": "test -f .instar/state/degradation-events.json && python3 -c \"import json; events=json.load(open('.instar/state/degradation-events.json')); exit(0 if len(events) > 0 else 1)\" 2>/dev/null",
+    "gate": "test -f .instar/degradations.json && python3 -c \"import json; events=json.load(open('.instar/degradations.json')); exit(0 if len(events) > 0 else 1)\" 2>/dev/null",
     "execute": {
       "type": "prompt",
-      "value": "Read degradation events from .instar/state/degradation-events.json. Group by scope/operation and identify: 1) Repeating patterns (same error 5+ times), 2) High-impact failures (message injection, git sync, migrations), 3) Recent spikes (20+ events in 1 hour). For each significant pattern, report in plain language what's failing and why it matters. If there are critical message injection failures (user messages being dropped), flag with [ATTENTION]. If everything is noise or already resolved, say so briefly."
+      "value": "Read degradation events from .instar/degradations.json. Group by scope/operation and identify: 1) Repeating patterns (same error 5+ times), 2) High-impact failures (message injection, git sync, migrations), 3) Recent spikes (20+ events in 1 hour). For each significant pattern, report in plain language what's failing and why it matters. If there are critical message injection failures (user messages being dropped), flag with [ATTENTION]. If everything is noise or already resolved, say so briefly."
     },
     "tags": [
       "cat:guardian",
@@ -261,7 +261,7 @@
     "expectedDurationMinutes": 1,
     "model": "haiku",
     "enabled": true,
-    "gate": "curl -sf http://localhost:4040/health >/dev/null 2>&1 && curl -sf -H \"Authorization: Bearer $AUTH\" http://localhost:4040/semantic/stats >/dev/null 2>&1",
+    "gate": "curl -sf http://localhost:4040/health >/dev/null 2>&1 && AUTH=$(python3 -c \"import json; print(json.load(open('.instar/config.json')).get('authToken',''))\" 2>/dev/null) && curl -sf -H \"Authorization: Bearer $AUTH\" http://localhost:4040/semantic/stats >/dev/null 2>&1",
     "execute": {
       "type": "script",
       "value": "AUTH=$(python3 -c \"import json; print(json.load(open('.instar/config.json')).get('authToken',''))\" 2>/dev/null); AGENT=$(python3 -c \"import json; print(json.load(open('.instar/config.json')).get('agentName','Agent'))\" 2>/dev/null); RESULT=$(curl -s -X POST -H \"Authorization: Bearer $AUTH\" -H \"Content-Type: application/json\" -d \"{\\\"filePath\\\":\\\".instar/MEMORY.md\\\",\\\"agentName\\\":\\\"$AGENT\\\"}\" http://localhost:4040/semantic/export-memory 2>/dev/null); COUNT=$(echo \"$RESULT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d.get('entityCount',0))\" 2>/dev/null || echo 0); EXCLUDED=$(echo \"$RESULT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d.get('excludedCount',0))\" 2>/dev/null || echo 0); [ \"$COUNT\" -gt \"0\" ] && echo \"Memory export: $COUNT entities written to MEMORY.md ($EXCLUDED excluded below threshold).\" || echo \"Memory export: no entities to export.\""
