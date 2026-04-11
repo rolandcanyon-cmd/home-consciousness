@@ -40,7 +40,8 @@
           "enabled": true,
           "message": "Got it, thinking...",
           "cooldownSeconds": 30
-        }
+        },
+        "directMessageTrigger": "always"
       }
     }
   ],
@@ -104,7 +105,7 @@
     ]
   },
   "updates": {
-    "autoApply": true
+    "autoApply": false
   },
   "dashboardPin": "242446",
   "_instar_migrations": [

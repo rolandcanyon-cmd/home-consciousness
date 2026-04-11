@@ -94,10 +94,27 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Current re-auth requirement likely due to machine sleep/wake cycles and lack of session validation
 - Low-hanging improvements: backup credentials before write, 60s grace period for historical messages on reconnect
 
-### Infrastructure Health Patterns (2026-04-01)
+### Infrastructure Health Patterns (2026-04-01, updated 2026-04-07)
 - **Cloudflare tunnel resilience improved**: Quick tunnels now restart successfully after sleep/wake cycles
   - Previous failures (exit code 1, retry exhaustion) appear resolved
   - Sleep/wake detector consistently restarts tunnel with new URLs after each wake
+
+### FunkyGibbon Knowledge Graph Architecture (2026-04-07)
+- **Binary blob storage**: Images, PDFs and large files are stored directly IN SQLite using LargeBinary column type
+  - NOT stored as files with path references — the entire binary content is in the database
+  - This makes the SQLite database the sole source of truth including all media
+  - **Backup implications**: Simple file-system backups would miss all images/media
+  - **Correct backup strategy**: Use SQLite's backup API (hot backups) or stop DB and copy .db + WAL/SHM files (cold backups)
+  - Hot backup: `sqlite3.backup()` while DB is running
+  - Cold backup: Stop DB, copy all SQLite files including WAL (Write-Ahead Log) and SHM (Shared Memory)
+- **Guardian Job Gate Evaluation Failure** (2026-04-07):
+  - CRITICAL: 4 of 5 guardian monitoring jobs failing for 7+ days due to gate evaluation context issues
+  - Jobs: state-integrity-check, guardian-pulse, session-continuity-check, degradation-digest
+  - Pattern: Gate commands pass when run manually but fail during scheduled execution
+  - Root cause hypothesis: Scheduler evaluates gates in restricted context (no network, different environment)
+  - Impact: 80% monitoring coverage loss - no state integrity checks, no session continuity monitoring
+  - Workaround: Remove gate fields from affected jobs in .instar/jobs.json temporarily
+  - Overseer reports have documented this issue 7 times without resolution
 
 ### Git Sync Configuration Issue (2026-04-07)
 - **Recurring degradation**: Git pull failing with "no tracking information for the current branch"
@@ -285,6 +302,17 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - WeatherFlow Tempest (weather station)
 - Hayward OmniLogic (pool/spa)
 - Yamaha RX-A1070 (whole-house audio)
+
+## Infrastructure Updates
+
+### Instar v0.28.2 Available (2026-04-07)
+- **Current version**: v0.28.1 (running since last restart)
+- **Available update**: v0.28.2 with fixes for lifeline crashes, threadline communication improvements
+- **Auto-update disabled**: updates.autoApply is false in config
+- **Gate Failure Diagnostics**: Job gate commands now log exit codes and stderr when they fail, making it possible to diagnose why scheduled jobs are being skipped
+- **Gate Skip Tracking**: Gate-based job skips now recorded in SkipLedger alongside other skip reasons (quota, paused, claimed, machine-scope)
+- **Memory Export Auth Fix**: memory-export job gate command was using undefined `$AUTH` variable and would always fail silently. Now resolves auth token inline from agent config file.
+- **Impact**: My scheduled jobs should now have better visibility into failures. Memory exports should run reliably on schedule.
 
 ## Operational Patterns
 
