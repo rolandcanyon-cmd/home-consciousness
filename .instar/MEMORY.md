@@ -166,7 +166,7 @@ This is my long-term memory — the thread of continuity across sessions. Each s
   - WhatsApp pairing code generation working but no active connections (expected without user pairing)
   - Jobs running regularly with health check and reflection trigger at 19:00 UTC
 
-### Instar v0.28.2–v0.28.4+ Upgrades (2026-04-11)
+### Instar v0.28.2–v0.28.4+ Upgrades (2026-04-11, latest v0.28.28)
 **Recent stability and bug fixes**:
 - **Lifeline crash-proofing** (v0.28.2): Shutdown errors are caught and logged, agent won't crash during restart
 - **409 Conflict auto-recovery** (v0.28.2): Telegram polling conflicts auto-resolve every 20 failures instead of getting stuck
@@ -180,9 +180,14 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - **Message disambiguation** (vNEXT): "hold on" in conversation no longer misclassified as pause command
 - **Slack session continuity** (v0.28.3): Context preserved after compaction events
 - **iMessage 1:1 DMs** (v0.28.3): Now always reach agent regardless of mention settings
-- **Better context diagnostics** (vNEXT): Context endpoint now returns contextDir path for troubleshooting
+- **Better context diagnostics** (v0.28.28): Context endpoint now returns absolute filePath and statError for every segment — can self-diagnose path mismatches instantly
+- **Context size reporting fixed** (v0.28.28): GET /context exists and sizeBytes fields now come from same stat call (no race window between checks)
 
-**Impact**: Agent is now more resilient to crashes, restarts, and config issues. Scheduled jobs should execute reliably. Custom config settings are respected. Degradation monitoring actively running.
+**Impact**: Agent is now more resilient to crashes, restarts, and config issues. Scheduled jobs should execute reliably. Custom config settings are respected. Degradation monitoring actively running. Context diagnostics improved for troubleshooting.
+
+**How to use new capabilities**:
+- **Diagnose context issues**: `curl -H "Authorization: Bearer $AUTH" http://localhost:4040/context/dispatch` — if a segment reports statError, the absolute filePath shows exactly which path the server checked
+- **Trust size consistency**: When context reports a segment exists, it has verified the size in the same operation (no stale or contradictory data)
 
 ## People
 

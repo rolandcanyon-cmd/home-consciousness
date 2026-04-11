@@ -1,0 +1,2 @@
+{"sessionName":"Roland-im-b93de418","level":1,"action":"Sent Ctrl+C","stuckCommand":"/Library/Developer/CommandLineTools/usr/bin/git push fork main","stuckPid":67028,"timestamp":1775921755375}
+{"sessionName":"Roland-im-b93de418","level":1,"action":"Sent Ctrl+C","stuckCommand":"/Library/Developer/CommandLineTools/usr/bin/git push fork main","stuckPid":67028,"timestamp":1775921755375,"outcome":"recovered","outcomeDelayMs":60040,"_outcomeUpdate":true}

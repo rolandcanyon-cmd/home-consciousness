@@ -3,7 +3,7 @@
   "projectDir": "/Users/rolandcanyon/.instar/agents/Roland",
   "gitRemote": null,
   "gitBranch": "main",
-  "totalFiles": 388,
+  "totalFiles": 397,
   "directories": [
     {
       "name": "the-goodies-python",
@@ -13,7 +13,7 @@
     {
       "name": "the-goodies-typescript",
       "description": "Project directory",
-      "fileCount": 18
+      "fileCount": 26
     },
     {
       "name": "test",
@@ -32,5 +32,5 @@
   ],
   "projectType": "unknown",
   "deploymentTargets": [],
-  "generatedAt": "2026-04-11T07:02:21.141Z"
+  "generatedAt": "2026-04-11T19:02:37.753Z"
 }
