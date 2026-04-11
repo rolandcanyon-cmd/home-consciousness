@@ -166,7 +166,7 @@ This is my long-term memory — the thread of continuity across sessions. Each s
   - WhatsApp pairing code generation working but no active connections (expected without user pairing)
   - Jobs running regularly with health check and reflection trigger at 19:00 UTC
 
-### Instar v0.28.2–v0.28.4+ Upgrades (2026-04-11, latest v0.28.28)
+### Instar v0.28.2–v0.28.29 Upgrades (2026-04-11, latest v0.28.29)
 **Recent stability and bug fixes**:
 - **Lifeline crash-proofing** (v0.28.2): Shutdown errors are caught and logged, agent won't crash during restart
 - **409 Conflict auto-recovery** (v0.28.2): Telegram polling conflicts auto-resolve every 20 failures instead of getting stuck
@@ -182,6 +182,7 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - **iMessage 1:1 DMs** (v0.28.3): Now always reach agent regardless of mention settings
 - **Better context diagnostics** (v0.28.28): Context endpoint now returns absolute filePath and statError for every segment — can self-diagnose path mismatches instantly
 - **Context size reporting fixed** (v0.28.28): GET /context exists and sizeBytes fields now come from same stat call (no race window between checks)
+- **Failed probe names in review history** (v0.28.29): `instar review --history` now shows which specific probes failed (in red) beneath each failed review entry, not just pass/fail counts — faster diagnostics without re-running full review
 
 **Impact**: Agent is now more resilient to crashes, restarts, and config issues. Scheduled jobs should execute reliably. Custom config settings are respected. Degradation monitoring actively running. Context diagnostics improved for troubleshooting.
 
