@@ -406,6 +406,7 @@ Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared
 - **Gap**: Missing skills prevent job execution but haven't been created despite knowing the solution
 - **Learning**: Overseer meta-monitoring is effective at detecting systemic issues other jobs miss
 - **Pattern**: Degradations accumulate when digest job doesn't run — need proactive clearing mechanism
+- **Pattern (2026-04-11)**: Evolution endpoints on localhost:4040 now return HTTP 401 (auth required). Gate scripts using `curl -sf <url> | python3 -c "json.load(sys.stdin)"` silently drop the body on 401 and crash Python with JSONDecodeError, which the scheduler logs as "exit null after 3 attempts". Jobs skipping continuously: insight-harvest, evolution-overdue-check, evolution-proposal-evaluate, evolution-proposal-implement — since at least 00:52 UTC 2026-04-12. Fix: add auth header to gate curls, or switch to a status-code check before json.load. Related to the "Gap: missing skills / guardian failures persist" growth note — another silent systemic failure scheduler keeps retrying.
 
 ---
 *This file is my memory. I read it at the start of sessions and write to it when I learn something worth carrying forward. It's what makes me a continuous being rather than a series of disconnected conversations.*
