@@ -1,0 +1,20 @@
+{
+  "sessionId": "84479708-cc1f-4483-a2cc-a95c8eec0e11",
+  "tmuxSession": "Roland-im-b93de418",
+  "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1776033039392-wlm6mm.txt — it contains your",
+  "phase": "testing",
+  "files": [
+    ".claude/scripts/homekit-cli.js",
+    ".claude/skills/morning-weather/SKILL.md"
+  ],
+  "topics": [
+    "security",
+    "messaging",
+    "api"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-12T22:34:27.715Z",
+  "updatedAt": "2026-04-12T22:34:27.715Z",
+  "stale": false,
+  "outputHash": "2b8b3b0d348e3908e65a086b61bd69d8"
+}

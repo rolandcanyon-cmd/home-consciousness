@@ -7,13 +7,14 @@
     "CLAUDE.md"
   ],
   "topics": [
+    "testing",
     "security",
     "messaging",
     "api"
   ],
   "blockers": null,
-  "lastActivity": "2026-04-12T22:29:55.973Z",
-  "updatedAt": "2026-04-12T22:29:55.973Z",
-  "stale": false,
-  "outputHash": "a364e39c1090eb6d747f54fa5e02b203"
+  "lastActivity": "2026-04-12T22:31:27.688Z",
+  "updatedAt": "2026-04-12T22:31:27.688Z",
+  "stale": true,
+  "outputHash": "33b8292513f84ced38505d58bac2e2f8"
 }
