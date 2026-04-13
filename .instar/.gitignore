@@ -5,3 +5,4 @@
 .instar/machine/encryption-key.pem
 .instar/secrets/
 .instar/pairing/
+project.dc
