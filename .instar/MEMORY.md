@@ -207,68 +207,68 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 
 ## House Inventory
 
-### HomeKit Home: "Roland Canyon" (updated 2026-03-28)
+**Source of truth: FunkyGibbon knowledge graph, accessed via kittenkong (TypeScript client).**
 
-Source: macOS HomeKit database (~/Library/HomeKit/core.sqlite) — Adrian shared the Home with this machine's iCloud account.
+Do NOT maintain device/room lists in this file. The HomeKit inventory previously
+captured here was a first-pass snapshot that has since been superseded by a
+full ingestion into FunkyGibbon. Any list in MEMORY.md will drift stale.
 
-**Rooms** (11): Bedroom, Dining Room, Family Room, Front Bedroom, Garage Storage, Guest House, Kitchen, Living Room, Pool House, Studio, Workshop
+**How to look up house info:**
+- **TypeScript/Node**: use the `@the-goodies/kittenkong` client
+  (`/Users/rolandcanyon/.instar/agents/Roland/the-goodies-typescript/packages/kittenkong`)
+- **Python** (from skills/scripts): `.claude/scripts/kittenkong_helper.py` — thin
+  HTTP wrapper around the FunkyGibbon REST API. Handles admin auth (caches token
+  in `/tmp/.funkygibbon-admin-token`, dev password is `admin`).
+- **REST directly** (when neither client is available):
+  - `GET http://localhost:8000/api/v1/graph/search?q=<query>` — name search
+  - `GET http://localhost:8000/api/v1/graph/entities?entity_type=ROOM`
+  - `GET http://localhost:8000/api/v1/graph/entities?entity_type=DEVICE`
+  - `GET http://localhost:8000/api/v1/graph/entities/<id>/connected` — relationships
+  - Auth: `POST /api/v1/auth/admin/login` for admin token
+- **MCP tools**: `GET /api/v1/mcp/tools` lists available knowledge-graph tools
+- **Never touch the SQLite file directly** — bypasses versioning, auth, and sync.
+  FunkyGibbon is the only writer; other clients sync via the Inbetweenies protocol.
 
-**Scenes** (4): Arrive Home, Good Morning, Good Night, Leave Home
+**Skills for house cataloguing** (use these instead of ad-hoc scripts):
+- `/room-walk <room>` — interactive discovery of a room's contents (devices,
+  keypads, doors, photos). Includes live Vantage load probing (flash to identify).
+  Produces a review HTML link sent via iMessage; commits only after Adrian replies
+  `confirm`. Spec: `.instar/context/room-walk-skill-spec.md`.
+- `/room-edit <room>` — edit existing room: rename, move devices between rooms,
+  add/remove aliases, mark devices inoperable, delete removed items. Same
+  review-before-commit pattern.
+- Both skills use shared helpers in `.claude/scripts/`: `kittenkong_helper.py`,
+  `vantage_probe.py`, `room_session.py`, `render_review.py`, `room_commit.py`,
+  `image_compress.py`. Sessions persist in `.instar/state/room-sessions/` and are
+  archived (never deleted) after commit for replay/audit.
 
-**Automations**: None configured yet
+**What's in the graph:**
+- HOME, ROOM, DEVICE entities (HomeKit-sourced names are canonical)
+- Entity relationships: devices in rooms, rooms in homes, containment hierarchy
+- Versioned — every entity has a history, `parent_versions` tracks changes
+- Blob storage for photos/PDFs (stored IN the DB, not as file refs)
 
-#### Lutron Motorized Drapes (5 units, via Smart Bridge Pro 2)
-- Dining Room: Front Drape (S/N 43A7664), Rear Drape (S/N 43A6993)
-- Family Room: Drape (S/N 43A697E)
-- Living Room: Front Drape (S/N 43A694E), Rear Drape (S/N 43A69A7)
-- Bridge: Smart Bridge Pro 2 (10.0.0.167, S/N 680D749)
+**When to query vs. when to remember:**
+- Room/device listings → always query FunkyGibbon (they change, kittenkong is fast)
+- Stable facts about specific devices worth remembering (e.g., quirks, known issues,
+  vendor-specific credentials) — those go in `## Known Device Quirks` below as brief notes
+  pointing at the canonical entity by name, not duplicating the data.
 
-#### Schlage Locks (4 units, model BE479CAM716)
-- Kitchen Garage (S/N 0000000000097562)
-- Guest House Entrance (S/N 00000000000993F7)
-- Pool House (S/N 000000000009A995)
-- Workshop (S/N 000000000009A9D7)
+### Known Device Quirks (notes on specific devices)
 
-#### Apple TVs / Home Hubs (5 units)
-- Family Room (MP7P2LL/A, S/N DY5CP2UDHNM4)
-- Front Bedroom (MN873LL/A, S/N MVPQCGQ37V)
-- Guest House (MGY52LL/A, S/N DY5Q60QSG9RM)
-- Pool House (MJ2C3LL/A, S/N M2FP41LQM6)
-- Pool House Bedroom (MN873LL/A, S/N HJW6WRLCFD)
-- Workshop Wall TV (MXGY2LL/A, S/N QG573YQ60R)
-
-#### LIFX Smart Bulbs (2 units, Mini W)
-- Bedroom: "Adrian LIFX Mini W 3750A1" (S/N D073D53750A1, IP 10.0.0.137 or .251)
-- Bedroom: "Laurel LIFX Mini W 3784C7" (S/N D073D53784C7)
-
-#### ecobee Climate / Wine Storage (4 units)
-- Garage Storage: ecobee3 lite thermostat "Wine Closet" (S/N 416465579991, 10.0.0.165)
-  - Controls a zone flap that manages climate in the wine closet
-  - Door sensor "Wine Closet Door" (model EBDWC01, S/N Q8V5) monitors closet door open/close
-- Kitchen: ecobee sensor "Left Wine Cabinet" (model EBERS41, S/N Q29G)
-- Kitchen: ecobee sensor "Right Wine Cabinet" (model EBERS41, S/N QZY8)
-  - These two sensors monitor the kitchen wine cupboards
-  - The thermostat + AC unit that controls the kitchen wine cupboards is NOT online / not in HomeKit (and won't be — system is staying as-is)
-  - KNOWN ISSUE: Cleaners sometimes accidentally turn off the kitchen thermostat by wiping it. If kitchen wine cabinet temps are rising, ask Adrian to check the thermostat.
-- All three wine storage sites (closet + 2 kitchen cupboards) are ducted from the same AC system
-
-#### HomePod (1 unit)
-- HomePod (10.0.0.10, S/N 643556) — temperature + humidity sensor
-
-#### Wall-Mounted Control Panel (1 unit)
-- Kitchen: iPad (older model) wall-mounted in LANsocket case
-  - Logged in as rolandcanyon@icloud.com
-  - Acts as central home controller
-  - Installed apps: OmniLogic (pool), Safari Life (Lutron), Apple Home, WiFiman, Ring, Calendar, Mail
-  - Photo documented: /tmp/roland-images/wall-ipad.jpg (2026-04-02)
-  - Always-on display for quick access to home control systems
-
-### Device Relationships & Notes
-- Wine storage is split across two locations: a dedicated wine closet (Garage Storage, ecobee-controlled zone flap + door sensor) and two wine cupboards in the Kitchen (sensors only, thermostat/AC offline)
-- Lutron drapes are all QSYC-J-RCVR units controlled through the Smart Bridge Pro 2
-- 5 Apple TVs serve as HomeKit home hubs distributed across the property
-- Schlage locks cover all external entry points: Kitchen Garage, Guest House, Pool House, Workshop
-- Two named LIFX bulbs suggest two residents in the bedroom (Adrian + Laurel)
+- **Kitchen wine cabinet thermostat**: NOT online / not in HomeKit or FunkyGibbon.
+  Cleaners sometimes accidentally turn it off while wiping. If kitchen wine
+  cabinet temps rise, ask Adrian to check the thermostat manually.
+- **Wine storage airflow**: All three wine storage sites (closet + 2 kitchen
+  cupboards) are ducted from the same AC system — one compressor serves all three.
+- **Lutron Smart Bridge Pro 2** at 10.0.0.167 — gateway for all motorized drapes.
+  Use Lutron Caseta protocol directly, or via HomeKit.
+- **Wall-mounted iPad** in Kitchen (LANsocket case) — logged in as rolandcanyon@icloud.com,
+  always-on home controller. Apps: OmniLogic, Safari Life (Lutron), Apple Home, WiFiman,
+  Ring, Calendar, Mail.
+- **HomePod** at 10.0.0.10 — temperature + humidity sensor in addition to audio.
+- **Bedroom LIFX Mini W bulbs**: two named bulbs (Adrian's + Laurel's) in bedside lamps,
+  IPs in 10.0.0.137/.251 range.
 
 ### Weather Stations
 - **Tempest by WeatherFlow**, station ID 125865
