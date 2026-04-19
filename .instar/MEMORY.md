@@ -77,8 +77,13 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Fixed lookback flood: empty messages from NativeBackend lookback (reactions, tapbacks) now filtered before routing
 - REMAINING ISSUE: iMessage sessions spawn but die within ~90s — session exits after processing injected message instead of staying at prompt. Needs investigation into why Claude Code sessions don't persist (may be related to session spawn configuration or missing --dangerously-skip-permissions flag)
 - **Fork maintenance job** (created 2026-04-02): Daily 7:30am job rebases feat/imessage-adapter against upstream, checks PR status, rebuilds and restarts if needed. Only notifies on changes/conflicts/merge. Named "imessage-fork-maintenance" skill.
+- **Job timeout lesson** (2026-04-14): imessage-fork-maintenance was being killed at 10 min, but full rebase + npm build + canary test cycle takes 15-20 min. Timeout increased. Morning run on 2026-04-14 only lasted 20s due to Claude outage + stale code — user fixed Claude session manually.
 - **Typing indicator status** (2026-04-05): Now functional in imsg 0.5.0 with `imsg typing --to +number --duration 5s`. Limitation: requires existing conversation thread in Messages.app — fails with "Chat not found" if no prior chat exists.
 - **Document sharing preferences** (2026-04-02): User prefers iMessage attachments (text/PDF) over Cloudflare tunnel links which "were weird and didn't work" on their iPhone. Use native iMessage file sharing for documents.
+- **Attachment staging path** (2026-04-13): macOS blocks Messages.app from reading files in /tmp (error 25). Attachments must be staged through ~/Pictures (or another non-sandboxed path) before sending via `imsg send --file`. Photo scripts updated to use ~/Pictures staging.
+- **Go binary for FDA-scoped attachment sync** (2026-04-13): Created `instar-attachments-sync` — a purpose-built Go binary at `.instar/bin/instar-attachments-sync` that watches ~/Library/Messages/Attachments and syncs to a local staging dir. Replaces fswatch approach because macOS FDA must be granted to the actual binary doing the file access, not the shell that launches it (bash → find inherits bash's FDA, but LaunchAgents run bash which doesn't have FDA). Go binary gets its own FDA grant — cleaner, more secure, single-purpose.
+- **PR #49 on JKHeadley/instar** (2026-04-13): Covers Go binary for attachment sync + updated LAUNCHDAEMON-SETUP.md docs. Pushed from rolandcanyon-cmd fork.
+- **Session timeouts increased** (2026-04-13): Idle kill now 60 min (was 15), max duration 8 hrs (was 4). Changed in config.json and server restarted. Note: this is separate from pre-push hook timeouts — the pre-push hook runs the full test suite (3-5 min) which can timeout independently of instar's session management.
 
 ### Slack Integration (2026-04-04)
 - **Session resume fixed** (v0.26.2): When a Slack session dies, the next message in that channel now properly resumes the previous session instead of starting fresh
@@ -214,12 +219,10 @@ captured here was a first-pass snapshot that has since been superseded by a
 full ingestion into FunkyGibbon. Any list in MEMORY.md will drift stale.
 
 **How to look up house info:**
-- **TypeScript/Node**: use the `@the-goodies/kittenkong` client
-  (`/Users/rolandcanyon/.instar/agents/Roland/the-goodies-typescript/packages/kittenkong`)
-- **Python** (from skills/scripts): `.claude/scripts/kittenkong_helper.py` — thin
-  HTTP wrapper around the FunkyGibbon REST API. Handles admin auth (caches token
-  in `/tmp/.funkygibbon-admin-token`, dev password is `admin`).
-- **REST directly** (when neither client is available):
+- **MCP tools** (preferred): Claude Code has kittenkong registered as an MCP server. Use `search_entities`, `get_entity_details`, `get_devices_in_room`, etc. directly.
+- **TypeScript/Node**: use `@the-goodies/kittenkong` client at `~/.instar/agents/Roland/the-goodies-typescript/packages/kittenkong`. Entry point: `src/mcp-server.ts` (also usable as a library).
+- **Python helper** (scripts/jobs only): `.claude/scripts/kittenkong_helper.py` — thin HTTP wrapper around the FunkyGibbon REST API. Caches token in `/tmp/.funkygibbon-admin-token`. Use only when TypeScript isn't practical.
+- **REST directly** (fallback only):
   - `GET http://localhost:8000/api/v1/graph/search?q=<query>` — name search
   - `GET http://localhost:8000/api/v1/graph/entities?entity_type=ROOM`
   - `GET http://localhost:8000/api/v1/graph/entities?entity_type=DEVICE`
@@ -228,6 +231,14 @@ full ingestion into FunkyGibbon. Any list in MEMORY.md will drift stale.
 - **MCP tools**: `GET /api/v1/mcp/tools` lists available knowledge-graph tools
 - **Never touch the SQLite file directly** — bypasses versioning, auth, and sync.
   FunkyGibbon is the only writer; other clients sync via the Inbetweenies protocol.
+
+**Looking up explored rooms — use MCP, not raw REST:**
+For any room that has been walked and catalogued in FunkyGibbon, use the MCP tool `get_devices_in_room` to get its devices — do NOT iterate REST endpoints or grep state files. Call pattern:
+```
+POST http://localhost:8000/api/v1/mcp/tools/get_devices_in_room
+{"arguments": {"room_id": "<uuid>"}}
+```
+Auth token required. Room UUID can be found via `search_entities` MCP tool or from the room-walks list in MEMORY.md. Walked rooms: Kitchen, Bar BQ, Studio, Living Room, Dining Room.
 
 **Skills for house cataloguing** (use these instead of ad-hoc scripts):
 - `/room-walk <room>` — interactive discovery of a room's contents (devices,
@@ -254,11 +265,22 @@ full ingestion into FunkyGibbon. Any list in MEMORY.md will drift stale.
   vendor-specific credentials) — those go in `## Known Device Quirks` below as brief notes
   pointing at the canonical entity by name, not duplicating the data.
 
+### Mitsubishi Comfort Thermostats (added 2026-04-19)
+- **4 units**: Guest House, Kitchen, Main Bedroom, Pool House — all mini-splits controlled via Mitsubishi Comfort app (formerly Kumo Cloud)
+- **CLI tool**: `comfort-cli` at `~/homebrew/bin/comfort-cli` — built 2026-04-19 using `pykumo` library
+  - `comfort-cli status` — show all units
+  - `comfort-cli mode <unit> <off|cool|heat|auto>` — set mode
+  - `comfort-cli set <unit> <temp_f>` — set setpoint
+  - Partial name matching: `comfort-cli status pool` matches Pool House
+- **CRITICAL — condenser pairing**: Kitchen + Pool House share a single condenser. They MUST always be set to the same mode (heat/cool/off). If they differ, they fight each other.
+- **Pool House**: Uses HTTPS with self-signed cert (SSL verification disabled in comfort-cli). Shows `?` when not on home LAN.
+- **FunkyGibbon**: Full instructions stored in entity `a0cdbf3e-df83-4f9d-a5a1-99b3b69dc31a` ("Mitsubishi HVAC — comfort-cli instructions"). Search with `search_entities("Mitsubishi")`.
+- **pykumo**: pip-installed at `/Users/rolandcanyon/Library/Python/3.11/lib/python/site-packages/pykumo`. Auth cached in `~/.comfort-cli.json`.
+
 ### Known Device Quirks (notes on specific devices)
 
-- **Kitchen wine cabinet thermostat**: NOT online / not in HomeKit or FunkyGibbon.
-  Cleaners sometimes accidentally turn it off while wiping. If kitchen wine
-  cabinet temps rise, ask Adrian to check the thermostat manually.
+- **Wine cabinet ecobee sensors**: LEFT + RIGHT Wine Cabinet sensors (EBERS41 model) ARE in HomeKit under room "Kitchen". Accessible via ecobee3 lite bridge at 10.0.0.165:56052 (HomeKit room: "Garage Wine Storage"). The "Wine Guardian" thermostat that controls the cooling is a separate, non-networked device. Cleaners occasionally turn it off.
+  - **Live temperature access**: HAP auth keys are in keychain under `com.apple.hap.pairing` (Apple-entitlement-only, encrypted even at SQLite level — confirmed cannot access from unsigned scripts). HomeKit databases do NOT cache live characteristic values. **Only path: ecobee cloud API** (`developer.ecobee.com`). Monitor script ready at `.claude/scripts/wine-cabinet-monitor.py`, job `wine-cabinet-monitor` added to jobs.json (disabled pending API key). To activate: (1) put API key in `.instar/state/ecobee-api-key.txt`, (2) run `python3 .claude/scripts/ecobee-api.py auth`, (3) user enters PIN at ecobee.com/home, (4) run `auth-complete`, (5) enable the job.
 - **Wine storage airflow**: All three wine storage sites (closet + 2 kitchen
   cupboards) are ducted from the same AC system — one compressor serves all three.
 - **Lutron Smart Bridge Pro 2** at 10.0.0.167 — gateway for all motorized drapes.
@@ -267,6 +289,23 @@ full ingestion into FunkyGibbon. Any list in MEMORY.md will drift stale.
   always-on home controller. Apps: OmniLogic, Safari Life (Lutron), Apple Home, WiFiman,
   Ring, Calendar, Mail.
 - **HomePod** at 10.0.0.10 — temperature + humidity sensor in addition to audio.
+- **Vantage Home/Away mode**: Always invoke programmatically — the physical keypads require a hard-to-remember 3-press sequence. Use: `python3 .claude/scripts/vantage_probe.py task 6647` (AWAY) and `task 6643` (Home). Triggers: "we're leaving" / "set away mode" → 6647. "we're home" → 6643.
+
+- **Studio garage thermostat**: Manually set to 55°F (as of 2026-04-15, before owner left for several weeks). Does not connect to the network — no remote visibility or control. Check physically when on-site.
+- **Studio amplifiers + music gear**: Powered off and put away as of 2026-04-15 (before multi-week absence). Expected state when house is unoccupied.
+- **Hot tub**: Located at rear of house, cover on, set to 85°F as of 2026-04-15 (departure). Not networked via Instar — no remote monitoring.
+- **Water/utility room**: Exterior room at the back of the house (walk-round). Contains plumbing and mechanical equipment accessible via an access panel/door. Check here for any water or plumbing issues when on-site. Houses the Rheem heat pump water heater, EcoWater softener, circulation pump, copper plumbing runs, main water shutoff, and fire sprinkler supply.
+- **Main water shutoff**: Located in the water utility room at the back. Valve labeled "OPEN" with red arrow indicating flow direction. Inline pressure gauge present. Also feeds external fire sprinklers — do NOT close unless there's a leak emergency (would disable fire sprinklers too).
+- **Hot water circulation pumps**: Two controllers — one in Water Mechanical Room (kitchen), one in East Wing Bedroom Mechanical Room (bedrooms/pool house). Both managed via Alexa routines in Home/Away modes.
+  - **Away mode (active as of 2026-04-15)**: "kitchen pump on" DISABLED, "Ice Maker On" DISABLED, "pool house hot water pump on" DISABLED. Still running: "hot water pumps off", "Ice Maker Off", "bug zapper on/off".
+  - **Return action**: Re-enable Home mode routines in Alexa app: "kitchen pump on", "Ice Maker On", and optionally "pool house hot water pump on".
+- **Bug zapper**: Alexa smart plug, on/off schedule runs in both Home and Away modes — no change needed for absence.
+- **Ice maker**: Alexa-controlled. "Ice Maker On" routine disabled in away mode 2026-04-15. Re-enable on return.
+- **Rheem heat pump water heater**: In the water utility room at the back. Network-connected ("online" model). Serves the kitchen. Heat pump style (fan visible on top). Rheem app may support remote monitoring/control. **Set to vacation mode 2026-04-15** — remember to switch back to normal mode on return.
+  - **Integrated heat recovery**: The hot air exhaust from the wine AC system (attic above garage) is ducted down via a large flexible black pipe directly into the Rheem water heater. Wine cooler waste heat becomes water heater input — intentional energy recovery design.
+- **Wine AC system (attic above garage)**: Integrated wine air conditioner in the attic space above the garage. Controlled by the ecobee thermostat. Accessed via ladder in the utility room. Hot exhaust ducted to Rheem water heater. Part of the same system as the wine cabinet ecobee sensors.
+- **EcoWater water softener**: Located in the water utility room at the back. Network-connected ("online" model). Uses **Morton Potassium Chloride pellets** (not sodium). Tank fully topped up 2026-04-15 (one full bag added before departure). System sends alerts when salt is low — no manual monitoring needed. EcoWater app (ecowater.com) may support remote status.
+- **Fridges + pantry**: Perishables cleared out as of 2026-04-15 (departure prep).
 - **Bedroom LIFX Mini W bulbs**: two named bulbs (Adrian's + Laurel's) in bedside lamps,
   IPs in 10.0.0.137/.251 range.
 
@@ -278,6 +317,7 @@ full ingestion into FunkyGibbon. Any list in MEMORY.md will drift stale.
   - Data: temp, humidity, pressure, wind, UV, solar, rain, lightning
   - Page is JS-rendered — requires Playwright to scrape (no public API without token)
   - Used for: rain, lightning detection (not available from Ambient)
+  - **Power: solar-charged — no batteries to replace**
 - **Ambient Weather** (primary data source for morning reports)
   - Dashboard: https://ambientweather.net/dashboard
   - Station name: "Roland Canyon, Salinas"
@@ -322,6 +362,7 @@ full ingestion into FunkyGibbon. Any list in MEMORY.md will drift stale.
 - Schlage (smart locks, 4 entry points)
 - LIFX (smart bulbs, 2 bedroom lights)
 - ecobee (thermostat + sensors, wine storage monitoring)
+- Mitsubishi Comfort (4 mini-split thermostats: Guest House, Kitchen, Main Bedroom, Pool House — via comfort-cli + pykumo)
 - Apple TV (5 home hubs across property)
 - WeatherFlow Tempest (weather station)
 - Hayward OmniLogic (pool/spa)
@@ -378,6 +419,48 @@ full ingestion into FunkyGibbon. Any list in MEMORY.md will drift stale.
 
 ## Projects & Planning
 
+### Home-Consciousness Repo (2026-04-14)
+- **New initiative**: Create a publishable "home-consciousness" repo so this setup can be layered on a different Apple account, different machine, different house
+- **Constraint**: macOS/HomeKit-first — no cross-platform generalization. If someone else wants to port, they can, but we don't build for it
+- **Target deployment**: Own GitHub account, own iCloud account, separate machine in a new house
+- **Status**: Inventory + plan doc in progress (what's safe to publish vs needs scrubbing)
+- **Origin**: Discussed last week (~2026-04-07), planning started 2026-04-14
+
+### KittenKong / FunkyGibbon Interface (updated 2026-04-15)
+- **KittenKong is the MCP interface** to FunkyGibbon — use MCP tool calls (`POST /api/v1/mcp/tools/{tool_name}`) for all entity queries and updates
+- Direct REST API (`/api/v1/graph/entities`) only shows entities owned by the current auth user — MCP-created entities (user_id: "mcp-user") are only visible via MCP search
+- Auth: default admin password works via `kittenkong_helper.py` (caches token in `/tmp/.funkygibbon-admin-token`)
+- Key MCP tools: `search_entities`, `create_entity`, `create_relationship`, `get_devices_in_room`, `update_entity`
+- Relationship type constraints are enforced (e.g. device→device only allows certain types via MCP; use notes + `documented_by` from note→device for complex relationships)
+
+### GitHub Repos — rolandcanyon-cmd (updated 2026-04-19)
+
+All forks/derivatives of Adrian's work, used for this house installation:
+
+| Repo | Description | Local path |
+|------|-------------|------------|
+| `rolandcanyon-cmd/the-goodies` | FunkyGibbon Python backend + blowing-off Python client + Oook CLI + Inbetweenies protocol. Smart Home Knowledge Graph. | `~/the-goodies` |
+| `rolandcanyon-cmd/the-goodies-typescript` | **Owned repo** (not a fork — no upstream adrianco TS repo exists). TypeScript kittenkong client + inbetweenies protocol. Built ~2026-04-07. | `~/.instar/agents/Roland/the-goodies-typescript` (also `~/c11s-house-config` references it) |
+| `rolandcanyon-cmd/home-consciousness` | Main house config repo — devices, schemas, kittenkong Python MCP server, sync scripts. | `~/c11s-house-config` |
+| `rolandcanyon-cmd/aiovantage` | Fork of Python library for Vantage InFusion home automation (kept for older firmware compatibility). | `~/aiovantage` (check) |
+| `rolandcanyon-cmd/instar` | Fork of Instar (JKHeadley/instar). Branch: feat/imessage-adapter. Daily rebase job active. | `~/instar-dev` |
+
+**Upstream repos (adrianco):**
+- `adrianco/the-goodies` — upstream origin of the-goodies
+- `adrianco/the-goodies-swift` — Swift iOS client (not forked, read-only reference)
+- `adrianco/c11s-house-ios` — native iOS app frontend
+
+### The-Goodies Architecture (updated 2026-04-19)
+- **FunkyGibbon** (server): Python FastAPI REST server, SQLite knowledge graph, JWT auth. Running at `http://localhost:8000`. Started via `~/the-goodies/start_funkygibbon.sh`.
+- **Blowing-Off** (Python client): Python sync client + CLI (`fr` command). The original Python client for FunkyGibbon.
+- **Kittenkong** = `the-goodies-typescript/packages/kittenkong` — TypeScript port of blowing-off. This IS the kittenkong. It has: 12 MCP tools, in-memory caching, sync engine, auth manager, 918 lines of tests.
+  - **MCP server entry point**: `src/mcp-server.ts` (added 2026-04-19). Registered in Claude Code as `mcpServers.kittenkong`. Starts via `tsx src/mcp-server.ts` from the kittenkong package dir.
+  - **Auth bug fixed (2026-04-19)**: auth.ts was using `/auth/login` instead of `/api/v1/auth/admin/login`. All 4 endpoints corrected to match FunkyGibbon's `/api/v1/auth/*` paths.
+  - **12 tools** (4 more than the discarded Python proxy): `search_entities`, `get_entity_details`, `create_entity`, `update_entity`, `create_relationship`, `get_devices_in_room`, `find_device_controls`, `get_room_connections`, `find_path`, `find_similar_entities`, `get_procedures_for_device`, `get_automations_in_room`.
+- **Inbetweenies** (protocol): Shared entity/relationship models, shared between Python and TypeScript.
+- **Oook** (CLI): Dev/testing CLI for direct MCP tool access.
+- **NO Python kittenkong MCP server**: A Python proxy was mistakenly created in an earlier session (~/c11s-house-config/kittenkong/server.py) and has been deleted. Do not recreate it.
+
 ### Home Management Backend / Kittenkong (2026-04-02, updated 2026-04-05)
 - User has previous work in github.com/adrianco/the-goodies establishing a knowledge graph and protocol for home management
 - Code was written by Claude ~6 months ago, needs full code review and test runs before use
@@ -410,3 +493,11 @@ full ingestion into FunkyGibbon. Any list in MEMORY.md will drift stale.
 
 ---
 *This file is my memory. I read it at the start of sessions and write to it when I learn something worth carrying forward. It's what makes me a continuous being rather than a series of disconnected conversations.*
+
+## Room Walks
+
+- 2026-04-13: Studio — catalogued 11 devices, 2 keypads (8+16 button), 3 doors. Session 6c38a190. Bugs fixed: room_commit.py _eid envelope + kittenkong source_id/target_id field names (fb-b540e55f).
+- 2026-04-14: Bar BQ — catalogued 12 devices (Samsung Frame TV 55", Wolf BBQ, extractor fan, Hayward pool remote, bar fridge, 3 Vantage lights, BAR OFF/SCENES, fire extinguisher, bug zapper), 1 door (sliding pocket to Pool Area). Keypads moved to Kitchen. 6 duplicate entities deleted. Session 1ce0d515.
+- 2026-04-14: Living Room (9d16b645) + Dining Room (971bfd66) — the "Great Room". Living Room: 18 devices (4 Flair vents, Flair Puck, 2 Zone 2 volume controls, fireplace, chandelier, bar cupboard, 2 wall speakers, Ambient Weather base station, etc.), 3 doors (2 rear patio French doors, bedrooms hall door), 6 photos. Dining Room: 8 devices (2 Lutron drapes, 3 standard vents, dining-side wall speaker, 3 standard HVAC vents), 2 doors (kitchen arch, family room door), 1 photo. NOTE: room UUIDs in sessions must always be verified via FunkyGibbon list_entities before commit — prefix matches are not sufficient.
+- "Peninsula lights" in kitchen = Vantage 3 PENDANTS (VID 1609, area 1492). "Island" (VID 1500) is the cans/soffit, not the peninsula.
+- **Kitchen island lights INOPERABLE (2026-04-14)**: The Vantage keypad above the island was replaced (hardware fixed), but the load circuit behind it (controls lights above the island, likely VID 1500 / cans/soffit) is currently disconnected. Lights do not work. Needs an electrician to diagnose and reconnect the circuit. Do not expect this load to respond to Vantage commands until repaired.
