@@ -419,19 +419,22 @@ Auth token required. Room UUID can be found via `search_entities` MCP tool or fr
 
 ## Projects & Planning
 
-### Home-Consciousness Repo (2026-04-14)
-- **New initiative**: Create a publishable "home-consciousness" repo so this setup can be layered on a different Apple account, different machine, different house
-- **Constraint**: macOS/HomeKit-first — no cross-platform generalization. If someone else wants to port, they can, but we don't build for it
-- **Target deployment**: Own GitHub account, own iCloud account, separate machine in a new house
-- **Status**: Inventory + plan doc in progress (what's safe to publish vs needs scrubbing)
-- **Origin**: Discussed last week (~2026-04-07), planning started 2026-04-14
+### House-Consciousness Repo (c11s-house-config) — updated 2026-04-19
+- **What it is**: Publishable config repo for porting the house setup to new Apple accounts, machines, or houses. Lives at `rolandcanyon-cmd/c11s-house-config` (local: `~/c11s-house-config`)
+- **Call it "house-consciousness"** — NOT "home-consciousness" (user corrected me on this)
+- **Structure**: devices/, kittenkong/schema+sync/, instar/skills+scripts/, docs/
+- **Roland-specific skills** now live in `instar/skills/`: room-walk, room-edit, morning-weather, away-mode, zone2-pandora, imessage-fork-maintenance
+- **Roland-specific scripts** now live in `instar/scripts/`: homekit-dump.py, vantage_probe.py, kittenkong_helper.py, room_commit.py, room_session.py, etc.
+- **Memory sync**: `instar/scripts/memory-sync.ts` pushes MEMORY.md to FunkyGibbon HOME node via KittenKong; `memory-restore.ts` pulls it on new installations
 
-### KittenKong / FunkyGibbon Interface (updated 2026-04-15)
-- **KittenKong is the MCP interface** to FunkyGibbon — use MCP tool calls (`POST /api/v1/mcp/tools/{tool_name}`) for all entity queries and updates
-- Direct REST API (`/api/v1/graph/entities`) only shows entities owned by the current auth user — MCP-created entities (user_id: "mcp-user") are only visible via MCP search
-- Auth: default admin password works via `kittenkong_helper.py` (caches token in `/tmp/.funkygibbon-admin-token`)
-- Key MCP tools: `search_entities`, `create_entity`, `create_relationship`, `get_devices_in_room`, `update_entity`
-- Relationship type constraints are enforced (e.g. device→device only allows certain types via MCP; use notes + `documented_by` from note→device for complex relationships)
+### KittenKong / FunkyGibbon Interface (updated 2026-04-19)
+- **ALL FunkyGibbon access goes through KittenKong** — never call FunkyGibbon REST API directly
+- KittenKong TypeScript client: `~/.instar/agents/Roland/the-goodies-typescript/packages/kittenkong/src/client.ts`
+- 12 MCP tools available via Claude Code (registered as `mcpServers.kittenkong` in settings.json)
+- Key tools: `search_entities`, `create_entity`, `create_relationship`, `get_devices_in_room`, `update_entity`
+- MEMORY.md is backed up to FunkyGibbon as "agent-memory" note entity linked to HOME (id: `61d4aaf4-22dc-4be7-968f-cbc6c34788b7`) via `documented_by` relationship
+- FunkyGibbon bugs fixed 2026-04-19: (1) rate_limiter.py UnboundLocalError on all writes — fixed by moving HTTPException import to module level; (2) start_funkygibbon.sh garbled password hash from double-quoted `$` signs — fixed with single quotes
+- FunkyGibbon startup: `DATABASE_URL=` (empty env var) overrides config default — MUST start without DATABASE_URL set or pass explicit `DATABASE_URL=sqlite+aiosqlite:///./funkygibbon.db`
 
 ### GitHub Repos — rolandcanyon-cmd (updated 2026-04-19)
 
@@ -441,7 +444,7 @@ All forks/derivatives of Adrian's work, used for this house installation:
 |------|-------------|------------|
 | `rolandcanyon-cmd/the-goodies` | FunkyGibbon Python backend + blowing-off Python client + Oook CLI + Inbetweenies protocol. Smart Home Knowledge Graph. | `~/the-goodies` |
 | `rolandcanyon-cmd/the-goodies-typescript` | **Owned repo** (not a fork — no upstream adrianco TS repo exists). TypeScript kittenkong client + inbetweenies protocol. Built ~2026-04-07. | `~/.instar/agents/Roland/the-goodies-typescript` (also `~/c11s-house-config` references it) |
-| `rolandcanyon-cmd/home-consciousness` | Main house config repo — devices, schemas, kittenkong Python MCP server, sync scripts. | `~/c11s-house-config` |
+| `rolandcanyon-cmd/c11s-house-config` | **House-consciousness repo** — device interfaces, schemas, KittenKong sync, instar skills+scripts (moved here from agent). Known as "house-consciousness". | `~/c11s-house-config` |
 | `rolandcanyon-cmd/aiovantage` | Fork of Python library for Vantage InFusion home automation (kept for older firmware compatibility). | `~/aiovantage` (check) |
 | `rolandcanyon-cmd/instar` | Fork of Instar (JKHeadley/instar). Branch: feat/imessage-adapter. Daily rebase job active. | `~/instar-dev` |
 
