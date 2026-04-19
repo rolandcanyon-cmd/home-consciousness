@@ -517,7 +517,7 @@
   {
     "slug": "overseer-development",
     "name": "Development Overseer",
-    "description": "Reviews development jobs: ci-monitor. Ensures development tooling is functional.",
+    "description": "Reviews development-category jobs. When active development resumes, validates CI/testing job health and efficiency.",
     "schedule": "0 8 * * *",
     "priority": "low",
     "expectedDurationMinutes": 3,
@@ -559,7 +559,7 @@
     "description": "Daily maintenance: rebase iMessage fork against upstream Instar, check PR status, rebuild and restart if needed.",
     "schedule": "30 7 * * *",
     "priority": "medium",
-    "expectedDurationMinutes": 10,
+    "expectedDurationMinutes": 25,
     "model": "sonnet",
     "enabled": true,
     "execute": {
@@ -571,6 +571,44 @@
       "role:worker",
       "exec:skill"
     ],
-    "telegramNotify": false
+    "telegramNotify": false,
+    "maxDurationMinutes": 25
+  },
+  {
+    "slug": "wine-cabinet-monitor",
+    "name": "Wine Cabinet Temperature Monitor",
+    "description": "Check wine cabinet temperatures via ecobee API. Alert via iMessage if temps exceed 65\u00b0F (indicates Wine Guardian is off).",
+    "schedule": "*/30 * * * *",
+    "priority": "high",
+    "expectedDurationMinutes": 1,
+    "model": "haiku",
+    "enabled": false,
+    "execute": {
+      "type": "script",
+      "value": "python3 .claude/scripts/wine-cabinet-monitor.py"
+    },
+    "tags": [
+      "cat:monitoring"
+    ]
+  },
+  {
+    "slug": "memory-funkygibbon-sync",
+    "name": "Memory FunkyGibbon Sync",
+    "description": "Push current MEMORY.md to FunkyGibbon as the agent-memory note entity on the HOME node.",
+    "schedule": "0 */6 * * *",
+    "priority": "medium",
+    "expectedDurationMinutes": 1,
+    "model": "haiku",
+    "enabled": true,
+    "gate": "curl -sf http://localhost:8000/health >/dev/null 2>&1 && test -f .instar/MEMORY.md",
+    "execute": {
+      "type": "script",
+      "value": "KK_PATH=\"$HOME/.instar/agents/Roland/the-goodies-typescript/packages/kittenkong\" && FUNKYGIBBON_URL=http://localhost:8000 FUNKYGIBBON_PASSWORD=admin KITTENKONG_PATH=\"$KK_PATH\" \"$KK_PATH/node_modules/.bin/tsx\" \"$HOME/c11s-house-config/instar/scripts/memory-sync.ts\" && echo 'MEMORY.md synced to FunkyGibbon'"
+    },
+    "tags": [
+      "cat:maintenance",
+      "role:worker",
+      "exec:script"
+    ]
   }
 ]
