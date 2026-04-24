@@ -1,0 +1,18 @@
+# Allow the `rolandcanyon` user to restart the Roland daemon without a password.
+# Scope is intentionally narrow: only this one exact command, only for this one
+# daemon label. No other privileges are granted.
+#
+# Install:
+#   sudo visudo -f /etc/sudoers.d/roland-kickstart
+#   (paste the single non-comment line below, save, exit)
+#
+# Or one-shot:
+#   sudo install -m 0440 -o root -g wheel \
+#     /Users/rolandcanyon/.instar/agents/Roland/.instar/scripts/roland-kickstart.sudoers \
+#     /etc/sudoers.d/roland-kickstart
+#
+# Verify after install:
+#   sudo -n launchctl kickstart -k system/ai.instar.Roland
+# (should run without prompting)
+
+rolandcanyon ALL=(root) NOPASSWD: /bin/launchctl kickstart -k system/ai.instar.Roland

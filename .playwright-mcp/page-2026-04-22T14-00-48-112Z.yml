@@ -1,0 +1,342 @@
+- generic [ref=e3]:
+  - list [ref=e5]:
+    - listitem [ref=e6]:
+      - link [ref=e7] [cursor=pointer]:
+        - /url: /account
+  - link "Weather Map" [ref=e11] [cursor=pointer]:
+    - /url: /
+  - generic [ref=e13]:
+    - link [ref=e14] [cursor=pointer]:
+      - /url: /dashboard
+    - generic [ref=e15]:
+      - link "Features & Subscriptions" [ref=e16] [cursor=pointer]:
+        - /url: /subscriptions/features
+        - generic [ref=e18]: Features & Subscriptions
+      - generic [ref=e19] [cursor=pointer]: Limited Time Free Trial
+      - link "Dashboard" [ref=e20] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e22]: Dashboard
+      - link "Devices" [ref=e23] [cursor=pointer]:
+        - /url: /devices
+        - generic [ref=e25]: Devices
+      - link "Social" [ref=e26] [cursor=pointer]:
+        - /url: /social
+        - generic [ref=e28]: Social
+      - generic [ref=e29]:
+        - link "Alerts" [ref=e30] [cursor=pointer]:
+          - /url: /alerts
+          - generic [ref=e32]: Alerts
+        - link "Account" [ref=e33] [cursor=pointer]:
+          - /url: /account/profile
+          - generic [ref=e35]: Account
+      - generic [ref=e37] [cursor=pointer]: Support
+      - text: 
+  - generic [ref=e41]:
+    - generic [ref=e42]:
+      - generic [ref=e49] [cursor=pointer]: MY STATIONRoland Canyon, Salinas
+      - generic [ref=e50]:
+        - link "Tiles" [ref=e51] [cursor=pointer]:
+          - /url: /dashboard/0285ab97ba821ac2deedc3386bd31729/tiles
+        - link "Graphs & Tables" [ref=e52] [cursor=pointer]:
+          - /url: /dashboard/0285ab97ba821ac2deedc3386bd31729/graphs
+        - link "Social" [ref=e53] [cursor=pointer]:
+          - /url: /social/0285ab97ba821ac2deedc3386bd31729
+    - generic [ref=e54]:
+      - link [ref=e56] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e57]:
+        - generic [ref=e341]:
+          - generic [ref=e342]: 47.0 °
+          - generic [ref=e343]: Expect showers today
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - region "Map" [ref=e60]
+            - generic:
+              - list [ref=e62]:
+                - text: © Ambient, LLC, 2026. All rights reserved. |
+                - link "Map Legend" [ref=e63] [cursor=pointer]:
+                  - /url: https://help.ambientweather.net/help/legend/
+                - text: "|"
+                - link "© MapTiler" [ref=e64] [cursor=pointer]:
+                  - /url: https://www.maptiler.com/copyright/
+                - link "© OpenStreetMap contributors" [ref=e65] [cursor=pointer]:
+                  - /url: https://www.openstreetmap.org/copyright
+              - generic [ref=e66]:
+                - button "Zoom in" [ref=e67] [cursor=pointer]
+                - button "Zoom out" [ref=e69] [cursor=pointer]
+                - button "Reset bearing to north" [ref=e71]
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic "radar" [ref=e75] [cursor=pointer]
+              - generic:
+                - generic [ref=e77] [cursor=pointer]:
+                  - generic [ref=e78]: Evt Max
+                  - generic [ref=e344]:
+                    - generic [ref=e345]: "1.39"
+                    - generic [ref=e346]: in
+                - generic [ref=e79] [cursor=pointer]:
+                  - generic [ref=e80]: Day Max
+                  - generic [ref=e347]:
+                    - generic [ref=e348]: "0.00"
+                    - generic [ref=e349]: in
+            - generic [ref=e81]:
+              - generic "temp" [ref=e82] [cursor=pointer]
+              - generic:
+                - generic [ref=e83] [cursor=pointer]:
+                  - generic [ref=e84]: Max
+                  - generic [ref=e350]:
+                    - generic [ref=e351]: "47.3"
+                    - generic [ref=e352]: °F
+                - generic [ref=e85] [cursor=pointer]:
+                  - generic [ref=e86]: Min
+                  - generic [ref=e353]:
+                    - generic [ref=e354]: "41.7"
+                    - generic [ref=e355]: °F
+            - generic [ref=e87]:
+              - generic "wind" [ref=e88] [cursor=pointer]
+              - generic:
+                - generic [ref=e89] [cursor=pointer]:
+                  - generic [ref=e90]: Max Gust
+                  - generic [ref=e356]:
+                    - generic [ref=e357]: "1.1"
+                    - generic [ref=e358]: mph
+                - generic [ref=e91] [cursor=pointer]:
+                  - generic [ref=e92]: Max Wind
+                  - generic [ref=e359]:
+                    - generic [ref=e360]: "0.2"
+                    - generic [ref=e361]: mph
+            - generic "Clear all filters" [ref=e95] [cursor=pointer]: ×
+            - generic [ref=e362] [cursor=pointer]:
+              - generic [ref=e363]: 24h
+              - generic [ref=e364]: 7d
+    - generic [ref=e97]: a minute ago
+    - generic [ref=e100]:
+      - generic [ref=e101]:
+        - banner [ref=e102]:
+          - textbox [ref=e103]: Indoor
+        - generic [ref=e104]:
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - generic [ref=e108]: Temperature
+              - generic [ref=e109]: 60.0°F
+            - generic [ref=e110]:
+              - generic [ref=e111]: Humidity
+              - generic [ref=e112]: 54%
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - generic [ref=e115]: Dew Point
+              - generic [ref=e117]: 43.3°F
+            - generic [ref=e118]:
+              - generic [ref=e119]: Feels Like
+              - generic [ref=e121]: 60.0°F
+        - generic [ref=e122]:
+          - generic "expand widget" [ref=e123] [cursor=pointer]
+          - generic "Move widget down" [ref=e124] [cursor=pointer]
+          - generic "Jump to graph" [ref=e125] [cursor=pointer]
+          - generic "Hide widget" [ref=e128] [cursor=pointer]
+      - generic [ref=e129]:
+        - banner [ref=e130]:
+          - text: "1"
+          - textbox [ref=e131]: Outdoor
+        - generic [ref=e132]:
+          - generic [ref=e134]:
+            - generic [ref=e135]:
+              - generic [ref=e136]: Temperature
+              - generic [ref=e137]: 53.2°F
+            - generic [ref=e138]:
+              - generic [ref=e139]: Humidity
+              - generic [ref=e140]: 66%
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - generic [ref=e143]: Dew Point
+              - generic [ref=e145]: 42.1°F
+            - generic [ref=e146]:
+              - generic [ref=e147]: Feels Like
+              - generic [ref=e149]: 53.2°F
+        - generic [ref=e150]:
+          - generic "expand widget" [ref=e151] [cursor=pointer]
+          - generic "Move widget up" [ref=e152] [cursor=pointer]
+          - generic "Move widget down" [ref=e153] [cursor=pointer]
+          - generic "Jump to graph" [ref=e154] [cursor=pointer]
+          - generic "Hide widget" [ref=e157] [cursor=pointer]
+      - generic [ref=e158]:
+        - banner [ref=e159]:
+          - text: "2"
+          - textbox [ref=e160]: Pool
+        - generic [ref=e164]:
+          - generic [ref=e165]: Temperature
+          - generic [ref=e166]: 80.2°F
+        - generic [ref=e167]:
+          - generic "expand widget" [ref=e168] [cursor=pointer]
+          - generic "Move widget up" [ref=e169] [cursor=pointer]
+          - generic "Move widget down" [ref=e170] [cursor=pointer]
+          - generic "Jump to graph" [ref=e171] [cursor=pointer]
+          - generic "Hide widget" [ref=e174] [cursor=pointer]
+      - generic [ref=e175]:
+        - banner [ref=e176]:
+          - textbox [ref=e177]: Batteries
+        - heading "All Batteries OK" [level=5] [ref=e180]:
+          - generic [ref=e181]: All Batteries OK
+        - generic [ref=e183]:
+          - generic "expand widget" [ref=e184] [cursor=pointer]
+          - generic "Move widget up" [ref=e185] [cursor=pointer]
+          - generic "Move widget down" [ref=e186] [cursor=pointer]
+          - generic "Hide widget" [ref=e187] [cursor=pointer]
+      - generic [ref=e188]:
+        - banner [ref=e189]:
+          - textbox [ref=e190]: Forecast
+        - generic [ref=e365]:
+          - generic [ref=e366]:
+            - generic [ref=e367]: Today
+            - generic [ref=e369]: 55%
+            - generic [ref=e371]:
+              - generic [ref=e372]: 67 °
+              - generic [ref=e373]: 45 °
+          - generic [ref=e374]:
+            - generic [ref=e375]:
+              - generic [ref=e376]: T
+              - generic [ref=e378]:
+                - generic [ref=e379]: 70 °
+                - generic [ref=e380]: 49 °
+            - generic [ref=e381]:
+              - generic [ref=e382]: F
+              - generic [ref=e384]:
+                - generic [ref=e385]: 64 °
+                - generic [ref=e386]: 50 °
+            - generic [ref=e387]:
+              - generic [ref=e388]: S
+              - generic [ref=e390]:
+                - generic [ref=e391]: 60 °
+                - generic [ref=e392]: 48 °
+            - generic [ref=e393]:
+              - generic [ref=e394]: S
+              - generic [ref=e396]:
+                - generic [ref=e397]: 64 °
+                - generic [ref=e398]: 46 °
+            - generic [ref=e399]:
+              - generic [ref=e400]: M
+              - generic [ref=e402]:
+                - generic [ref=e403]: 66 °
+                - generic [ref=e404]: 45 °
+          - paragraph [ref=e405]: Weather forecast by
+        - generic [ref=e192]:
+          - generic "expand widget" [ref=e193] [cursor=pointer]
+          - generic "Move widget up" [ref=e194] [cursor=pointer]
+          - generic "Move widget down" [ref=e195] [cursor=pointer]
+          - generic "Hide widget" [ref=e198] [cursor=pointer]
+      - generic [ref=e199]:
+        - banner [ref=e200]:
+          - textbox [ref=e201]: Sun / Moon
+        - generic [ref=e203]:
+          - img [ref=e206]:
+            - img [ref=e218]
+            - img [ref=e229]
+          - generic [ref=e242]:
+            - generic [ref=e243]:
+              - generic [ref=e244]: Rise
+              - generic [ref=e245]: 6:25 am
+              - generic [ref=e246]:
+                - img [ref=e247]
+                - text: 10:32 am
+            - generic [ref=e260]:
+              - generic [ref=e261]: Set
+              - generic [ref=e262]: 7:47 pm
+              - generic [ref=e263]:
+                - text: 1:10 am
+                - img [ref=e264]
+          - generic [ref=e277]:
+            - generic [ref=e278]: Moon
+            - generic [ref=e279]: 29%
+            - generic [ref=e280]: Waxing
+        - generic [ref=e281]:
+          - generic "expand widget" [ref=e282] [cursor=pointer]
+          - generic "Move widget up" [ref=e283] [cursor=pointer]
+          - generic "Move widget down" [ref=e284] [cursor=pointer]
+          - generic "Jump to graph" [ref=e285] [cursor=pointer]
+          - generic "Hide widget" [ref=e286] [cursor=pointer]
+      - generic [ref=e287]:
+        - banner [ref=e288]:
+          - textbox [ref=e289]: Quick View
+        - generic [ref=e291]:
+          - generic [ref=e292]:
+            - textbox [ref=e293]: Indoor
+            - generic [ref=e294]:
+              - generic [ref=e295]: Temperature
+              - generic [ref=e296]: 60.0°F
+            - generic [ref=e297]:
+              - generic [ref=e298]: Humidity
+              - generic [ref=e299]: 54%
+            - generic [ref=e300]:
+              - generic [ref=e301]: Dew Point
+              - generic [ref=e302]: 43.3°F
+            - generic [ref=e303]:
+              - generic [ref=e304]: Feels Like
+              - generic [ref=e305]: 60.0°F
+            - generic [ref=e407]:
+              - generic [ref=e408]:
+                - generic [ref=e409]: Today's High/Low
+                - generic [ref=e410]:
+                  - generic [ref=e411]: 62.4°F
+                  - generic [ref=e412]: /
+                  - generic [ref=e413]: 60.0°F
+              - generic [ref=e414]:
+                - generic [ref=e415]: Yesterday's High/Low
+                - generic [ref=e416]:
+                  - generic [ref=e417]: 66.9°F
+                  - generic [ref=e418]: /
+                  - generic [ref=e419]: 62.4°F
+              - generic [ref=e420]:
+                - generic [ref=e421]: Weekly High/Low
+                - generic [ref=e422]:
+                  - generic [ref=e423]: 71.0°F
+                  - generic [ref=e424]: /
+                  - generic [ref=e425]: 60.0°F
+              - generic [ref=e426]:
+                - generic [ref=e427]: Monthly High/Low
+                - generic [ref=e428]:
+                  - generic [ref=e429]: 77.3°F
+                  - generic [ref=e430]: /
+                  - generic [ref=e431]: 60.0°F
+              - generic [ref=e432]:
+                - generic [ref=e433]: Yearly High/Low
+                - generic [ref=e434]:
+                  - generic [ref=e435]: 78.4°F
+                  - generic [ref=e436]: /
+                  - generic [ref=e437]: 51.0°F
+          - generic [ref=e306]:
+            - textbox [ref=e307]: Outdoor
+            - generic [ref=e308]:
+              - generic [ref=e309]: Temperature
+              - generic [ref=e310]: 53.2°F
+            - generic [ref=e311]:
+              - generic [ref=e312]: Humidity
+              - generic [ref=e313]: 66%
+            - generic [ref=e314]:
+              - generic [ref=e315]: Dew Point
+              - generic [ref=e316]: 42.1°F
+            - generic [ref=e317]:
+              - generic [ref=e318]: Feels Like
+              - generic [ref=e319]: 53.2°F
+          - generic [ref=e320]:
+            - textbox [ref=e321]: Pool
+            - generic [ref=e322]:
+              - generic [ref=e323]: Temperature
+              - generic [ref=e324]: 80.2°F
+        - generic [ref=e325]:
+          - generic "collapse widget" [ref=e326] [cursor=pointer]
+          - generic [ref=e327] [cursor=pointer]: 
+          - generic "Hide widget" [ref=e328] [cursor=pointer]
+  - contentinfo [ref=e329]:
+    - generic [ref=e330]:
+      - text: © Copyright Ambient, LLC, 2026. All rights reserved.
+      - link "Need Help?" [ref=e331] [cursor=pointer]:
+        - /url: https://ambientweather.com/support
+      - generic [ref=e332]: "|"
+      - text: Join our
+      - link "Community" [ref=e333] [cursor=pointer]:
+        - /url: https://ambientweather.com/faqs/question/view/id/1779/
+  - generic [ref=e334]:
+    - generic [ref=e335]: AmbientWeather.net uses cookies to analyze traffic to this site.
+    - link "See details" [ref=e336] [cursor=pointer]:
+      - /url: https://privacy.nkhome.com/privacy-policy
+    - generic [ref=e337] [cursor=pointer]: OK, got it

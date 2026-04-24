@@ -1,0 +1,22 @@
+{
+  "sessionId": "09966226-820f-4d30-9d02-26e318138dc8",
+  "tmuxSession": "Roland-im-b93de418",
+  "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1776267898908-g9u660.txt — it contains your",
+  "phase": "testing",
+  "files": [
+    "/Users/rolandcanyon/.instar/agents/Roland/.claude/scripts/vantage_probe.py",
+    "vantage_probe.py",
+    ".claude/scripts/vantage_probe.py"
+  ],
+  "topics": [
+    "frontend",
+    "testing",
+    "security",
+    "messaging"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-15T18:55:58.913Z",
+  "updatedAt": "2026-04-15T18:55:58.913Z",
+  "stale": true,
+  "outputHash": "b69ec540a6a9f6d2328b25cd145d6441"
+}

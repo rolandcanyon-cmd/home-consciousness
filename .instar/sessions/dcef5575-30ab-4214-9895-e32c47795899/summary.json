@@ -1,0 +1,15 @@
+{
+  "sessionId": "dcef5575-30ab-4214-9895-e32c47795899",
+  "tmuxSession": "Roland-job-health-check-mo9wc89i",
+  "task": "[NOTIFICATION PROTOCOL: This job runs in quiet mode. The user will NOT see your output unless you ex",
+  "phase": "building",
+  "files": [],
+  "topics": [
+    "monitoring"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-22T10:15:21.014Z",
+  "updatedAt": "2026-04-22T10:15:21.014Z",
+  "stale": false,
+  "outputHash": "a55d6906dcdcc1d23a94dd13f548b719"
+}

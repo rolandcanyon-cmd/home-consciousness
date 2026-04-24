@@ -1,6 +1,0 @@
-{"receivedAt":"2026-04-12T18:30:48.457Z","payload":{"event":"PostToolUse","session_id":"fd6e2d5b-7132-4796-a624-d3642efd1c15","tool_name":"Bash"}}
-{"receivedAt":"2026-04-12T18:30:51.679Z","payload":{"event":"PostToolUse","session_id":"fd6e2d5b-7132-4796-a624-d3642efd1c15","tool_name":"Read"}}
-{"receivedAt":"2026-04-12T18:30:56.228Z","payload":{"event":"PostToolUse","session_id":"fd6e2d5b-7132-4796-a624-d3642efd1c15","tool_name":"Bash"}}
-{"receivedAt":"2026-04-12T18:31:00.221Z","payload":{"event":"PostToolUse","session_id":"fd6e2d5b-7132-4796-a624-d3642efd1c15","tool_name":"Bash"}}
-{"receivedAt":"2026-04-12T18:31:07.648Z","payload":{"event":"Unknown","session_id":"fd6e2d5b-7132-4796-a624-d3642efd1c15","tool_name":""}}
-{"receivedAt":"2026-04-12T18:31:08.173Z","payload":{"event":"Unknown","session_id":"fd6e2d5b-7132-4796-a624-d3642efd1c15","tool_name":""}}

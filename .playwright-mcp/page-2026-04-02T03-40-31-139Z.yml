@@ -1,0 +1,71 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - img [ref=e5]
+    - img [ref=e6]
+    - generic [ref=e7]:
+      - text: "Language:"
+      - combobox [ref=e8]:
+        - option "English" [selected]
+        - option "Deutsch"
+        - option "Français"
+        - option "Italiano"
+        - option "Español"
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - heading "Wi-Fi Router Setup" [level=3] [ref=e12]:
+          - img [ref=e13]
+          - text: Wi-Fi Router Setup
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - text: "Router:"
+            - combobox [ref=e16]
+          - generic [ref=e18]: "Add Router:"
+          - generic [ref=e19]:
+            - text: "Security Type:"
+            - combobox [ref=e20]:
+              - option "WPA/WPA2" [selected]
+              - option "WEP"
+              - option "OPEN"
+          - generic [ref=e21]:
+            - text: "Router Password:"
+            - textbox [ref=e22]
+            - img "display" [ref=e23] [cursor=pointer]
+      - generic [ref=e24]:
+        - heading "Weather Server Setup" [level=3] [ref=e25]:
+          - img [ref=e26]
+          - text: Weather Server Setup
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - text: Upload wunderground.com
+            - checkbox [checked] [ref=e29]
+          - generic [ref=e30]:
+            - text: "Station ID:"
+            - textbox [ref=e31]
+          - generic [ref=e32]:
+            - text: "Station key:"
+            - textbox [ref=e33]
+            - img "display" [ref=e34] [cursor=pointer]
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - text: Upload ambientweather.net
+            - checkbox [checked] [ref=e37]
+          - generic [ref=e38]:
+            - text: "MAC address:"
+            - textbox [ref=e39]: 24:7D:4D:A3:6E:25
+      - generic [ref=e40]:
+        - heading "Time Server Setup" [level=3] [ref=e41]:
+          - img [ref=e42]
+          - text: Time Server Setup
+        - generic [ref=e44]:
+          - text: "Web Server URL:"
+          - combobox [ref=e45]:
+            - option "time.nist.gov" [selected]
+            - option "time.windows.com"
+            - option "time-nw.nist.gov"
+            - option "time-a.nist.gov"
+            - option "time-b.nist.gov"
+    - generic [ref=e46]:
+      - button "Apply" [ref=e48] [cursor=pointer]
+      - heading [level=4] [ref=e49]
+      - heading "Firmware Version:00.00" [level=4] [ref=e50]

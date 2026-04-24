@@ -1,0 +1,41 @@
+- generic [ref=e3]:
+  - list [ref=e5]:
+    - listitem [ref=e149]:
+      - link "Add Device" [ref=e150] [cursor=pointer]:
+        - /url: /welcome
+    - listitem [ref=e151]:
+      - link "Get Started" [ref=e152] [cursor=pointer]:
+        - /url: /signin
+    - listitem
+  - link "Home" [ref=e8] [cursor=pointer]:
+    - /url: /dashboard
+  - text: 
+  - generic [ref=e153]:
+    - generic [ref=e155]:
+      - generic [ref=e156]:
+        - generic [ref=e157]: Email
+        - textbox [ref=e158]
+      - generic [ref=e159]:
+        - generic [ref=e160]: Password
+        - textbox [ref=e161]
+      - button "Sign in" [ref=e162] [cursor=pointer]
+      - paragraph [ref=e163]: Forgot your password?
+    - generic [ref=e164]:
+      - link "Help Center" [ref=e165] [cursor=pointer]:
+        - /url: https://ambientweather.com/support
+      - link "Facebook Group" [ref=e166] [cursor=pointer]:
+        - /url: https://www.facebook.com/groups/ambientweathernetwork/
+  - contentinfo [ref=e144]:
+    - generic [ref=e145]:
+      - text: © Copyright Ambient, LLC, 2026. All rights reserved.
+      - link "Need Help?" [ref=e146] [cursor=pointer]:
+        - /url: https://ambientweather.com/support
+      - generic [ref=e147]: "|"
+      - text: Join our
+      - link "Community" [ref=e148] [cursor=pointer]:
+        - /url: https://ambientweather.com/faqs/question/view/id/1779/
+  - generic [ref=e63]:
+    - generic [ref=e64]: AmbientWeather.net uses cookies to analyze traffic to this site.
+    - link "See details" [ref=e65] [cursor=pointer]:
+      - /url: https://privacy.nkhome.com/privacy-policy
+    - generic [ref=e66] [cursor=pointer]: OK, got it

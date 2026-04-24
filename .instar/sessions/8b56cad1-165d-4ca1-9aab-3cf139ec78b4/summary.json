@@ -1,0 +1,21 @@
+{
+  "sessionId": "8b56cad1-165d-4ca1-9aab-3cf139ec78b4",
+  "tmuxSession": "Roland-im-b93de418",
+  "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1776204356671-6s4msu.txt — it contains your",
+  "phase": "testing",
+  "files": [
+    ".claude/scripts/render_review.py",
+    ".claude/scripts/room_commit.py"
+  ],
+  "topics": [
+    "frontend",
+    "security",
+    "messaging",
+    "deployment"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-14T22:31:56.076Z",
+  "updatedAt": "2026-04-14T22:31:56.076Z",
+  "stale": true,
+  "outputHash": "f9c291f2df5896db7e23652a4f5ba148"
+}

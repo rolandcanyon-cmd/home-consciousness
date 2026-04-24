@@ -1,0 +1,27 @@
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - img "Alexa Logo"
+      - generic [ref=e8]: Scan QR code with your phone’s camera to open the Alexa app.
+    - generic:
+      - img "Background"
+  - img [ref=e11]
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - generic:
+        - img "Get the Alexa App Image"
+      - generic [ref=e16]: "1"
+      - generic [ref=e17]: Install app
+      - generic [ref=e18]: Make sure you have the Alexa app installed on your phone.
+    - generic [ref=e19]:
+      - generic:
+        - img "Open your phone's camera image"
+      - generic [ref=e20]: "2"
+      - generic [ref=e21]: Scan QR code
+      - generic [ref=e22]: Open the camera app on your phone and scan the QR code.
+    - generic [ref=e23]:
+      - generic:
+        - img "Tap the Alert Image"
+      - generic [ref=e24]: "3"
+      - generic [ref=e25]: Tap alert
+      - generic [ref=e26]: To open the Alexa app, tap on the alert.

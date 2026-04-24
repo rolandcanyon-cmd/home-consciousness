@@ -1,0 +1,7 @@
+[     312ms] [WARNING] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading @ https://maps.googleapis.com/maps/api/js?key=AIzaSyAzKKOVP03RekNzRmZjc4aP2cv-MDRRl0U&libraries=places:1433
+[     563ms] [LOG] Failed to lock orientation: NotSupportedError: screen.orientation.lock() is not available on this device. @ https://ambientweather.net/static/js/main.74104f8d.chunk.js:0
+[     780ms] [LOG] loaded**** @ https://ambientweather.net/static/js/main.74104f8d.chunk.js:0
+[     801ms] [LOG] loaded**** @ https://ambientweather.net/static/js/main.74104f8d.chunk.js:0
+[     948ms] [LOG] Failed to lock orientation: NotSupportedError: screen.orientation.lock() is not available on this device. @ https://ambientweather.net/static/js/main.74104f8d.chunk.js:0
+[    3150ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ https://ambientweather.net/static/js/main.74104f8d.chunk.js:0
+[    6095ms] [LOG] New content is available and will be used when all tabs for this page are closed. See http://bit.ly/CRA-PWA. @ https://ambientweather.net/static/js/main.74104f8d.chunk.js:0

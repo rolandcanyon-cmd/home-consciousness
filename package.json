@@ -1,0 +1,21 @@
+{
+  "name": "roland-house-agent",
+  "version": "1.0.0",
+  "description": "House consciousness agent with IoT device integration",
+  "scripts": {
+    "test": "mocha test/**/*.test.js --timeout 5000",
+    "test:watch": "mocha test/**/*.test.js --timeout 5000 --watch",
+    "test:registry": "mocha test/device-registry.test.js --timeout 5000",
+    "test:homekit": "mocha test/homekit-adapter.integration.test.js --timeout 20000",
+    "test:all": "npm run test:registry && npm run test:homekit"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.21",
+    "alexa-remote2": "^8.0.4",
+    "hap-controller": "^0.10.2"
+  },
+  "devDependencies": {
+    "chai": "^6.2.2",
+    "mocha": "^11.7.5"
+  }
+}

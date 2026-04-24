@@ -1,0 +1,333 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "Weather" [ref=e4] [cursor=pointer]:
+        - /url: /station
+      - link "History" [ref=e5] [cursor=pointer]:
+        - /url: /history
+      - link "Map" [ref=e6] [cursor=pointer]:
+        - /url: /map
+      - link "Log In" [ref=e27] [cursor=pointer]:
+        - /url: /
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e28] [cursor=pointer]: Roland Canyon Rd - Tempest by WeatherFlow
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - textbox "Search for weather"
+              - list
+          - list
+      - button "Observations" [ref=e11] [cursor=pointer]
+      - link "Buy a weather station" [ref=e29] [cursor=pointer]:
+        - /url: https://shop.tempest.earth/products/tempest
+  - generic [ref=e12]:
+    - generic [ref=e31]:
+      - generic [ref=e32] [cursor=pointer]:
+        - paragraph [ref=e33]: 64°
+        - paragraph [ref=e34]
+        - paragraph [ref=e35]: Feels Like 64°
+        - paragraph [ref=e36]: Partly Cloudy
+        - generic [ref=e37]:
+          - paragraph [ref=e38]: 58% Humidity
+          - group "Pressure" [ref=e39]: 30 inHg
+        - generic [ref=e40]:
+          - group "Wind Speed" [ref=e41]: WSW 3 mph
+          - group "U V Index" [ref=e44]: 3 UV
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - paragraph [ref=e49]: Today
+              - paragraph [ref=e50]: Partly Cloudy
+            - generic "partly cloudy day" [ref=e51]
+            - paragraph [ref=e52]: 10%
+            - group "Low temperature" [ref=e53]:
+              - paragraph [ref=e55]: 49°
+            - group "High Temperature" [ref=e56]:
+              - paragraph [ref=e58]: 66°
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - group "sunrise" [ref=e61]: 6:52 am
+              - group "sunset" [ref=e62]: 7:29 pm
+            - table [ref=e64]:
+              - rowgroup [ref=e65]:
+                - row "1 pm 2 pm 3 pm 4 pm 5 pm 6 pm 7 pm 8 pm 9 pm 10 pm 11 pm 12 am 1 am 2 am 3 am 4 am 5 am 6 am 7 am" [ref=e66]:
+                  - columnheader "1 pm" [ref=e67]
+                  - columnheader "2 pm" [ref=e68]
+                  - columnheader "3 pm" [ref=e69]
+                  - columnheader "4 pm" [ref=e70]
+                  - columnheader "5 pm" [ref=e71]
+                  - columnheader "6 pm" [ref=e72]
+                  - columnheader "7 pm" [ref=e73]
+                  - columnheader "8 pm" [ref=e74]
+                  - columnheader "9 pm" [ref=e75]
+                  - columnheader "10 pm" [ref=e76]
+                  - columnheader "11 pm" [ref=e77]
+                  - columnheader "12 am" [ref=e78]
+                  - columnheader "1 am" [ref=e79]
+                  - columnheader "2 am" [ref=e80]
+                  - columnheader "3 am" [ref=e81]
+                  - columnheader "4 am" [ref=e82]
+                  - columnheader "5 am" [ref=e83]
+                  - columnheader "6 am" [ref=e84]
+                  - columnheader "7 am" [ref=e85]
+                - row "partly cloudy day partly cloudy day clear day partly cloudy day partly cloudy day partly cloudy day partly cloudy day partly cloudy night partly cloudy night partly cloudy night partly cloudy night partly cloudy night possibly rainy night possibly rainy night possibly rainy night possibly rainy night possibly rainy night partly cloudy night partly cloudy day" [ref=e86]:
+                  - cell "partly cloudy day" [ref=e87]:
+                    - generic "partly cloudy day" [ref=e88]
+                  - cell "partly cloudy day" [ref=e89]:
+                    - generic "partly cloudy day" [ref=e90]
+                  - cell "clear day" [ref=e91]:
+                    - generic "clear day" [ref=e92]
+                  - cell "partly cloudy day" [ref=e93]:
+                    - generic "partly cloudy day" [ref=e94]
+                  - cell "partly cloudy day" [ref=e95]:
+                    - generic "partly cloudy day" [ref=e96]
+                  - cell "partly cloudy day" [ref=e97]:
+                    - generic "partly cloudy day" [ref=e98]
+                  - cell "partly cloudy day" [ref=e99]:
+                    - generic "partly cloudy day" [ref=e100]
+                  - cell "partly cloudy night" [ref=e101]:
+                    - generic "partly cloudy night" [ref=e102]
+                  - cell "partly cloudy night" [ref=e103]:
+                    - generic "partly cloudy night" [ref=e104]
+                  - cell "partly cloudy night" [ref=e105]:
+                    - generic "partly cloudy night" [ref=e106]
+                  - cell "partly cloudy night" [ref=e107]:
+                    - generic "partly cloudy night" [ref=e108]
+                  - cell "partly cloudy night" [ref=e109]:
+                    - generic "partly cloudy night" [ref=e110]
+                  - cell "possibly rainy night" [ref=e111]:
+                    - generic "possibly rainy night" [ref=e112]
+                  - cell "possibly rainy night" [ref=e113]:
+                    - generic "possibly rainy night" [ref=e114]
+                  - cell "possibly rainy night" [ref=e115]:
+                    - generic "possibly rainy night" [ref=e116]
+                  - cell "possibly rainy night" [ref=e117]:
+                    - generic "possibly rainy night" [ref=e118]
+                  - cell "possibly rainy night" [ref=e119]:
+                    - generic "possibly rainy night" [ref=e120]
+                  - cell "partly cloudy night" [ref=e121]:
+                    - generic "partly cloudy night" [ref=e122]
+                  - cell "partly cloudy day" [ref=e123]:
+                    - generic "partly cloudy day" [ref=e124]
+                - row "66° 65° 65° 65° 63° 60° 58° 56° 56° 55° 55° 55° 54° 54° 54° 53° 52° 51° 50°" [ref=e125]:
+                  - cell "66°" [ref=e126]
+                  - cell "65°" [ref=e127]
+                  - cell "65°" [ref=e128]
+                  - cell "65°" [ref=e129]
+                  - cell "63°" [ref=e130]
+                  - cell "60°" [ref=e131]
+                  - cell "58°" [ref=e132]
+                  - cell "56°" [ref=e133]
+                  - cell "56°" [ref=e134]
+                  - cell "55°" [ref=e135]
+                  - cell "55°" [ref=e136]
+                  - cell "55°" [ref=e137]
+                  - cell "54°" [ref=e138]
+                  - cell "54°" [ref=e139]
+                  - cell "54°" [ref=e140]
+                  - cell "53°" [ref=e141]
+                  - cell "52°" [ref=e142]
+                  - cell "51°" [ref=e143]
+                  - cell "50°" [ref=e144]
+                - row "Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation Chance of precipitation" [ref=e145]:
+                  - cell "Chance of precipitation" [ref=e146]:
+                    - paragraph [ref=e147]: 0%
+                  - cell "Chance of precipitation" [ref=e148]:
+                    - paragraph [ref=e149]: 0%
+                  - cell "Chance of precipitation" [ref=e150]:
+                    - paragraph [ref=e151]: 0%
+                  - cell "Chance of precipitation" [ref=e152]:
+                    - paragraph [ref=e153]: 0%
+                  - cell "Chance of precipitation" [ref=e154]:
+                    - paragraph [ref=e155]: 0%
+                  - cell "Chance of precipitation" [ref=e156]:
+                    - paragraph [ref=e157]: 10%
+                  - cell "Chance of precipitation" [ref=e158]:
+                    - paragraph [ref=e159]: 5%
+                  - cell "Chance of precipitation" [ref=e160]:
+                    - paragraph [ref=e161]: 0%
+                  - cell "Chance of precipitation" [ref=e162]:
+                    - paragraph [ref=e163]: 0%
+                  - cell "Chance of precipitation" [ref=e164]:
+                    - paragraph [ref=e165]: 5%
+                  - cell "Chance of precipitation" [ref=e166]:
+                    - paragraph [ref=e167]: 5%
+                  - cell "Chance of precipitation" [ref=e168]:
+                    - paragraph [ref=e169]: 15%
+                  - cell "Chance of precipitation" [ref=e170]:
+                    - paragraph [ref=e171]: 30%
+                  - cell "Chance of precipitation" [ref=e172]:
+                    - paragraph [ref=e173]: 30%
+                  - cell "Chance of precipitation" [ref=e174]:
+                    - paragraph [ref=e175]: 45%
+                  - cell "Chance of precipitation" [ref=e176]:
+                    - paragraph [ref=e177]: 40%
+                  - cell "Chance of precipitation" [ref=e178]:
+                    - paragraph [ref=e179]: 30%
+                  - cell "Chance of precipitation" [ref=e180]:
+                    - paragraph [ref=e181]: 0%
+                  - cell "Chance of precipitation" [ref=e182]:
+                    - paragraph [ref=e183]: 0%
+                - row "wind arrow wsw wind arrow wsw wind arrow wsw wind arrow wsw wind arrow w wind arrow wsw wind arrow wsw wind arrow wsw wind arrow wsw wind arrow wsw wind arrow wsw wind arrow wsw wind arrow wsw wind arrow wsw wind arrow w wind arrow wnw wind arrow wnw wind arrow nw wind arrow wnw" [ref=e184]:
+                  - cell "wind arrow wsw" [ref=e185]:
+                    - paragraph [ref=e186]: "8"
+                  - cell "wind arrow wsw" [ref=e187]:
+                    - paragraph [ref=e188]: "9"
+                  - cell "wind arrow wsw" [ref=e189]:
+                    - paragraph [ref=e190]: "10"
+                  - cell "wind arrow wsw" [ref=e191]:
+                    - paragraph [ref=e192]: "10"
+                  - cell "wind arrow w" [ref=e193]:
+                    - paragraph [ref=e194]: "9"
+                  - cell "wind arrow wsw" [ref=e195]:
+                    - paragraph [ref=e196]: "8"
+                  - cell "wind arrow wsw" [ref=e197]:
+                    - paragraph [ref=e198]: "7"
+                  - cell "wind arrow wsw" [ref=e199]:
+                    - paragraph [ref=e200]: "5"
+                  - cell "wind arrow wsw" [ref=e201]:
+                    - paragraph [ref=e202]: "5"
+                  - cell "wind arrow wsw" [ref=e203]:
+                    - paragraph [ref=e204]: "4"
+                  - cell "wind arrow wsw" [ref=e205]:
+                    - paragraph [ref=e206]: "4"
+                  - cell "wind arrow wsw" [ref=e207]:
+                    - paragraph [ref=e208]: "4"
+                  - cell "wind arrow wsw" [ref=e209]:
+                    - paragraph [ref=e210]: "4"
+                  - cell "wind arrow wsw" [ref=e211]:
+                    - paragraph [ref=e212]: "4"
+                  - cell "wind arrow w" [ref=e213]:
+                    - paragraph [ref=e214]: "4"
+                  - cell "wind arrow wnw" [ref=e215]:
+                    - paragraph [ref=e216]: "4"
+                  - cell "wind arrow wnw" [ref=e217]:
+                    - paragraph [ref=e218]: "5"
+                  - cell "wind arrow nw" [ref=e219]:
+                    - paragraph [ref=e220]: "5"
+                  - cell "wind arrow wnw" [ref=e221]:
+                    - paragraph [ref=e222]: "5"
+        - generic [ref=e224]:
+          - generic [ref=e225]:
+            - paragraph [ref=e226]: Thu 2
+            - paragraph [ref=e227]: Rain Likely
+          - generic "rainy" [ref=e228]
+          - paragraph [ref=e229]: 50%
+          - group "Low temperature" [ref=e230]:
+            - paragraph [ref=e232]: 50°
+          - group "High Temperature" [ref=e233]:
+            - paragraph [ref=e235]: 62°
+        - generic [ref=e237]:
+          - generic [ref=e238]:
+            - paragraph [ref=e239]: Fri 3
+            - paragraph [ref=e240]: Clear
+          - generic "clear day" [ref=e241]
+          - paragraph [ref=e242]: 0%
+          - group "Low temperature" [ref=e243]:
+            - paragraph [ref=e245]: 46°
+          - group "High Temperature" [ref=e246]:
+            - paragraph [ref=e248]: 71°
+        - generic [ref=e250]:
+          - generic [ref=e251]:
+            - paragraph [ref=e252]: Sat 4
+            - paragraph [ref=e253]: Partly Cloudy
+          - generic "partly cloudy day" [ref=e254]
+          - paragraph [ref=e255]: 0%
+          - group "Low temperature" [ref=e256]:
+            - paragraph [ref=e258]: 54°
+          - group "High Temperature" [ref=e259]:
+            - paragraph [ref=e261]: 78°
+        - generic [ref=e263]:
+          - generic [ref=e264]:
+            - paragraph [ref=e265]: Sun 5
+            - paragraph [ref=e266]: Partly Cloudy
+          - generic "partly cloudy day" [ref=e267]
+          - paragraph [ref=e268]: 0%
+          - group "Low temperature" [ref=e269]:
+            - paragraph [ref=e271]: 56°
+          - group "High Temperature" [ref=e272]:
+            - paragraph [ref=e274]: 76°
+        - generic [ref=e276]:
+          - generic [ref=e277]:
+            - paragraph [ref=e278]: Mon 6
+            - paragraph [ref=e279]: Partly Cloudy
+          - generic "partly cloudy day" [ref=e280]
+          - paragraph [ref=e281]: 0%
+          - group "Low temperature" [ref=e282]:
+            - paragraph [ref=e284]: 52°
+          - group "High Temperature" [ref=e285]:
+            - paragraph [ref=e287]: 70°
+        - generic [ref=e289]:
+          - generic [ref=e290]:
+            - paragraph [ref=e291]: Tue 7
+            - paragraph [ref=e292]: Partly Cloudy
+          - generic "partly cloudy day" [ref=e293]
+          - paragraph [ref=e294]: 10%
+          - group "Low temperature" [ref=e295]:
+            - paragraph [ref=e297]: 53°
+          - group "High Temperature" [ref=e298]:
+            - paragraph [ref=e300]: 68°
+        - generic [ref=e302]:
+          - generic [ref=e303]:
+            - paragraph [ref=e304]: Wed 8
+            - paragraph [ref=e305]: Partly Cloudy
+          - generic "partly cloudy day" [ref=e306]
+          - paragraph [ref=e307]: 0%
+          - group "Low temperature" [ref=e308]:
+            - paragraph [ref=e310]: 53°
+          - group "High Temperature" [ref=e311]:
+            - paragraph [ref=e313]: 67°
+        - generic [ref=e315]:
+          - generic [ref=e316]:
+            - paragraph [ref=e317]: Thu 9
+            - paragraph [ref=e318]: Partly Cloudy
+          - generic "partly cloudy day" [ref=e319]
+          - paragraph [ref=e320]: 0%
+          - group "Low temperature" [ref=e321]:
+            - paragraph [ref=e323]: 52°
+          - group "High Temperature" [ref=e324]:
+            - paragraph [ref=e326]: 66°
+        - generic [ref=e328]:
+          - generic [ref=e329]:
+            - paragraph [ref=e330]: Fri 10
+            - paragraph [ref=e331]: Partly Cloudy
+          - generic "partly cloudy day" [ref=e332]
+          - paragraph [ref=e333]: 0%
+          - group "Low temperature" [ref=e334]:
+            - paragraph [ref=e336]: 51°
+          - group "High Temperature" [ref=e337]:
+            - paragraph [ref=e339]: 69°
+      - paragraph [ref=e341]: "005"
+    - generic [ref=e342]:
+      - link [ref=e343] [cursor=pointer]:
+        - /url: ""
+      - link "Online" [ref=e344] [cursor=pointer]:
+        - /url: /settings/station/125865/status
+    - link [ref=e345] [cursor=pointer]:
+      - /url: /map/125865/36.55593/-121.7179/12
+      - img [ref=e346]
+    - generic [ref=e347]:
+      - paragraph [ref=e348]: All times are displayed in station local time.
+      - text: (America/Los_Angeles)
+    - generic [ref=e14]:
+      - generic [ref=e16]:
+        - link "Facebook" [ref=e17] [cursor=pointer]:
+          - /url: https://www.facebook.com/tempestwx/
+        - link "Twitter" [ref=e18] [cursor=pointer]:
+          - /url: https://twitter.com/tempest_wx/
+        - link "YouTube" [ref=e19] [cursor=pointer]:
+          - /url: https://www.youtube.com/@tempestwx
+        - link "Instagram" [ref=e20] [cursor=pointer]:
+          - /url: https://www.instagram.com/tempest.earth/
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: © 2026 Tempest
+          - link "Help" [ref=e24] [cursor=pointer]:
+            - /url: https://help.tempest.earth/hc/en-us/categories/203614828-Tempest-Weather-System
+          - link "Terms & Conditions" [ref=e25] [cursor=pointer]:
+            - /url: https://help.tempest.earth/hc/en-us/articles/206504298-Terms-of-Use
+        - link "Newsletter" [ref=e26] [cursor=pointer]:
+          - /url: https://news.tempest.earth/

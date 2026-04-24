@@ -1,0 +1,27 @@
+{
+  "sessionId": "b81abbf0-c2b7-4df6-8549-eeee6eb04b6d",
+  "tmuxSession": "Roland-im-b93de418",
+  "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1776637847182-4aw4va.txt — it contains your",
+  "phase": "testing",
+  "files": [
+    ".instar/jobs.json",
+    "MEMORY.md",
+    "memory-sync.ts",
+    "memory-restore.ts",
+    "docs/setup.md",
+    "rate_limiter.py"
+  ],
+  "topics": [
+    "frontend",
+    "testing",
+    "security",
+    "messaging",
+    "deployment",
+    "api"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-19T23:51:56.893Z",
+  "updatedAt": "2026-04-19T23:51:56.893Z",
+  "stale": true,
+  "outputHash": "10382ec3f4dcf6054d002ba212537e0d"
+}

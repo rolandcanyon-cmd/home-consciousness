@@ -1,0 +1,57 @@
+- generic [ref=e3]:
+  - list [ref=e5]:
+    - listitem
+    - listitem
+    - listitem [ref=e6]:
+      - link "Get Started" [ref=e7] [cursor=pointer]:
+        - /url: /welcome
+  - link "Home" [ref=e8] [cursor=pointer]:
+    - /url: /welcome
+  - text: 
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12] [cursor=pointer]: F°
+      - generic [ref=e13] [cursor=pointer]: C°
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - region "Map" [ref=e17]
+          - generic:
+            - list [ref=e19]:
+              - text: © Ambient, LLC, 2026. All rights reserved. |
+              - link "Map Legend" [ref=e20] [cursor=pointer]:
+                - /url: https://help.ambientweather.net/help/legend/
+              - text: "|"
+              - link "© MapTiler" [ref=e21] [cursor=pointer]:
+                - /url: https://www.maptiler.com/copyright/
+              - link "© OpenStreetMap contributors" [ref=e22] [cursor=pointer]:
+                - /url: https://www.openstreetmap.org/copyright
+            - generic [ref=e23]:
+              - button "Zoom in" [ref=e24] [cursor=pointer]
+              - button "Zoom out" [ref=e26] [cursor=pointer]
+              - button "Reset bearing to north" [ref=e28]
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic "radar" [ref=e32] [cursor=pointer]
+            - generic:
+              - generic [ref=e35] [cursor=pointer]: Evt Max
+              - generic [ref=e37] [cursor=pointer]: Day Max
+          - generic [ref=e38]:
+            - generic "temp" [ref=e39] [cursor=pointer]
+            - generic:
+              - generic [ref=e41] [cursor=pointer]: Max
+              - generic [ref=e43] [cursor=pointer]: Min
+          - generic [ref=e44]:
+            - generic "wind" [ref=e45] [cursor=pointer]
+            - generic:
+              - generic [ref=e47] [cursor=pointer]: Max Gust
+              - generic [ref=e49] [cursor=pointer]: Max Wind
+          - generic "Clear all filters" [ref=e52] [cursor=pointer]: ×
+      - generic [ref=e57]:
+        - textbox "Search location" [ref=e59]
+        - generic "Find My Location" [ref=e61] [cursor=pointer]: Find my location 
+  - generic [ref=e63]:
+    - generic [ref=e64]: AmbientWeather.net uses cookies to analyze traffic to this site.
+    - link "See details" [ref=e65] [cursor=pointer]:
+      - /url: https://privacy.nkhome.com/privacy-policy
+    - generic [ref=e66] [cursor=pointer]: OK, got it

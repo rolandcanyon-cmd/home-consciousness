@@ -1,0 +1,75 @@
+- generic [ref=e3]:
+  - link "Home" [ref=e8] [cursor=pointer]:
+    - /url: /dashboard
+  - text: 
+  - generic [ref=e86]:
+    - generic [ref=e87]:
+      - banner [ref=e88]:
+        - heading "AmbientWeather.net" [level=1] [ref=e89]
+        - paragraph [ref=e90]: Get real-time weather where you are, with Ambient Weather.
+        - paragraph [ref=e91]:
+          - generic [ref=e92] [cursor=pointer]: Create Your Account
+        - paragraph [ref=e93]:
+          - link "Login" [ref=e94] [cursor=pointer]:
+            - /url: /signin
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - heading "Explore your AWN Features" [level=1] [ref=e97]
+          - paragraph [ref=e98]: Create an account to enjoy all free AWN features, with the option to upgrade to advanced tools and capabilities.
+        - generic [ref=e100]:
+          - link "Weather Forecast" [ref=e101] [cursor=pointer]:
+            - /url: /welcome/weather-forecast
+            - generic [ref=e103]: Weather Forecast
+          - link "Dynamic Map" [ref=e104] [cursor=pointer]:
+            - /url: /welcome/dynamic-map
+            - generic [ref=e106]: Dynamic Map
+          - link "Dashboard" [ref=e107] [cursor=pointer]:
+            - /url: /welcome/dash
+            - generic [ref=e109]: Dashboard
+          - link "Data Graphing" [ref=e110] [cursor=pointer]:
+            - /url: /welcome/data-graphing
+            - generic [ref=e112]: Data Graphing
+          - link "Alerts" [ref=e113] [cursor=pointer]:
+            - /url: /welcome/alerts
+            - generic [ref=e115]: Alerts
+        - generic [ref=e117]:
+          - paragraph [ref=e119]: Plan smarter with hyperlocal forecasts powered by your weather station and nearby data sources, all in an ad-free experience.
+          - generic [ref=e120]:
+            - generic [ref=e121]:
+              - heading "Standard Forecast" [level=3] [ref=e122]
+              - generic [ref=e124]:
+                - generic [ref=e125]:
+                  - heading "5-Day Hourly Forecast" [level=4] [ref=e126]
+                  - paragraph [ref=e127]: Get a clear five-day view with hourly updates for temperature and precipitation, keeping you informed of short-term weather changes.
+                - text: 
+            - generic [ref=e128]:
+              - heading "Advanced Forecast" [level=3] [ref=e129]
+              - generic [ref=e131]:
+                - generic [ref=e132]:
+                  - heading "AWN+ Forecast" [level=3] [ref=e133]
+                  - heading "10-Day Hourly Forecast" [level=4] [ref=e134]
+                  - paragraph [ref=e135]: Plan with confidence using a detailed 10-day, hour-by-hour forecast for temperature and precipitation to stay prepared for what's ahead.
+                - generic [ref=e136]:
+                  - heading "AWN+ for Teams Forecast" [level=3] [ref=e137]
+                  - heading "15-Day Hourly Forecast" [level=4] [ref=e138]
+                  - paragraph [ref=e139]: Plan even further ahead with a 15-day extended outlook, giving teams the insight they need to coordinate operations, outdoor activities, and long-term projects with confidence.
+      - generic [ref=e140] [cursor=pointer]: Terms and Conditions
+    - generic [ref=e141]:
+      - link "Help Center" [ref=e142] [cursor=pointer]:
+        - /url: https://ambientweather.com/support
+      - link "Facebook Group" [ref=e143] [cursor=pointer]:
+        - /url: https://www.facebook.com/groups/ambientweathernetwork/
+  - contentinfo [ref=e144]:
+    - generic [ref=e145]:
+      - text: © Copyright Ambient, LLC, 2026. All rights reserved.
+      - link "Need Help?" [ref=e146] [cursor=pointer]:
+        - /url: https://ambientweather.com/support
+      - generic [ref=e147]: "|"
+      - text: Join our
+      - link "Community" [ref=e148] [cursor=pointer]:
+        - /url: https://ambientweather.com/faqs/question/view/id/1779/
+  - generic [ref=e63]:
+    - generic [ref=e64]: AmbientWeather.net uses cookies to analyze traffic to this site.
+    - link "See details" [ref=e65] [cursor=pointer]:
+      - /url: https://privacy.nkhome.com/privacy-policy
+    - generic [ref=e66] [cursor=pointer]: OK, got it

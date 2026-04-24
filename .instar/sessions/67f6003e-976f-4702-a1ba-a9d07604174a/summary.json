@@ -1,0 +1,18 @@
+{
+  "sessionId": "67f6003e-976f-4702-a1ba-a9d07604174a",
+  "tmuxSession": "Roland-im-b93de418",
+  "task": "[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1776084418502-ac44ix.txt — it contains your",
+  "phase": "testing",
+  "files": [
+    "/Users/rolandcanyon/.instar/agents/Roland/.claude/scripts/room_commit.py"
+  ],
+  "topics": [
+    "security",
+    "deployment"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-13T12:51:05.632Z",
+  "updatedAt": "2026-04-13T12:51:05.632Z",
+  "stale": true,
+  "outputHash": "fa49c0b4dee2e71d7f2c04ae68833616"
+}

@@ -1,0 +1,2 @@
+[     251ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://www.haywardomnilogic.com/Login.aspx:0
+[   19940ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://www.haywardomnilogic.com/Images/Theme/icon_theme_20.png:0

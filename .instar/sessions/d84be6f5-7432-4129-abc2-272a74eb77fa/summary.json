@@ -1,0 +1,15 @@
+{
+  "sessionId": "d84be6f5-7432-4129-abc2-272a74eb77fa",
+  "tmuxSession": "Roland-job-dashboard-link-refresh-mo4idp0m",
+  "task": "[VIEW METADATA]\nWhen creating private views (POST /view), include metadata to link the report to thi",
+  "phase": "building",
+  "files": [],
+  "topics": [
+    "monitoring"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-18T15:45:51.840Z",
+  "updatedAt": "2026-04-18T15:45:51.840Z",
+  "stale": false,
+  "outputHash": "a92b3292ccda0365d44c86df2e001687"
+}

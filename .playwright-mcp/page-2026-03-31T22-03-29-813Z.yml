@@ -1,0 +1,205 @@
+- generic [ref=e2]:
+  - list [ref=e5]:
+    - listitem [ref=e6]:
+      - link "favorite" [ref=e7] [cursor=pointer]:
+        - /url: javascript:__doPostBack('ctl00$lbtFavoriteBar','')
+    - listitem [ref=e8]:
+      - link "theme" [ref=e9] [cursor=pointer]:
+        - /url: ThemeList.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C
+    - listitem [ref=e10]:
+      - link "settings" [ref=e11] [cursor=pointer]:
+        - /url: MspSetting.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C
+    - listitem [ref=e12]:
+      - link "power off / features off" [ref=e13] [cursor=pointer]:
+        - /url: javascript:__doPostBack('ctl00$lbkPowerOff','')
+    - listitem [ref=e14]
+  - generic [ref=e15]:
+    - generic [ref=e16]:
+      - link [ref=e18] [cursor=pointer]:
+        - /url: http://www.hayward.com
+        - img [ref=e19]
+      - generic [ref=e20]:
+        - img [ref=e21]
+        - generic [ref=e22]: Roland
+      - generic [ref=e24]:
+        - generic:
+          - link:
+            - /url: ../AdminManagement/ShowSystemMessage.aspx?id= <%= Misc.DecEncrypt(mspID) %>
+      - generic [ref=e27]:
+        - combobox [ref=e28]:
+          - option "English" [selected]
+          - option "Français"
+        - generic [ref=e29]:
+          - link "Skip Navigation Links":
+            - /url: "#menuBar_SkipLink"
+            - img "Skip Navigation Links"
+          - menubar [ref=e31]:
+            - menuitem "home" [ref=e32]:
+              - link "home" [ref=e33] [cursor=pointer]:
+                - /url: Dashboard.aspx
+            - menuitem "sites" [ref=e34]:
+              - link "sites" [ref=e35] [cursor=pointer]:
+                - /url: "#"
+            - menuitem "profile" [ref=e36]:
+              - link "profile" [ref=e37] [cursor=pointer]:
+                - /url: "#"
+            - menuitem "log out" [ref=e38]:
+              - link "log out" [ref=e39] [cursor=pointer]:
+                - /url: ../../Logout.aspx
+            - menuitem "help" [ref=e40]:
+              - link "help" [ref=e41] [cursor=pointer]:
+                - /url: ../../Common/Help.aspx
+    - generic [ref=e42]:
+      - generic [ref=e43]:
+        - heading "31" [level=1] [ref=e44]
+        - heading "TUESDAY" [level=2] [ref=e45]
+        - heading "Mar 31" [level=3] [ref=e46]
+        - heading "03:03 PM" [level=4] [ref=e47]
+      - img [ref=e50]
+    - generic:
+      - generic [ref=e51]:
+        - list [ref=e53]:
+          - table [ref=e54]:
+            - rowgroup [ref=e55]:
+              - row "Pool Spa" [ref=e56]:
+                - cell "Pool" [ref=e57]:
+                  - listitem [ref=e58] [cursor=pointer]:
+                    - img [ref=e59]
+                    - link "Pool" [ref=e60]:
+                      - /url: javascript:__doPostBack('ctl00$dlstPool$ctl00$lkbPool','')
+                - cell "Spa" [ref=e61]:
+                  - listitem [ref=e62] [cursor=pointer]:
+                    - img [ref=e63]
+                    - link "Spa" [ref=e64]:
+                      - /url: javascript:__doPostBack('ctl00$dlstPool$ctl01$lkbPool','')
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+        - generic [ref=e65]:
+          - list [ref=e67]:
+            - listitem [ref=e68] [cursor=pointer]:
+              - img [ref=e69]
+              - link "home" [ref=e70]:
+                - /url: ../../Module/UserManagement/Dashboard.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C
+            - listitem [ref=e71] [cursor=pointer]:
+              - img [ref=e72]
+              - link "filter pump" [ref=e73]:
+                - /url: ../../Module/UserManagement/Filter_Setting.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C&bowSystemID=BE1BF543BCC6BD40
+            - listitem [ref=e74] [cursor=pointer]:
+              - img [ref=e75]
+              - link "heater" [ref=e76]:
+                - /url: ../../Module/UserManagement/Heater_Setting.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C&bowSystemID=BE1BF543BCC6BD40
+            - listitem [ref=e77] [cursor=pointer]:
+              - img [ref=e78]
+              - link "water features" [ref=e79]:
+                - /url: ../../Module/UserManagement/WaterFeature_Setting.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C&bowSystemID=BE1BF543BCC6BD40
+            - listitem [ref=e80] [cursor=pointer]:
+              - img [ref=e81]
+              - link "cleaner" [ref=e82]:
+                - /url: ../../Module/UserManagement/Cleaner_Setting.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C&bowSystemID=BE1BF543BCC6BD40
+            - listitem [ref=e83] [cursor=pointer]:
+              - img [ref=e84]
+              - link "schedule" [ref=e85]:
+                - /url: ../../Module/UserManagement/Bow_Schedule_List.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C
+            - listitem [ref=e86] [cursor=pointer]:
+              - img [ref=e87]
+              - link "settings" [ref=e88]:
+                - /url: ../../Module/UserManagement/MspSetting.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C
+            - listitem [ref=e89] [cursor=pointer]:
+              - img [ref=e90]
+              - link "theme" [ref=e91]:
+                - /url: ../../Module/UserManagement/ThemeList.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C
+            - listitem [ref=e92] [cursor=pointer]:
+              - img [ref=e93]
+              - link "survey" [ref=e94]:
+                - /url: ../../Module/UserManagement/SurveyList.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C
+            - listitem [ref=e95] [cursor=pointer]:
+              - img [ref=e96]
+              - link "history" [ref=e97]:
+                - /url: ../../Module/TelemetryManagement/TelemetryHistory.aspx?mspID=D772343ECC3A4EC5&bowID=02395BF4FB399B5C
+          - generic [ref=e98]:
+            - generic [ref=e99]:
+              - table [ref=e100]:
+                - rowgroup [ref=e101]:
+                  - row "14450 Roland Canyon Rd, Salinas, California, United States" [ref=e102]:
+                    - cell "14450 Roland Canyon Rd, Salinas, California, United States" [ref=e103]
+              - separator [ref=e104]
+            - generic [ref=e105]:
+              - generic:
+                - generic [ref=e106]:
+                  - generic [ref=e107]:
+                    - img [ref=e108]
+                    - text: heater
+                  - generic [ref=e109]:
+                    - generic [ref=e110]:
+                      - img [ref=e111]
+                      - button "Submit" [ref=e112] [cursor=pointer]
+                      - generic [ref=e113]: set temperature 80°F
+                    - generic [ref=e116]:
+                      - img [ref=e119]
+                      - textbox [ref=e120]: "80"
+                  - generic [ref=e122]:
+                    - heading "79°F" [level=1] [ref=e123]
+                    - heading "actual" [level=2] [ref=e124]
+                - generic [ref=e125]:
+                  - generic [ref=e126]:
+                    - img [ref=e127]
+                    - text: Filter Pump
+                  - generic [ref=e128]:
+                    - generic [ref=e129]:
+                      - img [ref=e130]
+                      - button "Submit" [ref=e131] [cursor=pointer]
+                      - generic [ref=e132]: "on"
+                    - generic [ref=e133]:
+                      - button "LOW" [ref=e134]
+                      - button "MED" [ref=e135]
+                      - button "HIGH" [ref=e136]
+                      - button "CUSTOM" [ref=e137]
+                      - generic [ref=e140]:
+                        - img [ref=e143]
+                        - textbox [ref=e144]: "75"
+                  - generic [ref=e146]:
+                    - heading "75 %" [level=1] [ref=e147]
+                    - heading [level=2]
+            - generic [ref=e148]:
+              - heading "pool water quality" [level=1] [ref=e149]
+              - table [ref=e150]:
+                - rowgroup [ref=e151]:
+                  - row "-- -- --" [ref=e152]:
+                    - cell "--" [ref=e153]:
+                      - generic [ref=e154]:
+                        - img [ref=e155]
+                        - generic [ref=e156]: "--"
+                    - cell "--" [ref=e157]:
+                      - generic [ref=e158]:
+                        - img [ref=e159]
+                        - generic [ref=e160]: "--"
+                    - cell "--" [ref=e161]:
+                      - generic [ref=e162]:
+                        - img [ref=e163]
+                        - generic [ref=e164]: "--"
+              - generic [ref=e165]:
+                - img [ref=e166]
+                - text: dispensing
+                - img [ref=e167]
+                - text: chlorinating
+            - generic [ref=e168]:
+              - heading "survey" [level=1] [ref=e169]
+              - generic [ref=e170]:
+                - generic [ref=e171]: "--"
+                - text: ppm
+                - text: hardness
+              - generic [ref=e172]:
+                - generic [ref=e173]: "--"
+                - text: ppm
+                - text: alkalinity
+              - generic [ref=e174]:
+                - generic [ref=e175]: "--"
+                - text: ppm
+                - text: stabilizer
+      - generic:
+        - list:
+          - listitem
+    - generic [ref=e176]: Copyright (c) 2013-2019 Hayward Industries Inc. version R3.6.6

@@ -1,0 +1,15 @@
+{
+  "sessionId": "0068f752-8abc-4c5e-9dfa-58dc7cb59d95",
+  "tmuxSession": "Roland-job-state-integrity-check-moaf7ixr",
+  "task": "[NOTIFICATION PROTOCOL: This job runs in quiet mode. The user will NOT see your output unless you ex",
+  "phase": "building",
+  "files": [],
+  "topics": [
+    "monitoring"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-22T19:03:47.556Z",
+  "updatedAt": "2026-04-22T19:03:47.556Z",
+  "stale": false,
+  "outputHash": "d4a9d26edd6e33f27282ebc628001454"
+}

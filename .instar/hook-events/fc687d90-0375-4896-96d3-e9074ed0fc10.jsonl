@@ -1,5 +1,0 @@
-{"receivedAt":"2026-04-11T11:40:11.535Z","payload":{"event":"PostToolUse","session_id":"fc687d90-0375-4896-96d3-e9074ed0fc10","tool_name":"Bash"}}
-{"receivedAt":"2026-04-11T11:40:12.034Z","payload":{"event":"PostToolUse","session_id":"fc687d90-0375-4896-96d3-e9074ed0fc10","tool_name":"Bash"}}
-{"receivedAt":"2026-04-11T11:40:15.271Z","payload":{"event":"PostToolUse","session_id":"fc687d90-0375-4896-96d3-e9074ed0fc10","tool_name":"Bash"}}
-{"receivedAt":"2026-04-11T11:40:19.160Z","payload":{"event":"Unknown","session_id":"fc687d90-0375-4896-96d3-e9074ed0fc10","tool_name":""}}
-{"receivedAt":"2026-04-11T11:40:23.370Z","payload":{"event":"Unknown","session_id":"fc687d90-0375-4896-96d3-e9074ed0fc10","tool_name":""}}

@@ -1,0 +1,15 @@
+{
+  "sessionId": "5b3ace59-3d9e-488e-bc67-317a09c78df6",
+  "tmuxSession": "Roland-job-commitment-detection-mo3z96wn",
+  "task": "[NOTIFICATION PROTOCOL: This job runs in quiet mode. The user will NOT see your output unless you ex",
+  "phase": "building",
+  "files": [],
+  "topics": [
+    "messaging"
+  ],
+  "blockers": null,
+  "lastActivity": "2026-04-18T06:50:26.370Z",
+  "updatedAt": "2026-04-18T06:50:26.370Z",
+  "stale": false,
+  "outputHash": "f5d8d6afd963d20685271986d9a4e3a7"
+}

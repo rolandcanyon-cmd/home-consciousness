@@ -58,6 +58,74 @@ for m in d.get('recentMessages', []):
   fi
 fi
 
+# INTEGRATED-BEING LEDGER — cross-session observations (see docs/specs/integrated-being-ledger-v1.md)
+# Fetches /shared-state/render and injects it if non-empty. Silent on absence /
+# auth failure — endpoint returns 503 when disabled, empty body when enabled
+# but has no entries. Either way we only echo when content is present.
+if [ -f "$INSTAR_DIR/config.json" ]; then
+  PORT=${PORT:-$(grep -o '"port":[0-9]*' "$INSTAR_DIR/config.json" | head -1 | cut -d':' -f2)}
+  TOKEN=$(grep -o '"authToken":"[^"]*"' "$INSTAR_DIR/config.json" | head -1 | sed 's/"authToken":"//;s/"$//')
+  if [ -n "$PORT" ] && [ -n "$TOKEN" ]; then
+    SHARED_STATE=$(curl -sf -H "Authorization: Bearer $TOKEN" "http://localhost:${PORT}/shared-state/render?limit=50" 2>/dev/null)
+    if [ -n "$SHARED_STATE" ]; then
+      echo ""
+      echo "--- INTEGRATED-BEING (cross-session observations) ---"
+      echo "$SHARED_STATE"
+      echo "--- END INTEGRATED-BEING ---"
+      echo ""
+    fi
+  fi
+fi
+
+# BEGIN integrated-being-v2
+# INTEGRATED-BEING V2 — session-write binding (see docs/specs/integrated-being-ledger-v2.md §3)
+# Generates a session UUID, registers with /shared-state/session-bind, writes the
+# token file with mode 0o600 + atomic rename, writes .ready marker, confirms via
+# session-bind-confirm. Silent on 503 (v2Enabled=false) — v1 behavior preserved.
+# Section bounded by markers for inject-mode migration to re-update in place.
+if [ -f "$INSTAR_DIR/config.json" ] && [ -n "$PORT" ] && [ -n "$TOKEN" ]; then
+  SID=$(python3 -c "import uuid; print(str(uuid.uuid4()))" 2>/dev/null)
+  if [ -n "$SID" ]; then
+    BIND_RESP=$(curl -sf -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+      -d "{\"sessionId\":\"$SID\"}" \
+      "http://localhost:${PORT}/shared-state/session-bind" 2>/dev/null)
+    if [ -n "$BIND_RESP" ] && echo "$BIND_RESP" | grep -q '"token"'; then
+      LEDGER_TOKEN=$(echo "$BIND_RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('token',''))" 2>/dev/null)
+      if [ -n "$LEDGER_TOKEN" ]; then
+        BIND_DIR="$INSTAR_DIR/session-binding"
+        # Create dir under umask 077 to avoid a mode-race window where
+        # a concurrent process could stat/listdir before chmod lands.
+        ( umask 077; mkdir -p "$BIND_DIR" )
+        chmod 0700 "$BIND_DIR" 2>/dev/null
+        TOK_FILE="$BIND_DIR/${SID}.token"
+        TMP_FILE="${TOK_FILE}.tmp.$$"
+        # Atomic write: umask-safe 0o600 mode, explicit chmod, fsync, rename.
+        ( umask 077; printf '%s' "$LEDGER_TOKEN" > "$TMP_FILE" )
+        chmod 0600 "$TMP_FILE" 2>/dev/null
+        python3 -c "import os,sys; fd=os.open('$TMP_FILE', os.O_RDONLY); os.fsync(fd); os.close(fd)" 2>/dev/null
+        mv "$TMP_FILE" "$TOK_FILE"
+        chmod 0600 "$TOK_FILE" 2>/dev/null
+        # Mode verification — fail-CLOSED on anything other than 0600.
+        MODE=$(python3 -c "import os,stat; print(oct(stat.S_IMODE(os.stat('$TOK_FILE').st_mode))[-4:])" 2>/dev/null)
+        if [ "$MODE" = "0600" ]; then
+          touch "$BIND_DIR/${SID}.ready"
+          chmod 0600 "$BIND_DIR/${SID}.ready" 2>/dev/null
+          curl -sf -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+            -d "{\"sessionId\":\"$SID\"}" \
+            "http://localhost:${PORT}/shared-state/session-bind-confirm" -o /dev/null 2>/dev/null || true
+          export INSTAR_LEDGER_SESSION_ID="$SID"
+          export INSTAR_LEDGER_TOKEN_PATH="$TOK_FILE"
+        else
+          # Mode mismatch → deny for this session's lifetime, clean up evidence.
+          echo "[integrated-being-v2] token file mode $MODE != 0600; denying session-write for this session" >&2
+          rm -f "$TOK_FILE"
+        fi
+      fi
+    fi
+  fi
+fi
+# END integrated-being-v2
+
 # Identity summary (first 20 lines of AGENT.md — enough for name + role)
 if [ -f "$INSTAR_DIR/AGENT.md" ]; then
   echo ""

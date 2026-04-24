@@ -9,7 +9,10 @@
     "maxSessions": 10,
     "protectedSessions": [
       "Roland-server"
-    ]
+    ],
+    "anthropicApiKey": "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",
+    "idlePromptKillMinutes": 60,
+    "defaultMaxDurationMinutes": 480
   },
   "scheduler": {
     "enabled": true,
@@ -38,10 +41,11 @@
         "maxReconnectAttempts": 10,
         "immediateAck": {
           "enabled": true,
-          "message": "Got it, thinking...",
+          "message": "...",
           "cooldownSeconds": 30
         },
-        "directMessageTrigger": "always"
+        "directMessageTrigger": "always",
+        "dbPath": "/Users/rolandcanyon/.instar/agents/Roland/.instar/imessage/chat.db"
       }
     }
   ],
@@ -82,7 +86,7 @@
     "type": "quick"
   },
   "gitBackup": {
-    "enabled": true,
+    "enabled": false,
     "autoPush": false
   },
   "userRegistrationPolicy": "invite-only",
@@ -113,6 +117,31 @@
   "dashboardPin": "242446",
   "_instar_migrations": [
     "defaults-unknown-2026-04-02T22:27:43.113Z",
-    "defaults-unknown-2026-04-11T05:04:26.470Z"
-  ]
+    "defaults-unknown-2026-04-11T05:04:26.470Z",
+    "defaults-unknown-2026-04-18T14:34:50.225Z"
+  ],
+  "dashboard": {
+    "fileViewer": {
+      "allowedPaths": [
+        ".instar/imessage/attachments/",
+        "./"
+      ]
+    }
+  },
+  "integratedBeing": {
+    "counterpartyHashSalt": "52f90f02d29abcf5ad9087b1b9ef4c4f27d730b8051ee72c618af30dafd7ae6b"
+  },
+  "backup": {
+    "includeFiles": [
+      ".instar/state/pr-pipeline.jsonl*",
+      ".instar/state/pr-gate/phase-a-sha.json",
+      ".instar/state/pr-debounce.jsonl",
+      ".instar/state/pr-debounce-archive.jsonl",
+      ".instar/state/pr-cost-ledger.jsonl",
+      ".instar/state/security.jsonl*"
+    ]
+  },
+  "prGate": {
+    "phase": "off"
+  }
 }

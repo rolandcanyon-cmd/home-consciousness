@@ -31,7 +31,7 @@ LAST_CHECK=0
 [ -f "$CANARY_CHECK" ] && LAST_CHECK=$(cat "$CANARY_CHECK")
 ELAPSED=$((NOW - LAST_CHECK))
 
-if [ "$ELAPSED" -ge 600 ]; then
+if [ "$ELAPSED" -ge 3600 ]; then
   echo "$NOW" > "$CANARY_CHECK"
 
   RESULT=$("$CLAUDE" --dangerously-skip-permissions --model haiku -p "reply with just OK" 2>&1 | head -3)

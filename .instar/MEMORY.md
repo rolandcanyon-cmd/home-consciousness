@@ -59,7 +59,7 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 ### iMessage Integration (2026-03-28)
 - Building iMessage adapter for Instar PR (JKHeadley/instar, branch feat/imessage-adapter)
 - Architecture: NativeBackend (SQLite read-only) for receive, imsg CLI for send from tmux sessions
-- Key constraint: LaunchAgent can READ chat.db (with FDA on node) but CANNOT send (no Automation permission)
+- Key constraint: LaunchAgent can READ chat.db (Instar hardlinks chat.db automatically — no FDA on node needed after first startup) but CANNOT send (no Automation permission)
 - Sending must happen from Claude Code sessions via imessage-reply.sh → imsg send CLI
 - Reply flow: Claude → imessage-reply.sh → imsg send (direct) + POST /imessage/reply (server notify for logging/stall)
 - Session routing follows Telegram pattern: SessionChannelRegistry, StallDetector, conversation context injection
@@ -70,7 +70,7 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 - Source repo: /Users/rolandcanyon/instar-dev (branch feat/imessage-adapter)
 - Fork: github.com/rolandcanyon-cmd/instar (branch pushed)
 - Shadow-install: installed from fork, dist copied from dev build + iMessage adapter files manually copied
-- Prerequisites: macOS, Messages.app signed in, imsg CLI, FDA on node, Automation on terminal
+- Prerequisites: macOS, Messages.app signed in, imsg CLI, Automation on terminal; FDA is granted to instar-attachments-sync Go helper (not node) for photo attachments
 - Rebased onto main (v0.25.8) on 2026-03-31, resolved builtin-manifest.json conflicts
 - Fixed context injection: wireIMessageRouting was writing context files but discarding the return value (sessions never saw conversation history)
 - Fixed session lifecycle: added waitForClaudeReady + kill-and-respawn for stuck/dead sessions (matching Slack pattern)
@@ -194,6 +194,50 @@ This is my long-term memory — the thread of continuity across sessions. Each s
 **How to use new capabilities**:
 - **Diagnose context issues**: `curl -H "Authorization: Bearer $AUTH" http://localhost:4040/context/dispatch` — if a segment reports statError, the absolute filePath shows exactly which path the server checked
 - **Trust size consistency**: When context reports a segment exists, it has verified the size in the same operation (no stale or contradictory data)
+
+### Instar v0.28.64+ Upgrades (2026-04-20, extended through 2026-04-22)
+
+**Three major upgrades applied (2026-04-20):**
+
+**1. Scheduler gate exit codes (all versions)** — Truthful exit code reporting
+- Gate skips now report the REAL exit code (e.g., `exit 1`) instead of `exit null` for non-zero gates
+- Legitimate skips (intentional exit codes) no longer look like crashes
+- Activity feed and `job_gate_skip` events show real exit code or signal (e.g., `exit SIGKILL`)
+- **Impact**: Easier triage of stuck jobs — can now tell the difference between "gate intentionally returned 1" vs "process was killed"
+- **No behavior change** — just better diagnostics
+
+**2. Promise Beacon Phase 1 (vNEXT)** — Commitment tracking across compaction
+- I can now make promises: `curl -X POST -H "Authorization: Bearer $AUTH" http://localhost:4040/commitments -d '{"title":"Back in 2 hours","softDeadlineAt":"2026-04-20T18:00Z","cadenceMs":60000}'`
+- Promises show in dashboard "Open Promises" tab with: cadence, last-heartbeat, state badge, Mark-delivered action
+- **Non-terminal `atRisk` state** — if progress looks concerning, promise goes into middle state (softer notification than full violation)
+- **Promise injection across compaction** — `GET /commitments/active-context` returns ≤20 most recent pending/atRisk; auto-injected into session-start so I remember promises across memory resets
+- **Update promise timing** — `PATCH /commitments/:id` to change deadline, cadence, or enable/disable beacon (without having to recreate)
+- **Boot-cap enforcement** — max 20 active commitments (configurable via `promiseBeacon.maxActiveBeacons`); overflow marked `beaconSuppressed: "boot-cap-exceeded"`
+- **Shared LLM queue** (PresenceProxy) — both monitors now share the daily spend cap when `sharedLlmQueue` is configured
+
+**3. JobLoader per-entry resilience (v0.28.64)** — Graceful job config handling
+- Invalid job entries in `.instar/jobs.json` are now **logged and skipped** instead of crashing the entire scheduler
+- Malformed job (missing `name`, invalid `execute.type`) gets `console.error` with index + slug + validation error, then next job loads normally
+- Structural errors still throw (missing file, unparseable JSON, non-array root) — those indicate total failure
+- **Impact**: One broken job config no longer takes down the whole scheduler and kills all other jobs
+- **How to verify**: Check `console.error` logs when jobs load — invalid entries now show up there
+
+**How to use**:
+- Make a promise: `curl -X POST ... /commitments` with title + deadlines + cadence
+- Check promise state: See dashboard "Open Promises" tab or `curl ... /commitments/active-context`
+- Update promise timing: `curl -X PATCH ... /commitments/:id` with new deadlines/cadence
+- Mark promise delivered: Dashboard action or `curl -X POST ... /commitments/:id/deliver`
+- View gate skip diagnostics: Activity feed and job logs now show real exit codes instead of `exit null`
+
+### Instar v0.28.73 Upgrade (2026-04-23)
+
+**Capability Mapper Fix — Cleaner Drift Reports**
+- `CapabilityMapper.classify()` now correctly labels agent-local capabilities (skills, scripts, jobs, context segments) as `user` provenance instead of `unknown`
+- Agent-local config items were previously flagged as "unmapped mysteries" even though I wrote them — now the system recognizes them as user-authored
+- **Impact**: My `drift` reports are cleaner, `drift.unmapped` shrinks, `summary.userConfigured` now shows the real count of my custom capabilities
+- **Technical detail**: Non-`unknown` pre-classify provenance (e.g., hardcoded `instar` for hooks) is preserved; only truly unmatched items get `user` classification
+- One-time drift report change: existing agent-local capabilities will show a provenance transition from `unknown` → `user` — this is expected and correct, signals the fix is working
+- **How to use**: Just use capability-map drift endpoint normally — reporting is now more accurate. No action needed.
 
 ## People
 

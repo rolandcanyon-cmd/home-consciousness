@@ -18,3 +18,9 @@
 # Claude Code
 .claude/projects/
 .claude/todos/
+.claude/scripts/__pycache__/
+.claude/scripts/.instar/
+# Paste files (may contain sensitive content)
+.instar/paste/
+.instar/context/project.dc
+.instar/secrets/pr-gate/
