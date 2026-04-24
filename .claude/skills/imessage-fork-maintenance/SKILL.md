@@ -129,7 +129,13 @@ curl -s -H "Authorization: Bearer $AUTH" http://localhost:4040/imessage/status |
 
 # Claude can spawn a session (read API key from config — same as SessionManager uses)
 CANARY_KEY=$(python3 -c "import json; print(json.load(open('/Users/rolandcanyon/.instar/agents/Roland/.instar/config.json'))['sessions']['anthropicApiKey'])")
-/opt/homebrew/bin/tmux new-session -d -s verify-canary -e "CLAUDECODE=" -e "ANTHROPIC_API_KEY=$CANARY_KEY" \
+# OAuth tokens (sk-ant-oat...) go in CLAUDE_CODE_OAUTH_TOKEN; API keys (sk-ant-api03...) go in ANTHROPIC_API_KEY
+if echo "$CANARY_KEY" | grep -q "^sk-ant-o"; then
+  KEY_ENV="CLAUDE_CODE_OAUTH_TOKEN=$CANARY_KEY"
+else
+  KEY_ENV="ANTHROPIC_API_KEY=$CANARY_KEY"
+fi
+/opt/homebrew/bin/tmux new-session -d -s verify-canary -e "CLAUDECODE=" -e "$KEY_ENV" \
   "bash -c '/Users/rolandcanyon/homebrew/bin/claude --dangerously-skip-permissions --model haiku -p \"reply OK\" > /tmp/canary.txt 2>&1; sleep 10'"
 sleep 15
 grep -qi "OK" /tmp/canary.txt
@@ -173,8 +179,13 @@ Silent when nothing changed.
 
 ## Our customizations (for reference)
 
-We maintain exactly ONE commit on top of upstream:
-- **Immediate ack**: sends "Got it, thinking..." before session spawn
-- **1:1 trigger fix**: mention mode only gates group chats
+As of 2026-04-24, all our custom commits have been merged upstream. We are at **zero divergence** — instar-dev/main = JKHeadley/instar/main at v0.28.73.
 
-If upstream merges equivalent features, drop our commit and rebase clean.
+Previously maintained custom commits (now upstream):
+- **Immediate ack**: sends "..." before session spawn
+- **1:1 trigger fix**: mention mode only gates group chats
+- **OAuth vs API key auto-detect**: routes tokens to correct env var (CLAUDE_CODE_OAUTH_TOKEN vs ANTHROPIC_API_KEY) — this was the auth message fix
+- **directMessageTrigger config respect**
+- **Attachment hardlinking** (multiple commits)
+
+When new customizations are needed, add ONE commit on top of upstream and keep it rebased. If upstream merges equivalent features, drop our commit and rebase clean.
