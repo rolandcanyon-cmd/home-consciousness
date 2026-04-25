@@ -35,12 +35,12 @@ Fetch current weather and forecast from Tempest station, plus indoor and pool te
    - Look for "All Batteries OK" or any low battery warnings
    - Only include in message if batteries need attention
 8. **Format a friendly morning message** with the weather data
-9. **Send via iMessage** to +14084424360 using: `imsg send --to "+14084424360" --text "MESSAGE"`
+9. **Send via iMessage** to $USER_PHONE using: `imsg send --to "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" --text "MESSAGE"`
 
 ## Output Format
 
 ```
-🌤️ Roland Canyon Weather - [Day, Mon DD]
+🌤️ House Weather - [Day, Mon DD]
 
 🏠 Indoor: [Indoor Temperature]°
 🌡️ Outdoor: [Outdoor Temperature]° (Feels like [Feels Like]°)

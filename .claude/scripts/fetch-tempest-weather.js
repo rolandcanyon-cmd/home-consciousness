@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Fetch weather data from Tempest weather station
- * Station ID: 125865 (Roland Canyon Rd)
+ * Station ID configured in TEMPEST_STATION_ID env var
  * Uses Playwright MCP to scrape the JS-rendered page
  */
 
@@ -64,7 +64,7 @@ async function formatWeatherMessage(weather) {
 
   const { current } = weather;
 
-  return `🌤️ Roland Canyon Weather - ${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+  return `🌤️ House Weather - ${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
 
 ${current.temperature}
 ${current.condition}

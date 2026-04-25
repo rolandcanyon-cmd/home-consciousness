@@ -87,7 +87,7 @@ class VantageProbe:
         """Pull additional Area objects from the .dc project file, if available.
         Fills in the 'dangling' area VIDs that runtime controller can't resolve."""
         dc_path = os.path.join(
-            os.environ.get("CLAUDE_PROJECT_DIR", "/Users/rolandcanyon/.instar/agents/Roland"),
+            os.environ.get("CLAUDE_PROJECT_DIR", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
             ".instar", "context", "project.dc",
         )
         if not os.path.exists(dc_path):

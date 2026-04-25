@@ -10,7 +10,8 @@
 
 set -eu
 
-LOGDIR="/Users/rolandcanyon/.instar/agents/Roland/.instar/logs"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LOGDIR="$(cd "${SCRIPT_DIR}/../.." && pwd)/logs"
 MAX_SIZE_MB=20
 RETAIN_DAYS=30
 

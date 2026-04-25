@@ -1,2 +1,0 @@
-[     643ms] [INFO] [O11Y] [DatadogRUM] Initialized {service: claude-ai, env: production, version: 8c0759043e} @ https://assets-proxy.anthropic.com/claude-ai/v2/assets/v1/index-Brkvbxvw.js:1
-[    2101ms] [WARNING] [Intercom] The App ID in your code snippet has not been set. Set it to your App ID found in settings to complete installation: https://app.intercom.com/a/apps/_/settings/web @ https://js.intercomcdn.com/frame-modern.3fa1db07.js:0

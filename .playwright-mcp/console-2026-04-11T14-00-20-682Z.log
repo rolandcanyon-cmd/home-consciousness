@@ -1,2 +1,0 @@
-[     726ms] [WARNING] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading @ https://d2wy8f7a9ursnm.cloudfront.net/v4/bugsnag.min.js:0
-[     751ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://tempestwx.com/station/125865/:0

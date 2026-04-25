@@ -35,7 +35,7 @@ from typing import Any, Dict, List, Optional
 
 PROJECT_DIR = os.environ.get(
     "CLAUDE_PROJECT_DIR",
-    "/Users/rolandcanyon/.instar/agents/Roland",
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 )
 INSTAR_URL = os.environ.get("INSTAR_URL", "http://localhost:4040")
 

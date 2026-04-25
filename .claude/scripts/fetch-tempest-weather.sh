@@ -1,6 +1,6 @@
 #!/bin/bash
 # Fetch weather data from Tempest weather station
-# Station ID: 125865 (Roland Canyon Rd)
+# Station ID configured in TEMPEST_STATION_ID env var
 
 set -e
 
@@ -93,7 +93,7 @@ if echo "$weather_data" | jq -e . >/dev/null 2>&1; then
 
   # Format the message
   cat <<MESSAGE
-🌤️ Roland Canyon Weather - $date_str
+🌤️ House Weather - $date_str
 
 $temp
 $condition

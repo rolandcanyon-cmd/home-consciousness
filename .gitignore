@@ -24,3 +24,27 @@
 .instar/paste/
 .instar/context/project.dc
 .instar/secrets/pr-gate/
+
+# Machine-specific / instance-specific files
+# Use setup/bootstrap.sh to regenerate for each install
+.instar/AGENT.md
+.instar/MEMORY.md
+.claude/settings.json
+.claude/settings.json.bak*
+.mcp.json
+
+# Tokens and auth
+.kittenkong-token.json
+
+# Playwright browser sessions
+.playwright-mcp/
+
+# Logs
+logs/
+
+# Screenshots and test artifacts
+*.png
+*.jpg
+test_funkygibbon.db
+# Accidental files
+*T*:*:*.???Z

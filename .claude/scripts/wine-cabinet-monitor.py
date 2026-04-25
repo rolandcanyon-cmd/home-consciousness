@@ -31,7 +31,7 @@ ALERT_THRESHOLD_F = 65.0
 # Don't re-alert unless the last alert was more than this many seconds ago
 ALERT_COOLDOWN_SECONDS = 3600  # 1 hour
 
-USER_PHONE = '+14084424360'
+USER_PHONE = os.environ.get('USER_PHONE', '')
 
 # Wine sensor keywords — matched against sensor names (case-insensitive)
 WINE_SENSOR_KEYWORDS = ['wine cabinet', 'wine closet', 'ebers']

@@ -11,12 +11,12 @@ Keep the Instar fork in sync with upstream. The goal is a working install with m
 
 ## Layout
 
-- **Source**: `/Users/rolandcanyon/instar-dev` (git repo)
+- **Source**: `$HOME/instar-dev` (git repo)
   - Remote `origin` = JKHeadley/instar (upstream)
-  - Remote `fork` = rolandcanyon-cmd/instar (our fork)
+  - Remote `fork` = {{INSTAR_FORK_ORG}}/instar (our fork)
   - Branch `main` — upstream main + our one custom commit on top
-- **Deploy target**: `/Users/rolandcanyon/.instar/agents/Roland/.instar/shadow-install`
-  - Package name: `@rolandcanyon-cmd/instar` (MUST use scoped name)
+- **Deploy target**: `$AGENT_DIR/.instar/shadow-install`
+  - Package name: `@{{INSTAR_FORK_ORG}}/instar` (MUST use scoped name)
 - **Server**: LaunchAgent `ai.instar.Roland`, port 4040
 
 ## Procedure
@@ -24,7 +24,7 @@ Keep the Instar fork in sync with upstream. The goal is a working install with m
 Run every step. If any step fails, jump to ROLLBACK.
 
 ```
-cd /Users/rolandcanyon/instar-dev
+cd $HOME/instar-dev
 ```
 
 ### 1. Record rollback point
@@ -41,8 +41,8 @@ git fetch origin
 Check all open PRs for new comments. If there are unresponded comments, address them:
 
 ```bash
-# List open PRs from rolandcanyon-cmd
-gh pr list --repo JKHeadley/instar --author rolandcanyon-cmd --state open --json number,title,updatedAt --limit 10
+# List open PRs from {{INSTAR_FORK_ORG}}
+gh pr list --repo JKHeadley/instar --author {{INSTAR_FORK_ORG}} --state open --json number,title,updatedAt --limit 10
 ```
 
 For each open PR:
@@ -81,19 +81,19 @@ If fails: jump to ROLLBACK.
 
 ### 7. Deploy
 ```bash
-cd /Users/rolandcanyon/.instar/agents/Roland/.instar/shadow-install
-npm install "@rolandcanyon-cmd/instar@file:../../../../../instar-dev"
+cd $AGENT_DIR/.instar/shadow-install
+npm install "@{{INSTAR_FORK_ORG}}/instar@file:../../../../../instar-dev"
 npm install better-sqlite3
 
 # Fix node symlink — npm install resets it to /opt/homebrew which lacks Full Disk Access
-ln -sf /Users/rolandcanyon/homebrew/bin/node /Users/rolandcanyon/.instar/agents/Roland/.instar/bin/node
+ln -sf $HOME/homebrew/bin/node $AGENT_DIR/.instar/bin/node
 
 # Fix autoApply — must be false since we manage updates via this rebase job
 python3 -c "
 import json
-c = json.load(open('/Users/rolandcanyon/.instar/agents/Roland/.instar/config.json'))
+c = json.load(open('$AGENT_DIR/.instar/config.json'))
 c.setdefault('updates', {})['autoApply'] = False
-json.dump(c, open('/Users/rolandcanyon/.instar/agents/Roland/.instar/config.json', 'w'), indent=2)
+json.dump(c, open('$AGENT_DIR/.instar/config.json', 'w'), indent=2)
 "
 
 # Daemon lives at SYSTEM level (/Library/LaunchDaemons/ai.instar.Roland.plist),
@@ -118,7 +118,7 @@ Run ALL of these. Every one must pass.
 curl -s http://localhost:4040/health | grep -q '"status"'
 
 # Fresh code deployed — verify OAuth routing exists in compiled dist
-grep -q "CLAUDE_CODE_OAUTH_TOKEN" /Users/rolandcanyon/.instar/agents/Roland/.instar/shadow-install/node_modules/@rolandcanyon-cmd/instar/dist/core/SessionManager.js || { echo "❌ shadow-install is stale (missing OAuth routing)"; exit 1; }
+grep -q "CLAUDE_CODE_OAUTH_TOKEN" $AGENT_DIR/.instar/shadow-install/node_modules/@{{INSTAR_FORK_ORG}}/instar/dist/core/SessionManager.js || { echo "❌ shadow-install is stale (missing OAuth routing)"; exit 1; }
 
 # iMessage adapter connected
 AUTH=$(python3 -c "import json; print(json.load(open('.instar/config.json')).get('authToken',''))")
@@ -128,7 +128,7 @@ curl -s -H "Authorization: Bearer $AUTH" http://localhost:4040/imessage/status |
 /opt/homebrew/bin/tmux ls
 
 # Claude can spawn a session (read API key from config — same as SessionManager uses)
-CANARY_KEY=$(python3 -c "import json; print(json.load(open('/Users/rolandcanyon/.instar/agents/Roland/.instar/config.json'))['sessions']['anthropicApiKey'])")
+CANARY_KEY=$(python3 -c "import json; print(json.load(open('$AGENT_DIR/.instar/config.json'))['sessions']['anthropicApiKey'])")
 # OAuth tokens (sk-ant-oat...) go in CLAUDE_CODE_OAUTH_TOKEN; API keys (sk-ant-api03...) go in ANTHROPIC_API_KEY
 if echo "$CANARY_KEY" | grep -q "^sk-ant-o"; then
   KEY_ENV="CLAUDE_CODE_OAUTH_TOKEN=$CANARY_KEY"
@@ -136,7 +136,7 @@ else
   KEY_ENV="ANTHROPIC_API_KEY=$CANARY_KEY"
 fi
 /opt/homebrew/bin/tmux new-session -d -s verify-canary -e "CLAUDECODE=" -e "$KEY_ENV" \
-  "bash -c '/Users/rolandcanyon/homebrew/bin/claude --dangerously-skip-permissions --model haiku -p \"reply OK\" > /tmp/canary.txt 2>&1; sleep 10'"
+  "bash -c '$HOME/homebrew/bin/claude --dangerously-skip-permissions --model haiku -p \"reply OK\" > /tmp/canary.txt 2>&1; sleep 10'"
 sleep 15
 grep -qi "OK" /tmp/canary.txt
 /opt/homebrew/bin/tmux kill-session -t verify-canary 2>/dev/null
@@ -148,18 +148,18 @@ If checks fail on a verify-only run (no rebase): report the issue but don't roll
 ### 9. Push
 Only if rebase happened and verify passed:
 ```bash
-cd /Users/rolandcanyon/instar-dev
+cd $HOME/instar-dev
 git push fork main --force-with-lease --no-verify
 ```
 
 ### ROLLBACK
 ```bash
-cd /Users/rolandcanyon/instar-dev
+cd $HOME/instar-dev
 git rebase --abort 2>/dev/null
 git reset --hard $ROLLBACK
 npm run build
-cd /Users/rolandcanyon/.instar/agents/Roland/.instar/shadow-install
-npm install "@rolandcanyon-cmd/instar@file:../../../../../instar-dev"
+cd $AGENT_DIR/.instar/shadow-install
+npm install "@{{INSTAR_FORK_ORG}}/instar@file:../../../../../instar-dev"
 npm install better-sqlite3
 launchctl kickstart -k gui/$(id -u)/ai.instar.Roland
 sleep 5
@@ -169,7 +169,7 @@ Report the failure via iMessage.
 
 ## Reporting
 
-Send via `imsg send --to "+14084424360" --text "MESSAGE"` only if:
+Send via `imsg send --to "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" --text "MESSAGE"` only if:
 - Upstream had new commits (say what changed)
 - Conflicts occurred
 - Build/verify failed

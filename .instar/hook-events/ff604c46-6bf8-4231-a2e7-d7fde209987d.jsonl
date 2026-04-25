@@ -1,8 +1,0 @@
-{"receivedAt":"2026-04-13T09:01:04.838Z","payload":{"event":"PostToolUse","session_id":"ff604c46-6bf8-4231-a2e7-d7fde209987d","tool_name":"Bash"}}
-{"receivedAt":"2026-04-13T09:01:07.621Z","payload":{"event":"PostToolUse","session_id":"ff604c46-6bf8-4231-a2e7-d7fde209987d","tool_name":"Bash"}}
-{"receivedAt":"2026-04-13T09:01:16.166Z","payload":{"event":"PostToolUse","session_id":"ff604c46-6bf8-4231-a2e7-d7fde209987d","tool_name":"Bash"}}
-{"receivedAt":"2026-04-13T09:01:18.646Z","payload":{"event":"PostToolUse","session_id":"ff604c46-6bf8-4231-a2e7-d7fde209987d","tool_name":"Read"}}
-{"receivedAt":"2026-04-13T09:01:18.835Z","payload":{"event":"PostToolUse","session_id":"ff604c46-6bf8-4231-a2e7-d7fde209987d","tool_name":"Read"}}
-{"receivedAt":"2026-04-13T09:01:18.899Z","payload":{"event":"PostToolUse","session_id":"ff604c46-6bf8-4231-a2e7-d7fde209987d","tool_name":"Read"}}
-{"receivedAt":"2026-04-13T09:01:24.348Z","payload":{"event":"Unknown","session_id":"ff604c46-6bf8-4231-a2e7-d7fde209987d","tool_name":""}}
-{"receivedAt":"2026-04-13T09:01:24.618Z","payload":{"event":"Unknown","session_id":"ff604c46-6bf8-4231-a2e7-d7fde209987d","tool_name":""}}

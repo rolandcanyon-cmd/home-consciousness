@@ -1,10 +1,12 @@
 #!/bin/bash
 # health-watchdog.sh — Monitor instar server and auto-recover.
-# Install as cron: */5 * * * * '/Users/rolandcanyon/.instar/agents/Roland/.claude/scripts/health-watchdog.sh'
+# Install as cron: */5 * * * * '/path/to/agent/.claude/scripts/health-watchdog.sh'
 
 PORT="4040"
-SERVER_SESSION="Roland-server"
-PROJECT_DIR='/Users/rolandcanyon/.instar/agents/Roland'
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+AGENT_NAME="$(basename "$PROJECT_DIR")"
+SERVER_SESSION="${AGENT_NAME}-server"
 TMUX_PATH=$(which tmux 2>/dev/null || echo "/opt/homebrew/bin/tmux")
 
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${PORT}/health" 2>/dev/null)

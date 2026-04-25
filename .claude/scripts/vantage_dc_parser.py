@@ -13,7 +13,7 @@ the room-walk skill can use as the source of truth for area hierarchy.
 Usage:
     from vantage_dc_parser import parse_dc_file
 
-    inv = parse_dc_file('/Users/rolandcanyon/.instar/agents/Roland/.instar/context/project.dc')
+    inv = parse_dc_file('.instar/context/project.dc')
     # inv has: areas, area_fragments, loads, stations, buttons, tasks, thermostats, ...
 
 CLI:
@@ -33,7 +33,7 @@ from typing import Any, Dict, List, Optional
 
 PROJECT_DIR = os.environ.get(
     "CLAUDE_PROJECT_DIR",
-    "/Users/rolandcanyon/.instar/agents/Roland",
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 )
 DEFAULT_DC_PATH = os.path.join(PROJECT_DIR, ".instar", "context", "project.dc")
 

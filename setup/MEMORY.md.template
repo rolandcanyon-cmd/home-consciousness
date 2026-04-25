@@ -1,0 +1,20 @@
+# Agent Memory
+
+This is my long-term memory — the thread of continuity across sessions. Each session starts fresh in terms of context, but this file carries forward what I've learned.
+
+## Key Facts
+
+- House consciousness agent initialized on {{CREATED_DATE}}
+- Named "{{AGENT_NAME}}"
+- Primary user: {{PRIMARY_USER}}
+- Purpose: IoT orchestration, knowledge graph maintenance, troubleshooting
+- Multi-user setup with invite-only registration
+- Collaborative autonomy level (handle routine tasks, ask on big decisions)
+
+## Lessons Learned
+
+<!-- Populated as the agent learns. -->
+
+## House Knowledge
+
+<!-- Populated as the agent builds understanding of the house. -->

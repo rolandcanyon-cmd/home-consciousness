@@ -188,7 +188,7 @@ Then reference it in a draft via `"photos": [photo_id]`.
 
 **Sending a photo back to Adrian** — Use `imessage-send-photo.sh`, NOT imsg --file (which fails with a permissions error):
 ```bash
-.claude/scripts/imessage-send-photo.sh "+14084424360" "/path/to/photo.jpeg" "Optional caption"
+.claude/scripts/imessage-send-photo.sh "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" "/path/to/photo.jpeg" "Optional caption"
 ```
 This script compresses the image first and uses AppleScript to send it, bypassing the Full Disk Access restriction that blocks imsg.
 
@@ -320,7 +320,7 @@ Don't send a review after every single diff — batch. When Adrian indicates the
    ```
 2. **Send the tunnel URL** to Adrian via iMessage:
    ```bash
-   .claude/scripts/imessage-reply.sh "+14084424360" "Review here: <view['tunnelUrl']>
+   .claude/scripts/imessage-reply.sh "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" "Review here: <view['tunnelUrl']>
    Reply 'confirm' to commit, or tell me what to change."
    ```
 

@@ -29,7 +29,7 @@ from typing import Any, Dict, List, Optional
 # Resolve paths relative to the instar agent root ($CLAUDE_PROJECT_DIR)
 PROJECT_DIR = os.environ.get(
     "CLAUDE_PROJECT_DIR",
-    "/Users/rolandcanyon/.instar/agents/Roland",
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 )
 SESSIONS_DIR = os.path.join(PROJECT_DIR, ".instar", "state", "room-sessions")
 ARCHIVE_DIR = os.path.join(SESSIONS_DIR, "archive")

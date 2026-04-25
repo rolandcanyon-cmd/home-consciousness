@@ -50,7 +50,7 @@ from typing import Any, Dict, List, Optional
 
 PROJECT_DIR = os.environ.get(
     "CLAUDE_PROJECT_DIR",
-    "/Users/rolandcanyon/.instar/agents/Roland",
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 )
 DEFAULT_KEY_PATH = os.path.join(PROJECT_DIR, ".instar", "context", "ui.key")
 DEFAULT_HOST = os.environ.get("UNIFI_HOST", "10.0.0.1")

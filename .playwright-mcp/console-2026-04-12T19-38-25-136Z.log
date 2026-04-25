@@ -1,8 +1,0 @@
-[     179ms] [WARNING] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading @ https://maps.googleapis.com/maps/api/js?key=AIzaSyAzKKOVP03RekNzRmZjc4aP2cv-MDRRl0U&libraries=places:1433
-[     249ms] [LOG] Failed to lock orientation: NotSupportedError: screen.orientation.lock() is not available on this device. @ https://ambientweather.net/static/js/main.e01ad609.chunk.js:0
-[     428ms] [LOG] loaded**** @ https://ambientweather.net/static/js/main.e01ad609.chunk.js:0
-[     481ms] [LOG] loaded**** @ https://ambientweather.net/static/js/main.e01ad609.chunk.js:0
-[     497ms] [LOG] loaded**** @ https://ambientweather.net/static/js/main.e01ad609.chunk.js:0
-[     505ms] [LOG] Failed to lock orientation: AbortError: A call to screen.orientation.lock() or screen.orientation.unlock() canceled this call. @ https://ambientweather.net/static/js/main.e01ad609.chunk.js:0
-[     545ms] [LOG] Failed to lock orientation: NotSupportedError: screen.orientation.lock() is not available on this device. @ https://ambientweather.net/static/js/main.e01ad609.chunk.js:0
-[    1500ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ https://ambientweather.net/static/js/main.e01ad609.chunk.js:0

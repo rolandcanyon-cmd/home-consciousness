@@ -31,7 +31,7 @@ from typing import Any, Dict, List, Optional
 
 PROJECT_DIR = os.environ.get(
     "CLAUDE_PROJECT_DIR",
-    "/Users/rolandcanyon/.instar/agents/Roland",
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 )
 sys.path.insert(0, os.path.join(PROJECT_DIR, ".claude", "scripts"))
 

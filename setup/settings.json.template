@@ -1,0 +1,160 @@
+{
+    "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash {{AGENT_DIR}}/.instar/hooks/instar/dangerous-command-guard.sh \"$TOOL_INPUT\"",
+                        "blocking": true
+                    },
+                    {
+                        "type": "command",
+                        "command": "bash {{AGENT_DIR}}/.instar/hooks/instar/grounding-before-messaging.sh \"$TOOL_INPUT\"",
+                        "blocking": false
+                    },
+                    {
+                        "type": "command",
+                        "command": "node {{AGENT_DIR}}/.instar/hooks/instar/deferral-detector.js",
+                        "timeout": 5000
+                    },
+                    {
+                        "type": "command",
+                        "command": "node {{AGENT_DIR}}/.instar/hooks/instar/external-communication-guard.js",
+                        "timeout": 5000
+                    },
+                    {
+                        "type": "command",
+                        "command": "node {{AGENT_DIR}}/.instar/hooks/instar/post-action-reflection.js",
+                        "timeout": 5000
+                    }
+                ]
+            },
+            {
+                "matcher": "mcp__.*",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node {{AGENT_DIR}}/.instar/hooks/instar/external-operation-gate.js",
+                        "blocking": true,
+                        "timeout": 5000
+                    }
+                ]
+            }
+        ],
+        "SessionStart": [
+            {
+                "matcher": "startup",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash {{AGENT_DIR}}/.instar/hooks/instar/session-start.sh",
+                        "timeout": 5
+                    }
+                ]
+            },
+            {
+                "matcher": "resume",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash {{AGENT_DIR}}/.instar/hooks/instar/session-start.sh",
+                        "timeout": 5
+                    }
+                ]
+            },
+            {
+                "matcher": "compact",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash {{AGENT_DIR}}/.instar/hooks/instar/session-start.sh",
+                        "timeout": 5
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node {{AGENT_DIR}}/.instar/hooks/instar/hook-event-reporter.js",
+                        "timeout": 3000
+                    }
+                ]
+            }
+        ],
+        "TaskCompleted": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node {{AGENT_DIR}}/.instar/hooks/instar/hook-event-reporter.js",
+                        "timeout": 3000
+                    }
+                ]
+            }
+        ],
+        "SessionEnd": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node {{AGENT_DIR}}/.instar/hooks/instar/hook-event-reporter.js",
+                        "timeout": 3000
+                    }
+                ]
+            }
+        ],
+        "PreCompact": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node {{AGENT_DIR}}/.instar/hooks/instar/hook-event-reporter.js",
+                        "timeout": 3000
+                    }
+                ]
+            }
+        ],
+        "UserPromptSubmit": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash {{AGENT_DIR}}/.instar/hooks/instar/telegram-topic-context.sh",
+                        "timeout": 5000
+                    }
+                ]
+            }
+        ]
+    },
+    "mcpServers": {
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@playwright/mcp@latest"
+            ]
+        },
+        "kittenkong": {
+            "command": "node_modules/.bin/tsx",
+            "args": [
+                "{{AGENT_DIR}}/the-goodies-typescript/packages/kittenkong/src/mcp-server.ts"
+            ],
+            "cwd": "{{AGENT_DIR}}/the-goodies-typescript/packages/kittenkong",
+            "env": {
+                "FUNKYGIBBON_URL": "{{FUNKYGIBBON_URL}}",
+                "FUNKYGIBBON_PASSWORD": "{{FUNKYGIBBON_PASSWORD}}",
+                "SYNC_INTERVAL_SECONDS": "60"
+            }
+        }
+    }
+}

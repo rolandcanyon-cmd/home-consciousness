@@ -8,23 +8,27 @@
 # scheduler, or Claude are all broken, this still works.
 
 TMUX="/opt/homebrew/bin/tmux"
-IMSG="/Users/rolandcanyon/homebrew/bin/imsg"
-CLAUDE="/Users/rolandcanyon/homebrew/bin/claude"
-LOGDIR="/Users/rolandcanyon/.instar/agents/Roland/.instar/logs"
-PHONE="+14084424360"
+IMSG="$(which imsg 2>/dev/null || echo "$HOME/homebrew/bin/imsg")"
+CLAUDE="$(which claude 2>/dev/null || echo "$HOME/homebrew/bin/claude")"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+AGENT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+AGENT_NAME="$(basename "$AGENT_DIR")"
+LOGDIR="${AGENT_DIR}/logs"
 AUTH_ALERT_FILE="/tmp/instar-claude-auth-alert-sent"
+
+# Read phone number from instar config
+PHONE=$(python3 -c "import json; d=json.load(open('${AGENT_DIR}/.instar/config.json')); print(d.get('imessage',{}).get('userPhone',''))" 2>/dev/null || echo "")
 
 # Ensure log directory exists
 mkdir -p "$LOGDIR"
 
 # 1. tmux keepalive
 if ! "$TMUX" ls &>/dev/null; then
-  "$TMUX" new-session -d -s Roland-keepalive
+  "$TMUX" new-session -d -s "${AGENT_NAME}-keepalive"
   echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) tmux restarted" >> "$LOGDIR/tmux-keepalive.log"
 fi
 
-# 2. Claude auth canary (check every 10 minutes, not every 2)
-# Use a timestamp file to throttle checks
+# 2. Claude auth canary (check every 60 minutes, not every 2)
 CANARY_CHECK="/tmp/instar-canary-last-check"
 NOW=$(date +%s)
 LAST_CHECK=0
@@ -34,8 +38,7 @@ ELAPSED=$((NOW - LAST_CHECK))
 if [ "$ELAPSED" -ge 3600 ]; then
   echo "$NOW" > "$CANARY_CHECK"
 
-  # Read API key from instar config (same source SessionManager uses)
-  AGENT_CONFIG="/Users/rolandcanyon/.instar/agents/Roland/.instar/config.json"
+  AGENT_CONFIG="${AGENT_DIR}/.instar/config.json"
   CANARY_API_KEY=$(python3 -c "import json,sys; d=json.load(open('$AGENT_CONFIG')); print(d.get('sessions',{}).get('anthropicApiKey',''))" 2>/dev/null)
 
   # OAuth tokens (sk-ant-oat...) go in CLAUDE_CODE_OAUTH_TOKEN; API keys (sk-ant-api03...) go in ANTHROPIC_API_KEY
@@ -46,12 +49,10 @@ if [ "$ELAPSED" -ge 3600 ]; then
   fi
 
   if echo "$RESULT" | grep -qi "OK"; then
-    # Auth works — clear alert flag
     rm -f "$AUTH_ALERT_FILE"
   else
-    # Auth failed — send ONE alert (don't spam)
-    if [ ! -f "$AUTH_ALERT_FILE" ]; then
-      "$IMSG" send --to "$PHONE" --text "⚠️ Roland auth failed — Claude canary check returned an error. Check the tmux-keepalive log for details." --service imessage 2>/dev/null
+    if [ ! -f "$AUTH_ALERT_FILE" ] && [ -n "$PHONE" ]; then
+      "$IMSG" send --to "$PHONE" --text "⚠️ ${AGENT_NAME} auth failed — Claude canary check returned an error. Check the tmux-keepalive log for details." --service imessage 2>/dev/null
       echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) auth alert sent" > "$AUTH_ALERT_FILE"
       echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) Claude auth failed — alert sent" >> "$LOGDIR/tmux-keepalive.log"
     fi

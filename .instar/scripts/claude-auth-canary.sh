@@ -3,7 +3,7 @@
 # Returns 0 if auth works, 1 if expired.
 # Used by health checks and the tmux keepalive cron.
 
-CLAUDE="${1:-/Users/rolandcanyon/homebrew/bin/claude}"
+CLAUDE="${1:-$(which claude 2>/dev/null || echo "$HOME/homebrew/bin/claude")}"
 RESULT=$("$CLAUDE" --dangerously-skip-permissions --model haiku -p "reply with OK" 2>&1 | head -5)
 
 if echo "$RESULT" | grep -qi "OK"; then
