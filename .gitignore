@@ -31,6 +31,7 @@
 .instar/MEMORY.md
 .claude/settings.json
 .claude/settings.json.bak*
+.claude/settings.local.json
 .mcp.json
 
 # Tokens and auth

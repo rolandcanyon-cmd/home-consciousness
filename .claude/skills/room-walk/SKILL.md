@@ -1,6 +1,6 @@
 ---
 name: room-walk
-description: Interactive room cataloging — Adrian stands in a room, conversationally catalogs everything (devices, keypads, doors, non-networked items) with photo support and Vantage load probing; produces a reviewable diff that commits to FunkyGibbon.
+description: Interactive room cataloging — the user stands in a room, conversationally catalogs everything (devices, keypads, doors, non-networked items) with photo support and Vantage load probing; produces a reviewable diff that commits to FunkyGibbon.
 metadata:
   user_invocable: "true"
 ---
@@ -13,8 +13,8 @@ Full design spec: `.instar/context/room-walk-skill-spec.md` (read it if you need
 
 ## When to use
 
-- Adrian says "let's walk [room]" / "I'm in [room], let's catalog it" / `/room-walk [room]`
-- Adrian wants to document what's in a new or previously-uncatalogued area
+- the user says "let's walk [room]" / "I'm in [room], let's catalog it" / `/room-walk [room]`
+- the user wants to document what's in a new or previously-uncatalogued area
 - After a renovation or device installation
 
 For editing an already-catalogued room (rename, remove, fix), use `/room-edit` instead.
@@ -29,13 +29,13 @@ All under `.claude/scripts/`:
 - `render_review.py` — generates review markdown + posts to Private Viewer
 - `room_commit.py` — applies diffs on confirm
 - `image_compress.py` — downsamples photos before upload
-- `imessage-send-photo.sh` — sends an image back to Adrian via iMessage (use this; imsg --file fails with permission errors; this uses AppleScript instead)
+- `imessage-send-photo.sh` — sends an image back to the user via iMessage (use this; imsg --file fails with permission errors; this uses AppleScript instead)
 
 All are Python. Use `/Library/Frameworks/Python.framework/Versions/3.11/bin/python3` or the bare `python3` on PATH.
 
 ## The conversation shape
 
-You run a continuous conversation with Adrian over iMessage. Between Adrian's messages, you keep session state on disk — every Bash call creates/updates a session file. Never commit without a review-confirmed step.
+You run a continuous conversation with the user over iMessage. Between the user's messages, you keep session state on disk — every Bash call creates/updates a session file. Never commit without a review-confirmed step.
 
 ### Phase 1 — Orient
 
@@ -43,7 +43,7 @@ You run a continuous conversation with Adrian over iMessage. Between Adrian's me
    ```bash
    python3 .claude/scripts/kittenkong_helper.py rooms
    ```
-   - If Adrian's room name matches exactly (case-insensitive): great.
+   - If the user's room name matches exactly (case-insensitive): great.
    - If ambiguous (multiple matches), ask which one.
    - If no match, offer: "No room called X. Should I create a new room, or did you mean [list similar]?"
 
@@ -125,15 +125,15 @@ You run a continuous conversation with Adrian over iMessage. Between Adrian's me
 
    **Amazon Alexa / Google Home / other hubs**: Check if the user has mentioned these for this home. If configured, query them. Otherwise note "not configured".
 
-5. **Report findings** to Adrian via iMessage (use `imessage-reply.sh`):
+5. **Report findings** to the user via iMessage (use `imessage-reply.sh`):
    > "We're in **[room]**. FunkyGibbon has N devices here: [names]. Vantage has M loads: [list]. HomeKit shows: [accessories]. UniFi sees: [devices near AP]. Anything missing or wrong?"
 
 ### Phase 2 — Discovery loop
 
-Drive entirely by Adrian's input. For each thing Adrian mentions, add a diff via `session.add_diff(...)`. Common patterns:
+Drive entirely by the user's input. For each thing the user mentions, add a diff via `session.add_diff(...)`. Common patterns:
 
 **New Vantage device** (already in Vantage inventory, not yet in FunkyGibbon):
-Adrian: "there's a fountain at the entry, Vantage calls it POUNTAIN"
+the user: "there's a fountain at the entry, Vantage calls it POUNTAIN"
 ```python
 session.add_diff({
     "action": "create_device",
@@ -158,7 +158,7 @@ v.flash_load(1781, duration=3.0)
 Narrate: "Flashing load 1781 for 3 seconds — tell me which light that is."
 
 **New non-Vantage device** (Alexa, Tuya, HomeKit-only, etc.):
-Adrian: "there's an Echo Dot on the side table"
+the user: "there's an Echo Dot on the side table"
 ```python
 session.add_diff({
     "action": "create_device",
@@ -175,7 +175,7 @@ session.add_diff({
 })
 ```
 
-**Photo attachment** — Adrian sends a photo via iMessage:
+**Photo attachment** — the user sends a photo via iMessage:
 The photo will be available as a file (Read tool can show it to you).
 ```python
 photo_id = session.attach_photo(
@@ -186,13 +186,13 @@ photo_id = session.attach_photo(
 ```
 Then reference it in a draft via `"photos": [photo_id]`.
 
-**Sending a photo back to Adrian** — Use `imessage-send-photo.sh`, NOT imsg --file (which fails with a permissions error):
+**Sending a photo back to the user** — Use `imessage-send-photo.sh`, NOT imsg --file (which fails with a permissions error):
 ```bash
 .claude/scripts/imessage-send-photo.sh "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" "/path/to/photo.jpeg" "Optional caption"
 ```
 This script compresses the image first and uses AppleScript to send it, bypassing the Full Disk Access restriction that blocks imsg.
 
-**Keypad** — Adrian photographs the keypad; vision extracts button labels:
+**Keypad** — the user photographs the keypad; vision extracts button labels:
 ```python
 # After reading the image and identifying labels
 session.add_diff({
@@ -224,7 +224,7 @@ session.add_diff({
 For each button, interactively probe/ask: "Button 2 is labeled 'CANS'. I'll flash load 2231 — tell me if that's the cans." Use `v.flash_load()`.
 
 **Door**:
-Adrian: "there's a door to the garage with a Schlage lock"
+the user: "there's a door to the garage with a Schlage lock"
 ```python
 session.add_diff({
     "action": "create_door",
@@ -241,7 +241,7 @@ session.add_diff({
 })
 ```
 
-**Mis-located existing device** — if FunkyGibbon has a device in a different room but Adrian says it's here:
+**Mis-located existing device** — if FunkyGibbon has a device in a different room but the user says it's here:
 ```python
 session.add_diff({
     "action": "move_to_room",
@@ -275,10 +275,10 @@ for entry in candidates:
     print(f"  {c['name']} ({c['ip_address']}, {c['mac_address']}) via {entry['ap_name']}")
 ```
 
-Report candidates to Adrian:
+Report candidates to the user:
 > "I see these devices on the Family Room AP: Apple TV (10.0.0.74), Ambient Weather (10.0.0.166), Wolf Wall Oven (10.0.0.25), SubZero Freezer, Rheem Hot Water. Which of these should I catalog in this room?"
 
-For each that Adrian confirms, include the network metadata in the device's content:
+For each that the user confirms, include the network metadata in the device's content:
 ```python
 session.add_diff({
     "action": "create_device",
@@ -305,11 +305,11 @@ MAC is stable, IP is a hint (DHCP). Store both.
 
 Between diffs, keep transcribing:
 ```python
-session.log("user", "<what Adrian said>")
+session.log("user", "<what the user said>")
 session.log("agent", "<what you said back>")
 ```
 
-Don't send a review after every single diff — batch. When Adrian indicates they're done (says "that's it", "done", "wrap it up", "let's review") or you've covered the obvious, move to Phase 3.
+Don't send a review after every single diff — batch. When the user indicates they're done (says "that's it", "done", "wrap it up", "let's review") or you've covered the obvious, move to Phase 3.
 
 ### Phase 3 — Review
 
@@ -318,28 +318,28 @@ Don't send a review after every single diff — batch. When Adrian indicates the
    from render_review import post_session_review
    view = post_session_review(session)
    ```
-2. **Send the tunnel URL** to Adrian via iMessage:
+2. **Send the tunnel URL** to the user via iMessage:
    ```bash
    .claude/scripts/imessage-reply.sh "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" "Review here: <view['tunnelUrl']>
    Reply 'confirm' to commit, or tell me what to change."
    ```
 
-3. **Wait** for Adrian's response. Don't commit anything yet.
+3. **Wait** for the user's response. Don't commit anything yet.
 
 ### Phase 4 — Edit or Confirm
 
-If Adrian says "confirm" (or "yes", "do it", "commit"):
+If the user says "confirm" (or "yes", "do it", "commit"):
 ```bash
 python3 .claude/scripts/room_commit.py <session.id>
 ```
 Then iMessage the result: number of entities created, any errors, and if applicable, a note that photos were uploaded as blobs.
 
-If Adrian requests changes ("rename X to Y", "remove that door"):
+If the user requests changes ("rename X to Y", "remove that door"):
 - Parse the change, modify the session diffs via `session.remove_diff(idx)` / `session.replace_diff(idx, new_diff)` / `session.add_diff(...)`
 - Regenerate and post the review again
 - Wait for confirm
 
-If Adrian says "discard" or "cancel":
+If the user says "discard" or "cancel":
 ```python
 session.set_status("discarded")
 ```
@@ -351,17 +351,17 @@ After commit:
 - Write a brief summary to `.instar/state/job-handoff-room-walk.md`
 - Append a one-line entry to `.instar/MEMORY.md` under "Room Walks" section:
   > - 2026-04-13: Living Room — catalogued 5 new devices, 1 keypad (6 buttons), 2 doors. Session `abc123…`
-- iMessage Adrian with the commit summary and session UUID
+- iMessage the user with the commit summary and session UUID
 
 ## Important constraints
 
 - **Never write to SQLite directly.** Always go through `kittenkong_helper.py`.
-- **Never commit without the review + confirm cycle.** Even if Adrian is impatient.
-- **Full-flash probing is fine during the day**; if Adrian asks for gentle flash ("it's dark / the baby's asleep"), use `v.flash_load(vid, duration=1.5, peak_level=30)` in that session.
+- **Never commit without the review + confirm cycle.** Even if the user is impatient.
+- **Full-flash probing is fine during the day**; if the user asks for gentle flash ("it's dark / the baby's asleep"), use `v.flash_load(vid, duration=1.5, peak_level=30)` in that session.
 - **Photos are always downsampled** before upload (`image_compress.compress_image`). Don't skip this — the default compresses to ~100KB JPEG.
 - **Sessions never expire.** If you find an open session for a room, ask before clobbering — archived sessions are audit trail, never auto-purged.
 - **Keep the transcript** (`session.log()`) so the review and the saved note both have context.
-- **Be willing to wait.** Adrian may leave the room and come back. Session state persists across iMessage session respawns. On resume, read the session file to pick up where you left off.
+- **Be willing to wait.** the user may leave the room and come back. Session state persists across iMessage session respawns. On resume, read the session file to pick up where you left off.
 
 ## What success looks like
 
@@ -371,4 +371,4 @@ End of a successful walk:
 - A `note` entity captures the session transcript, linked `documented_by` to the room
 - MEMORY.md has a one-line log entry
 - Session JSON is archived in `.instar/state/room-sessions/archive/`
-- Adrian got a confirmation iMessage with numbers: "Committed: N entities created, K photos uploaded, 0 errors"
+- the user got a confirmation iMessage with numbers: "Committed: N entities created, K photos uploaded, 0 errors"

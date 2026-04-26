@@ -46,7 +46,7 @@ Confirm the following are done (ask user to confirm each or check remotely where
 - [ ] **Ambient Weather** — confirm All Batteries OK (check dashboard)
 
 ### Verify running
-- [ ] Instar agent (Roland) is running and scheduled jobs are active
+- [ ] Instar agent is running and scheduled jobs are active
 - [ ] Morning weather reports configured
 - [ ] Wine cabinet monitoring active (if ecobee API key configured)
 

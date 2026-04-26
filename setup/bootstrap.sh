@@ -7,7 +7,7 @@
 #
 # Options:
 #   --name NAME            Agent name (required)
-#   --user PRIMARY_USER    Primary user name (default: Adrian)
+#   --user PRIMARY_USER    Primary user name (required)
 #   --fg-url URL           FunkyGibbon URL (default: http://localhost:8000)
 #   --fg-password PASS     FunkyGibbon password (prompted if omitted)
 #   --no-kittenkong        Omit kittenkong MCP server from settings.json
@@ -19,7 +19,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 AGENT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 AGENT_NAME=""
-PRIMARY_USER="Adrian"
+PRIMARY_USER=""
 FUNKYGIBBON_URL="http://localhost:8000"
 FUNKYGIBBON_PASSWORD=""
 NO_KITTENKONG=false

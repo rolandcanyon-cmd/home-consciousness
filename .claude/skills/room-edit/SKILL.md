@@ -7,9 +7,9 @@ metadata:
 
 # /room-edit
 
-Targeted edits to an already-catalogued room. Loads the current state, walks through changes Adrian wants, produces a review, commits on confirm.
+Targeted edits to an already-catalogued room. Loads the current state, walks through changes the user wants, produces a review, commits on confirm.
 
-If the room has never been catalogued, tell Adrian to use `/room-walk` instead.
+If the room has never been catalogued, tell the user to use `/room-walk` instead.
 
 Design spec: `.instar/context/room-walk-skill-spec.md` — same machinery as `/room-walk`, but starts from "what's there" rather than "what's missing".
 
@@ -66,7 +66,7 @@ Under `.claude/scripts/`:
    )
    ```
 
-5. **Present the current state** to Adrian via iMessage. Keep it concise:
+5. **Present the current state** to the user via iMessage. Keep it concise:
    > "**Living Room** currently has 5 devices and 2 doors:
    >   • Front Drape (Lutron) — aliases: 'west drape'
    >   • Rear Drape (Lutron)
@@ -82,7 +82,7 @@ Under `.claude/scripts/`:
 
 ### Phase 2 — Edit loop
 
-Parse Adrian's requests into diffs. Common patterns:
+Parse the user's requests into diffs. Common patterns:
 
 **Rename**:
 > "Call the Big Picture Light 'Fireplace Picture Light' instead"
@@ -126,7 +126,7 @@ session.add_diff({
 ```
 
 **Mark inoperable** (device is broken/dead but stays in the graph for history):
-> "The Adrian LIFX doesn't work anymore"
+> "The Owner LIFX doesn't work anymore"
 ```python
 session.add_diff({
     "action": "set_status",
@@ -182,12 +182,12 @@ session.add_diff({
 
 ### Phase 2.5 — Ambiguity handling
 
-If Adrian's reference is ambiguous ("the drape"), list candidates and ask:
+If the user's reference is ambiguous ("the drape"), list candidates and ask:
 > "I have Front Drape and Rear Drape — which one?"
 
-If Adrian refers to a device by alias and you find multiple matches, same treatment.
+If the user refers to a device by alias and you find multiple matches, same treatment.
 
-If Adrian wants to probe a Vantage load to confirm which it is (for renames involving "the one by the window"):
+If the user wants to probe a Vantage load to confirm which it is (for renames involving "the one by the window"):
 ```python
 from vantage_probe import VantageProbe
 v = VantageProbe()
@@ -232,7 +232,7 @@ After commit:
 - **Starts from existing state** — no discovery prompts about "what else is here?"
 - **Smaller diff types** dominate — mostly update/rename/move/status, rarely creates
 - **Deletes are explicit** and show up clearly in the review with "DELETE" callouts
-- **Handles tombstones well** — even after commit, entity versions survive; if Adrian changes their mind, we can resurrect via a new `/room-edit` (or just edit the entity to change status back to operational)
+- **Handles tombstones well** — even after commit, entity versions survive; if the user changes their mind, we can resurrect via a new `/room-edit` (or just edit the entity to change status back to operational)
 
 ## Constraints (same as /room-walk)
 
@@ -250,4 +250,4 @@ After commit:
 - A note on the room documents the edit session
 - MEMORY.md has a one-line log entry
 - Session archived
-- Adrian got a confirmation iMessage: "Edited: N renames, M moves, K status changes, 0 errors"
+- the user got a confirmation iMessage: "Edited: N renames, M moves, K status changes, 0 errors"

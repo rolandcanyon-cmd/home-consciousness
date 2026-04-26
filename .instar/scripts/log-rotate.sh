@@ -1,5 +1,5 @@
 #!/bin/bash
-# log-rotate.sh — daily log maintenance for Roland.
+# log-rotate.sh — daily log maintenance for the instar agent.
 #
 # - Truncates live logs (server-launchd.log/err, meridian.log/err, attachments-watcher.log/err)
 #   to last 20 MB using tail if they exceed 20 MB.

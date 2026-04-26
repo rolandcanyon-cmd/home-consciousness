@@ -17,7 +17,7 @@ Keep the Instar fork in sync with upstream. The goal is a working install with m
   - Branch `main` — upstream main + our one custom commit on top
 - **Deploy target**: `$AGENT_DIR/.instar/shadow-install`
   - Package name: `@{{INSTAR_FORK_ORG}}/instar` (MUST use scoped name)
-- **Server**: LaunchAgent `ai.instar.Roland`, port 4040
+- **Server**: LaunchAgent `ai.instar.{AGENT_NAME}`, port 4040
 
 ## Procedure
 
@@ -96,12 +96,12 @@ c.setdefault('updates', {})['autoApply'] = False
 json.dump(c, open('$AGENT_DIR/.instar/config.json', 'w'), indent=2)
 "
 
-# Daemon lives at SYSTEM level (/Library/LaunchDaemons/ai.instar.Roland.plist),
+# Daemon lives at SYSTEM level (/Library/LaunchDaemons/ai.instar.{AGENT_NAME}.plist),
 # NOT user gui level. `gui/$(id -u)/` kickstart silently no-ops on system daemons.
 # Requires sudo. The job runner must have NOPASSWD configured for this command
 # in /etc/sudoers.d/, or this step will hang waiting for a password.
 UPTIME_BEFORE=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
-sudo -n launchctl kickstart -k system/ai.instar.Roland || { echo "❌ daemon restart failed — sudo NOPASSWD missing?"; exit 1; }
+sudo -n launchctl kickstart -k system/ai.instar.{AGENT_NAME} || { echo "❌ daemon restart failed — sudo NOPASSWD missing?"; exit 1; }
 sleep 8
 UPTIME_AFTER=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
 if [ "$UPTIME_AFTER" -ge "$UPTIME_BEFORE" ]; then
@@ -161,7 +161,7 @@ npm run build
 cd $AGENT_DIR/.instar/shadow-install
 npm install "@{{INSTAR_FORK_ORG}}/instar@file:../../../../../instar-dev"
 npm install better-sqlite3
-launchctl kickstart -k gui/$(id -u)/ai.instar.Roland
+launchctl kickstart -k gui/$(id -u)/ai.instar.{AGENT_NAME}
 sleep 5
 curl -s http://localhost:4040/health
 ```

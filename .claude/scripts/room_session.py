@@ -9,7 +9,7 @@ specific room. It holds:
 - A snapshot of the room's current state at session start (for replay + diff)
 - A list of pending diffs (create/update/move/delete/add_alias/status_change/...)
 - Attached photo paths (pre-compression on disk, uploaded as blobs at commit)
-- A running transcript (what Adrian said, what Roland said) — for the audit
+- A running transcript (what the user said, what the agent said) — for the audit
   trail stored as a 'note' entity on commit
 
 Sessions live in `.instar/state/room-sessions/<uuid>.json` until committed,

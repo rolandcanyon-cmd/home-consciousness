@@ -1,7 +1,7 @@
 # Room Walk & Room Edit Skills — Spec
 
 **Status:** Draft for review
-**Goal:** Let Adrian catalog and edit house knowledge conversationally via iMessage, with structured review before anything writes to FunkyGibbon.
+**Goal:** Let the user catalog and edit house knowledge conversationally via iMessage, with structured review before anything writes to FunkyGibbon.
 
 Two complementary skills that share the same underlying machinery:
 
@@ -52,9 +52,9 @@ Images sent via iMessage are uploaded as blob entities linked via `has_blob` rel
    > Are all of these still here? Anything else I should know about?"
 
 ### Phase 2: Discovery (loop)
-User drives this. Roland assists with:
+User drives this. The agent assists with:
 
-**For wrongly-located devices**: If Adrian points to a device that FunkyGibbon has in a different room, Roland handles it as a move:
+**For wrongly-located devices**: If the user points to a device that FunkyGibbon has in a different room, The agent handles it as a move:
 > "FunkyGibbon says 'Kitchen Island Light' is in the Kitchen, but you're in the Dining Room pointing at it. Did it move, or is it mis-assigned?"
 
 The draft records a `move` action, same format as the `/room-edit` flow (§3 under Edit loop). On commit, this updates the `located_in` relationship — not a duplicate entity, just a different link.
@@ -62,24 +62,24 @@ The draft records a `move` action, same format as the `/room-edit` flow (§3 und
 Walk sessions can therefore fix misplacements discovered along the way, not only add new devices.
 
 
-**For Vantage loads**, Roland can probe live:
+**For Vantage loads**, The agent can probe live:
 > "I'll flash load 1781 (BIG PICTURE RIGHT OF FIREPLACE) — tell me what light that is."
 Then: `vantage load 1781 100` → wait 3s → `vantage load 1781 0` → wait → `vantage load 1781 <original>`
 
 **For photos**, user sends image via iMessage:
-- Roland reads the image file (Claude Code's Read tool handles images)
+- The agent reads the image file (Claude Code's Read tool handles images)
 - Describes what it sees: "I see a tall floor lamp with a bronze base next to a leather armchair"
 - Asks: "What do you call it? Which system controls it?"
 - Stores image in session state for later blob upload
 
 **For natural-language descriptions**:
 - User: "the overhead lights"
-- Roland: checks session findings for matches, asks clarifying questions
+- The agent: checks session findings for matches, asks clarifying questions
 - User: "actually call it 'ceiling lights' — that's what I say"
-- Roland: records as alias
+- The agent: records as alias
 
 ### Phase 3: Build up the draft
-For each device identified, Roland builds a draft record in session state:
+For each device identified, The agent builds a draft record in session state:
 
 ```json
 {
@@ -134,7 +134,7 @@ If user replies with changes ("rename X to Y", "remove Z"):
 Same underlying machinery, different default behaviors:
 
 ### Differences from walk
-- **Starts with the full current state**, not discovery — Roland shows everything in the room upfront
+- **Starts with the full current state**, not discovery — The agent shows everything in the room upfront
 - **Edit-first conversation** — "what would you like to change?"
 - **Bulk operations supported** — "rename all the Vantage 'POUNTAIN' entries to 'Fountain'" applies a regex to all matching devices
 - **Deletion supported** — "remove the Old Thermostat" marks entity for deletion
@@ -151,15 +151,15 @@ Same underlying machinery, different default behaviors:
 3. Load room's own content
 4. Present:
    > "Bedroom has:
-   >   • Adrian LIFX Mini W (LIFX, IP 10.0.0.137) — aliases: 'Adrian's lamp', 'bedside'
-   >   • Laurel LIFX Mini W (LIFX) — aliases: 'Laurel's lamp'
+   >   • Owner LIFX Mini W (LIFX, IP 10.0.0.137) — aliases: 'owner's lamp', 'bedside'
+   >   • Partner LIFX Mini W (LIFX) — aliases: 'partner's lamp'
    >   • Overhead lights (Vantage VID 47) — aliases: 'ceiling'
    >   Room aliases: 'master bedroom', 'bedroom'
    > What would you like to change?"
 
 ### Phase 2: Edit loop
-User specifies changes. Roland parses:
-- **Rename**: "call the Adrian LIFX 'Left Bedside'"
+User specifies changes. The agent parses:
+- **Rename**: "call the Owner LIFX 'Left Bedside'"
 - **Add alias**: "also call it 'my side'"
 - **Remove alias**: "drop 'bedside' from it"
 - **Move**: "the overhead lights should be in Living Room instead"
@@ -167,11 +167,11 @@ User specifies changes. Roland parses:
 - **Update notes**: "add a note that the LIFX was replaced in March"
 - **Room-level**: "rename the room to 'Primary Bedroom'"
 
-Roland maintains a diff in session state:
+The agent maintains a diff in session state:
 ```json
 {
   "diffs": [
-    {"action": "rename", "entity_id": "...", "old": "Adrian LIFX Mini W", "new": "Left Bedside"},
+    {"action": "rename", "entity_id": "...", "old": "Owner LIFX Mini W", "new": "Left Bedside"},
     {"action": "add_alias", "entity_id": "...", "alias": "my side"},
     {"action": "move", "entity_id": "...", "from_room": "...", "to_room": "..."},
     {"action": "delete", "entity_id": "...", "reason": "removed from house"}
@@ -192,7 +192,7 @@ For **deletes**, the review is extra explicit: "The following entities will be d
 
 ## 3.4.4 Device systems — open-ended set of integrations
 
-Houses have a messy collection of control systems. Beyond HomeKit and Vantage (which this house has), Adrian has encountered devices speaking:
+Houses have a messy collection of control systems. Beyond HomeKit and Vantage, houses may have devices speaking:
 - **Amazon Alexa** — Echo Dots, Show, etc. Controllable via Alexa Voice Service or ESP3 API
 - **Tuya / Smart Life** — generic China-sourced smart plugs, bulbs, cameras. Cloud API or local Tuya API
 - **Google Home / Matter** — shared Matter devices, Nest cameras/thermostats
@@ -247,11 +247,11 @@ For single-system devices, `system` (singular) is fine — a convenience. Skill 
 
 ### Discovery for unknown systems
 
-During walks, Adrian may say "that's a Tuya smart plug" or "that's an Alexa." Roland:
+During walks, the user may say "that's a Tuya smart plug" or "that's an Alexa." The agent:
 1. Records `system.kind = "tuya"` (or `"alexa"` etc.)
-2. Captures whatever identifying info Adrian provides (MAC, IP, name in the Alexa app, model number, photo of the device/sticker)
-3. Flags the device `control_status: "catalogued_only"` — it's in the graph but Roland doesn't have an integration to control it yet
-4. Adrian can later build an integration (or a skill for a specific class of device), at which point the device's entry is updated with proper control metadata
+2. Captures whatever identifying info the user provides (MAC, IP, name in the Alexa app, model number, photo of the device/sticker)
+3. Flags the device `control_status: "catalogued_only"` — it's in the graph but the agent doesn't have an integration to control it yet
+4. The user can later build an integration (or a skill for a specific class of device), at which point the device's entry is updated with proper control metadata
 
 The walk does NOT block on "we don't have Tuya integration yet." It captures what's there and moves on. Future work adds control.
 
@@ -265,8 +265,8 @@ This house has UniFi switches + APs as the network infrastructure. UniFi can enu
 - Last-seen timestamp
 - Manufacturer OUI
 
-During a room walk, Roland can cross-reference:
-1. Ask Adrian "what network-connected devices are in this room?"
+During a room walk, The agent can cross-reference:
+1. Ask the user "what network-connected devices are in this room?"
 2. Query UniFi controller for all clients
 3. Filter by last-seen (recent), vendor (from OUI), or hostname pattern
 4. Show candidate list: "I see an 'Echo-Dot-ABCD' on switch port 12 which is likely in this room — is that the Alexa you mentioned?"
@@ -297,7 +297,7 @@ The `/room-walk` and `/room-edit` skills are **house-agnostic**. They don't know
 
 If someone without Vantage uses this skill (e.g., another Instar user), the skill still works — it just doesn't offer Vantage-specific probing prompts. Over time, parallel helpers (`alexa_probe.py`, `tuya_probe.py`) can be added for whatever systems are common.
 
-### Roland-house specifics
+### House-specific notes
 
 Vantage is a special case **for this house**. Other houses may have Lutron Homeworks, Crestron, Control4, or just plain HomeKit. The spec documents the Vantage integration as one implementation; the room-walk/edit skills themselves are general.
 
@@ -328,16 +328,13 @@ Every DEVICE entity gets a `content.status` field:
 
 ### Walk and edit flows
 
-During `/room-walk`, when Adrian flags something as not working:
-> "The old Adrian LIFX doesn't work anymore — mark inoperable"
+During `/room-walk`, when the user flags something as not working:
+> "The old Owner LIFX doesn't work anymore — mark inoperable"
 
-Roland updates the device with `status: "inoperable"` and prompts for a reason and whether there's a replacement.
+The agent updates the device with `status: "inoperable"` and prompts for a reason and whether there's a replacement.
 
 During `/room-edit`, inoperable devices are shown but visually separated (review HTML lists them under "Not working" heading).
 
-### Correction of MEMORY.md
-
-Previous MEMORY.md mentioned LIFX bulbs in the bedroom. Adrian clarified (2026-04-12) — those don't exist as functional devices. Any LIFX entities currently in FunkyGibbon should be marked `inoperable` (or `decommissioned` if never installed) during the first Bedroom walk.
 
 ## 3.5 Doors (and other connectors between rooms)
 
@@ -361,7 +358,7 @@ Each door is a DOOR entity with:
 - For exterior doors that only connect one room to outside: `(door) -[connects_to]-> (room)` + `is_exterior: true`. No outside "room" needed unless you want to model the outdoor zone as a room (which we already do for the Vantage-only outdoor areas).
 
 ### Walk flow additions
-During `/room-walk`, after identifying devices, Roland explicitly asks about doors:
+During `/room-walk`, after identifying devices, The agent explicitly asks about doors:
 > "What doors connect this room to others? I know about Kitchen Garage Door (Schlage lock). Any others? Which ones have Schlage locks vs manual?"
 
 For each door:
@@ -405,7 +402,7 @@ And in Phase 3 draft:
 
 ## 3.6 Keypads and their buttons
 
-Vantage has 62 keypads with 511 buttons across the house. The physical labels on those keypads — with their own typos and house-specific shorthand — are what Adrian actually looks at to control things. So the labels are the source of truth for "what does this button do," not the Vantage internal button names.
+Vantage has 62 keypads with 511 buttons across the house. The physical labels on those keypads — with their own typos and house-specific shorthand — are what the user actually looks at to control things. So the labels are the source of truth for "what does this button do," not the Vantage internal button names.
 
 ### Schema
 
@@ -425,7 +422,7 @@ Vantage has 62 keypads with 511 buttons across the house. The physical labels on
 **Button** — one DEVICE entity per button on the keypad:
 - `entity_type: "device"`
 - `source_type: "imported"`
-- `name` — the **label on the physical keypad** (e.g., "Kitchen Cans", "Overhead", "All Off", typos and all). This is what Adrian sees and says.
+- `name` — the **label on the physical keypad** (e.g., "Kitchen Cans", "Overhead", "All Off", typos and all). This is what the user sees and says.
 - `content`:
   - `aliases` — natural-language alternatives
   - `label_raw` — the exact text as it appears on the keypad (typos preserved, separate from cleaned canonical name if different)
@@ -450,17 +447,17 @@ Buttons map to one of several action types:
 
 ### Walk flow additions
 
-During `/room-walk` Phase 2 discovery, after cataloging devices and doors, Roland prompts:
+During `/room-walk` Phase 2 discovery, after cataloging devices and doors, The agent prompts:
 
 > "Any keypads in this room? Send me a photo of each, labels visible. I'll extract what each button does."
 
 For each keypad photo:
-1. Roland reads the image (Claude Code's Read tool handles images)
+1. The agent reads the image (Claude Code's Read tool handles images)
 2. Extracts button labels via vision — reads "UP LIGHTS / OVERHEAD / CANS / READING / DIM / ALL OFF" etc.
 3. Queries Vantage for the station's VID and button VIDs by fuzzy match on area + button count
-4. For each button, asks Adrian interactively:
+4. For each button, asks the user interactively:
    > "Button 2 is labeled 'OVERHEAD'. What does it control? I can flash each load to help identify."
-5. User describes, or Roland probes: "I'll flash load X, tell me if that's what OVERHEAD controls"
+5. User describes, or The agent probes: "I'll flash load X, tell me if that's what OVERHEAD controls"
 6. Build draft entries for keypad + buttons + relationships
 
 ### Draft entry for a keypad walk
@@ -508,7 +505,7 @@ Keypad labels are the authority. If the physical keypad says "POUNTAIN" and Vant
 - Load entity: `name: "Entry Fountain"`, `content.vantage.original_name: "ENTRY POUNTAIN"`
 - Button entity: `name: "Fountain"` (cleaned), `content.label_raw: "POUNTAIN"` (as physically labeled)
 
-When Adrian says "the pountain" as a joke or by habit, it matches via `label_raw` or an alias.
+When the user says "the pountain" by habit or local convention, it matches via `label_raw` or an alias.
 
 ### Edit flow for keypads
 
@@ -571,24 +568,24 @@ Both skills use:
 
 ---
 
-## 7. Open Questions for Adrian
+## 7. Design Decisions
 
 1. ~~**Review medium**?~~ **DECIDED (2026-04-12): Private Viewer HTML via tunnel link. Verified working end-to-end via iMessage. Links are markdown-rendered, signed (tamper-resistant), and readable on phone. Caveat: quick tunnel URLs change on server restart — if we want review links to survive restarts, upgrade to a named Cloudflare tunnel later.**
 2. ~~**Photo retention**?~~ **DECIDED (2026-04-12): Store all photos, but downsample/compress first. Target ~100KB per image max.**
    - Before upload, re-encode to JPEG at ~80% quality with max dimension ~1600px (keypad labels still readable, room photos still useful).
    - Python: `from PIL import Image; img.thumbnail((1600,1600)); img.save(buf, 'JPEG', quality=80, optimize=True)`.
    - `/room-edit` supports removing individual photo blobs when they're redundant or mis-tagged.
-   - Blob entity `content` records original filename, capture timestamp, and a one-line description (extracted from Adrian's iMessage context).
-3. ~~**Vantage probe intensity**?~~ **DECIDED (2026-04-12): Full flash. Walks will mostly happen during the day, so 0→100→0 (then restore previous level) is fine. No special nighttime mode needed for now. If a nighttime walk happens, Adrian can ask Roland to "use a gentle flash" and the helper will reduce intensity for that session.**
-4. ~~**Session expiration**?~~ **DECIDED (2026-04-12): Never auto-expire. Sessions stay open until explicitly committed or discarded. On commit, the session state file moves to `.instar/state/archive/` and is preserved indefinitely for audit and replay. Design implication: session files should be self-contained (all context needed to replay — starting state snapshot, all decisions made, all photos referenced by blob entity IDs). A future `/room-replay <session-id>` skill can re-apply a past walk's decisions if FunkyGibbon state is lost or rolled back, or reconstruct "what did Adrian decide about the pool keypad on April 15?"**
-5. ~~**Undo skill**?~~ **DECIDED (2026-04-12): No separate undo skill. `/room-edit` handles corrections — rename, remove, move, restore status, etc. FunkyGibbon's versioning preserves history, so if Adrian wants to see what changed, he can query the entity's versions directly. If a full rollback of a walk is ever needed (e.g., someone accidentally committed wrong data), that's handled via archived session state + manual edit, not a dedicated skill.**
+   - Blob entity `content` records original filename, capture timestamp, and a one-line description (extracted from the user's iMessage context).
+3. ~~**Vantage probe intensity**?~~ **DECIDED (2026-04-12): Full flash. Walks will mostly happen during the day, so 0→100→0 (then restore previous level) is fine. No special nighttime mode needed for now. If a nighttime walk happens, the user can ask the agent to "use a gentle flash" and the helper will reduce intensity for that session.**
+4. ~~**Session expiration**?~~ **DECIDED (2026-04-12): Never auto-expire. Sessions stay open until explicitly committed or discarded. On commit, the session state file moves to `.instar/state/archive/` and is preserved indefinitely for audit and replay. Design implication: session files should be self-contained (all context needed to replay — starting state snapshot, all decisions made, all photos referenced by blob entity IDs). A future `/room-replay <session-id>` skill can re-apply a past walk's decisions if FunkyGibbon state is lost or rolled back, or reconstruct "what did the user decide about the pool keypad on April 15?"**
+5. ~~**Undo skill**?~~ **DECIDED (2026-04-12): No separate undo skill. `/room-edit` handles corrections — rename, remove, move, restore status, etc. FunkyGibbon's versioning preserves history, so if the user wants to see what changed, he can query the entity's versions directly. If a full rollback of a walk is ever needed (e.g., someone accidentally committed wrong data), that's handled via archived session state + manual edit, not a dedicated skill.**
 6. ~~**Bulk ops**?~~ **DECIDED (2026-04-12): No bulk operations for now. All changes go through per-room walks or per-room edits. If a systematic cleanup is needed later (e.g., fix typos across many rooms), it can be a separate scripted migration with its own review — not part of the walk/edit skills.**
 
 ---
 
 ## 8. Next Steps
 
-1. Adrian reviews this spec, answers §7 questions
+1. Review this spec, answer §7 questions
 2. Build `room_session.py` + `kittenkong_helper.py` (shared infra)
 3. Build `/room-walk` skill using the shared infra
 4. Test with one room end-to-end

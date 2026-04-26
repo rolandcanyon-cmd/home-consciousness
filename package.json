@@ -1,5 +1,5 @@
 {
-  "name": "roland-house-agent",
+  "name": "house-agent",
   "version": "1.0.0",
   "description": "House consciousness agent with IoT device integration",
   "scripts": {

@@ -317,7 +317,7 @@ The `device-api.js` module is designed to integrate with Instar's server. To ena
 
 ## Security Notes
 
-**IMPORTANT**: Never modify device configurations without explicit confirmation from Adrian.
+**IMPORTANT**: Never modify device configurations without explicit confirmation from the user.
 
 **Allowed without confirmation:**
 - Discovery
@@ -330,4 +330,4 @@ The `device-api.js` module is designed to integrate with Instar's server. To ena
 - Sending control commands
 - Modifying automations
 
-This follows the core principle: I understand the context of the house, but Adrian controls it.
+This follows the core principle: I understand the context of the house, but the user controls it.

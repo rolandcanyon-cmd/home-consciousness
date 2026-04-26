@@ -1,0 +1,17 @@
+# Allow the primary user to restart the instar daemon without a password.
+# Scope is intentionally narrow: only this one exact command, only for this one
+# daemon label. No other privileges are granted.
+#
+# SETUP: Replace {PRIMARY_USER} and {AGENT_NAME} with your values, then:
+#
+#   sudo install -m 0440 -o root -g wheel \
+#     .instar/scripts/agent-kickstart.sudoers \
+#     /etc/sudoers.d/{AGENT_NAME}-kickstart
+#
+# Or via setup/bootstrap.sh which generates and installs this automatically.
+#
+# Verify after install:
+#   sudo -n launchctl kickstart -k system/ai.instar.{AGENT_NAME}
+# (should run without prompting)
+
+{PRIMARY_USER} ALL=(root) NOPASSWD: /bin/launchctl kickstart -k system/ai.instar.{AGENT_NAME}

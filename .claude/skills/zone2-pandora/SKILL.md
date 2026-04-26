@@ -101,7 +101,7 @@ Based on the list retrieved (33 total stations):
 - Pink Floyd Radio
 - Santana Radio
 - Cardiacs Radio
-- Adrian's Prog Radio
+- Owner's Prog Radio
 - Budgie Radio
 - The Merriest Hawaiian Christmas Radio
 - It's Christmas, Baby, Please Come Home
@@ -160,7 +160,7 @@ Steps:
 Match user input flexibly:
 - "santana" → "Santana Radio"
 - "pink floyd" → "Pink Floyd Radio"
-- "prog" → "Adrian's Prog Radio"
+- "prog" → "Owner's Prog Radio"
 - Case-insensitive
 - Partial match OK
 - Match first result if multiple hits
