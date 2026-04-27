@@ -41,6 +41,9 @@
 # Playwright browser sessions
 .playwright-mcp/
 
+# Dependencies
+node_modules/
+
 # Logs
 logs/
 
