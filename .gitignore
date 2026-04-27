@@ -7,6 +7,7 @@
 .instar/config.json
 .instar/machine/
 .instar/secrets/
+.instar/shadow-install/
 
 # Backups (local only)
 .instar/backups/
