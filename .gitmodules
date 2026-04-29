@@ -1,0 +1,7 @@
+[submodule "the-goodies-python"]
+	path = the-goodies-python
+	url = https://github.com/rolandcanyon-cmd/the-goodies.git
+
+[submodule "the-goodies-typescript"]
+	path = the-goodies-typescript
+	url = https://github.com/rolandcanyon-cmd/the-goodies-typescript.git
