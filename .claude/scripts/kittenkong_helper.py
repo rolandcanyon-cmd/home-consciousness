@@ -206,12 +206,15 @@ class FunkyGibbon:
         return self._unwrap(self._raw_request("GET", f"/api/v1/graph/entities/{entity_id}"))
 
     def search_entities(self, query: str, entity_type: Optional[str] = None) -> List[Dict[str, Any]]:
-        q = {"q": query}
+        # /api/v1/graph/entities accepts ?q=... for full-text search across name/content.
+        # The /api/v1/graph/search POST endpoint exists but requires {"query":...} body —
+        # the GET entities endpoint is simpler and already returns paginated results.
+        q: Dict[str, Any] = {"q": query}
         if entity_type:
             q["entity_type"] = entity_type
-        resp = self._raw_request("GET", "/api/v1/graph/search", query=q)
+        resp = self._raw_request("GET", "/api/v1/graph/entities", query=q)
         if isinstance(resp, dict):
-            return resp.get("items") or resp.get("results") or resp.get("entities") or []
+            return resp.get("entities") or resp.get("items") or resp.get("results") or []
         return resp or []
 
     def find_entity_by_name(
