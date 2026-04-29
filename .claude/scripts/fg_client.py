@@ -2,8 +2,8 @@
 """
 fg_client.py — Synchronous FunkyGibbon client backed by blowing-off.
 
-Replaces kittenkong_helper.py. All Python scripts that talk to FunkyGibbon
-should import FGClient from here, not FunkyGibbon from kittenkong_helper.
+This is the canonical Python client for FunkyGibbon. All Python scripts that
+talk to FunkyGibbon should import FGClient from here.
 
 Architecture:
   - blowing-off maintains a local SQLite cache at .instar/state/blowingoff.db
@@ -121,7 +121,7 @@ class FGClient:
             return e
         return vars(e)
 
-    # ── Public API — mirrors kittenkong_helper.FunkyGibbon ────────────────
+    # ── Public API ────────────────────────────────────────────────────────
 
     def create_entity(
         self,

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-room_commit.py — Apply a RoomSession's diffs to FunkyGibbon via kittenkong_helper.
+room_commit.py — Apply a RoomSession's diffs to FunkyGibbon via fg_client (blowing-off).
 
 Commit flow:
 1. Re-fetch the room's current snapshot (detect concurrent changes → soft warning)

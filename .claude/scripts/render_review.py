@@ -5,7 +5,7 @@ Viewer for user review. Returns a tunnel URL suitable for sending via iMessage.
 
 Reads:
 - A session id (from room_session)
-- Optionally a current snapshot fetched live from FunkyGibbon (via kittenkong_helper)
+- Optionally a current snapshot fetched live from FunkyGibbon (via fg_client)
 
 Writes:
 - A markdown review document that describes, in plain language, exactly what

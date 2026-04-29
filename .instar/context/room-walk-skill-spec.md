@@ -527,10 +527,10 @@ Both skills use:
 - `commit_session(session_id)` → applies all diffs via REST
 - `archive_session(session_id)`
 
-### `kittenkong_helper.py` (or direct REST client)
-- `find_room(name_or_id)` — fuzzy room lookup
-- `list_devices_in_room(room_id)`
-- `upsert_entity(entity_type, name, content, source_type)`
+### `fg_client.py` (blowing-off wrapper)
+- `find_entity_by_name(name, entity_type)` — fuzzy entity lookup
+- `list_entities(entity_type)`
+- `create_entity(entity_type, name, content)` / `update_entity(entity_id, patch)`
 - `create_relationship(from_id, to_id, rel_type)`
 - `upload_blob(entity_id, image_bytes)` — creates blob entity, links via has_blob
 
@@ -561,7 +561,7 @@ Both skills use:
 ## 6. What Lives Where
 
 - **Skills**: `.claude/skills/room-walk/SKILL.md`, `.claude/skills/room-edit/SKILL.md`
-- **Shared scripts**: `.claude/scripts/room_session.py`, `.claude/scripts/kittenkong_helper.py`, `.claude/scripts/vantage_probe.py`, `.claude/scripts/render_review.py`
+- **Shared scripts**: `.claude/scripts/room_session.py`, `.claude/scripts/fg_client.py`, `.claude/scripts/vantage_probe.py`, `.claude/scripts/render_review.py`
 - **Session state**: `.instar/state/room-session-*.json` (active), `.instar/state/archive/` (completed)
 - **Session transcripts**: stored as `note` entities in FunkyGibbon, linked `documented_by` to the room
 - **MEMORY.md**: brief completion entries only, not detail dumps (the graph has the details)
@@ -586,7 +586,7 @@ Both skills use:
 ## 8. Next Steps
 
 1. Review this spec, answer §7 questions
-2. Build `room_session.py` + `kittenkong_helper.py` (shared infra)
+2. Build `room_session.py` + `fg_client.py` (shared infra)
 3. Build `/room-walk` skill using the shared infra
 4. Test with one room end-to-end
 5. Build `/room-edit` on the same infra
