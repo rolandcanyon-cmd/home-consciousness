@@ -26,7 +26,7 @@ For adding new devices you just discovered, `/room-walk` is better (it's discove
 ## Helpers (shared with /room-walk)
 
 Under `.claude/scripts/`:
-- `kittenkong_helper.py` — FunkyGibbon REST client
+- `fg_client.py` — FunkyGibbon client (backed by blowing-off local cache)
 - `vantage_probe.py` — needed only if the edit involves a Vantage probe to identify something
 - `room_session.py` — session state
 - `render_review.py` — review generator
@@ -37,9 +37,12 @@ Under `.claude/scripts/`:
 
 ### Phase 1 — Snapshot
 
-1. **Resolve the room** via kittenkong_helper:
-   ```bash
-   python3 .claude/scripts/kittenkong_helper.py rooms
+1. **Resolve the room** via fg_client:
+   ```python
+   import sys; sys.path.insert(0, '.claude/scripts')
+   from fg_client import FGClient
+   fg = FGClient()
+   rooms = fg.list_entities("room")
    ```
    Handle ambiguity / missing rooms the same way `/room-walk` does. If the room has no devices (`list_devices_in_room` empty), suggest: "That room has no catalogued devices. Did you mean `/room-walk` instead?"
 
@@ -51,8 +54,9 @@ Under `.claude/scripts/`:
 
 3. **Build the snapshot**:
    ```python
-   from kittenkong_helper import FunkyGibbon
-   fg = FunkyGibbon()
+   import sys; sys.path.insert(0, '.claude/scripts')
+   from fg_client import FGClient
+   fg = FGClient()
    room = fg.find_entity_by_name("room", room_name)
    devices = fg.list_devices_in_room(room["id"])
    doors = fg.list_doors_for_room(room["id"])

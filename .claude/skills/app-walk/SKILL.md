@@ -21,7 +21,7 @@ Catalog a smart home app by walking through it together. User opens the app, des
 All under `.claude/scripts/`:
 - `app_session.py` — session state management
 - `app_commit.py` — apply session diffs to FunkyGibbon
-- `kittenkong_helper.py` — FunkyGibbon REST client
+- `fg_client.py` — FunkyGibbon client (backed by blowing-off local cache)
 - `image_compress.py` — downsample screenshots before storage
 - `render_review.py` — post review to Private Viewer
 - `imessage-reply.sh` — send iMessage response
@@ -83,8 +83,11 @@ Shortcut library: `/shortcut-library` skill
    ```
 
 3. **Check FunkyGibbon for existing knowledge** about this app:
-   ```bash
-   python3 .claude/scripts/kittenkong_helper.py search "Alexa" --type app
+   ```python
+   import sys; sys.path.insert(0, '.claude/scripts')
+   from fg_client import FGClient
+   fg = FGClient()
+   existing = fg.find_entity_by_name("app", "Alexa")
    ```
    If an existing app entity is found, tell the user: "FunkyGibbon already has an Alexa app record with N devices. We'll update it."
 
@@ -146,8 +149,11 @@ session.add_diff({
 
 **Cross-reference to FunkyGibbon:**
 When a device is mentioned, check FunkyGibbon for a matching entity:
-```bash
-python3 .claude/scripts/kittenkong_helper.py search "Ice Maker"
+```python
+import sys; sys.path.insert(0, '.claude/scripts')
+from fg_client import FGClient
+fg = FGClient()
+results = fg.search_entities("Ice Maker")
 ```
 If found, confirm with the user: "Is the 'Ice Maker' in Alexa the same as [FunkyGibbon entity name]? I'll link them." Then set `fg_entity_id` in the device diff.
 

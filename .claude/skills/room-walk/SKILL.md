@@ -22,7 +22,7 @@ For editing an already-catalogued room (rename, remove, fix), use `/room-edit` i
 ## Required helpers
 
 All under `.claude/scripts/`:
-- `kittenkong_helper.py` — FunkyGibbon REST client (never touch the SQLite directly)
+- `fg_client.py` — FunkyGibbon client (backed by blowing-off local cache)
 - `vantage_probe.py` — Vantage controller live commands
 - `unifi_probe.py` — UniFi Dream Machine client/device enumeration (MAC, IP, AP)
 - `room_session.py` — session state (in `.instar/state/room-sessions/`)
@@ -39,9 +39,12 @@ You run a continuous conversation with the user over iMessage. Between the user'
 
 ### Phase 1 — Orient
 
-1. **Resolve the room**. Use `kittenkong_helper.py` to find the room by name:
-   ```bash
-   python3 .claude/scripts/kittenkong_helper.py rooms
+1. **Resolve the room**. Use `fg_client.py` to find the room by name:
+   ```python
+   import sys; sys.path.insert(0, '.claude/scripts')
+   from fg_client import FGClient
+   fg = FGClient()
+   rooms = fg.list_entities("room")
    ```
    - If the user's room name matches exactly (case-insensitive): great.
    - If ambiguous (multiple matches), ask which one.
@@ -95,10 +98,10 @@ You run a continuous conversation with the user over iMessage. Between the user'
    **UniFi** (network devices near the room's AP):
    ```python
    from unifi_probe import UniFi
-   from kittenkong_helper import FunkyGibbon
+   from fg_client import FGClient
    u = UniFi()
    u.load_inventory()
-   fg = FunkyGibbon()
+   fg = FGClient()
    all_fg_devices = fg.list_entities('device')
    # Build a set of MACs already catalogued in any room
    catalogued_macs = set()
@@ -355,7 +358,7 @@ After commit:
 
 ## Important constraints
 
-- **Never write to SQLite directly.** Always go through `kittenkong_helper.py`.
+- **Never write to SQLite directly.** Always go through `fg_client.py` (backed by blowing-off).
 - **Never commit without the review + confirm cycle.** Even if the user is impatient.
 - **Full-flash probing is fine during the day**; if the user asks for gentle flash ("it's dark / the baby's asleep"), use `v.flash_load(vid, duration=1.5, peak_level=30)` in that session.
 - **Photos are always downsampled** before upload (`image_compress.compress_image`). Don't skip this — the default compresses to ~100KB JPEG.

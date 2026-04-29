@@ -35,7 +35,7 @@ PROJECT_DIR = os.environ.get(
 )
 sys.path.insert(0, os.path.join(PROJECT_DIR, ".claude", "scripts"))
 
-from kittenkong_helper import FunkyGibbon, FunkyGibbonError  # noqa: E402
+from fg_client import FGClient, FGError as FunkyGibbonError  # noqa: E402
 from room_session import RoomSession  # noqa: E402
 from image_compress import compress_image  # noqa: E402
 
@@ -75,7 +75,7 @@ def _resolve_entity_ref(ref: Any, created: Dict[str, str]) -> Any:
     return ref
 
 
-def _apply_create_room(fg: FunkyGibbon, diff: Dict[str, Any], home_id: Optional[str]) -> str:
+def _apply_create_room(fg: FGClient, diff: Dict[str, Any], home_id: Optional[str]) -> str:
     draft = diff["draft"]
     ent = fg.create_entity(
         entity_type="room",
@@ -93,7 +93,7 @@ def _apply_create_room(fg: FunkyGibbon, diff: Dict[str, Any], home_id: Optional[
 
 
 def _apply_create_device(
-    fg: FunkyGibbon,
+    fg: FGClient,
     diff: Dict[str, Any],
     created: Dict[str, str],
 ) -> str:
@@ -123,7 +123,7 @@ def _apply_create_device(
     return eid
 
 
-def _apply_create_door(fg: FunkyGibbon, diff: Dict[str, Any], created: Dict[str, str]) -> str:
+def _apply_create_door(fg: FGClient, diff: Dict[str, Any], created: Dict[str, str]) -> str:
     draft = diff["draft"]
     ent = fg.create_entity(
         entity_type="door",
@@ -146,7 +146,7 @@ def _apply_create_door(fg: FunkyGibbon, diff: Dict[str, Any], created: Dict[str,
 
 
 def _apply_create_keypad(
-    fg: FunkyGibbon,
+    fg: FGClient,
     diff: Dict[str, Any],
     created: Dict[str, str],
 ) -> str:
@@ -190,7 +190,7 @@ def _apply_create_keypad(
     return kid
 
 
-def _apply_create_task_auto(fg: FunkyGibbon, diff: Dict[str, Any]) -> str:
+def _apply_create_task_auto(fg: FGClient, diff: Dict[str, Any]) -> str:
     draft = diff["draft"]
     ent = fg.create_entity(
         entity_type="automation",
@@ -201,7 +201,7 @@ def _apply_create_task_auto(fg: FunkyGibbon, diff: Dict[str, Any]) -> str:
     return _eid(ent)
 
 
-def _apply_update(fg: FunkyGibbon, diff: Dict[str, Any], created: Dict[str, str]) -> None:
+def _apply_update(fg: FGClient, diff: Dict[str, Any], created: Dict[str, str]) -> None:
     action = diff["action"]
     eid = _resolve_entity_ref(diff.get("entity_id"), created)
     if not eid:
@@ -255,7 +255,7 @@ def _apply_update(fg: FunkyGibbon, diff: Dict[str, Any], created: Dict[str, str]
 
 
 def _apply_photo_attachments(
-    fg: FunkyGibbon,
+    fg: FGClient,
     session: RoomSession,
     created: Dict[str, str],
     result: CommitResult,
@@ -325,7 +325,7 @@ def commit_session(session_id: str) -> Dict[str, Any]:
     if session.data.get("status") == "committed":
         return {"committed": 0, "skipped": 0, "errors": ["already committed"], "new_entities": {}}
 
-    fg = FunkyGibbon()
+    fg = FGClient()
     home = fg.get_home()
     home_id = home["id"] if home else None
 

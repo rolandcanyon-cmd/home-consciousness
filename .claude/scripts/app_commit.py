@@ -23,7 +23,7 @@ PROJECT_DIR = os.environ.get(
 sys.path.insert(0, os.path.join(PROJECT_DIR, ".claude", "scripts"))
 
 from app_session import AppSession
-from kittenkong_helper import FunkyGibbon
+from fg_client import FGClient, FGError
 from image_compress import compress_image
 
 
@@ -32,7 +32,7 @@ def commit(session_id: str) -> dict:
     if session.status != "open":
         raise ValueError(f"Session {session_id} is {session.status}, not open.")
 
-    fg = FunkyGibbon()
+    fg = FGClient()
 
     # Build app entity content from diffs
     devices_list = []
