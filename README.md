@@ -15,7 +15,7 @@ A persistent, autonomous house agent built on [Instar](https://github.com/JKHead
 - A Mac (Mac mini recommended for always-on operation)
 - macOS with iMessage configured
 - [Claude Max](https://claude.ai) subscription — generate an API key from your account settings
-- [tmux](https://formulae.brew.sh/formula/tmux), [Node.js 20+](https://nodejs.org), [Python 3.11+](https://python.org)
+- [tmux](https://formulae.brew.sh/formula/tmux), [Node.js](https://nodejs.org) (latest), [Python 3](https://python.org) (latest) — installed via local Homebrew
 - [Claude Code](https://claude.ai/code) CLI: `npm install -g @anthropic-ai/claude-code`
 - [Instar](https://github.com/JKHeadley/instar): `npm install -g @jkheadley/instar`
 
@@ -36,23 +36,17 @@ cd ~/house-agent
 
 ### 3. Install dependencies
 
-If you're running as an **admin user** with system Homebrew:
-
-```bash
-brew install tmux node python@3.11
-```
-
-If you're a **non-admin user** (or the system brew is not owned by you), install a local Homebrew first:
+Install a local Homebrew under your home directory — this is the recommended approach regardless of whether you have admin rights. It keeps everything self-contained and avoids conflicts with system packages or other users on the same machine.
 
 ```bash
 mkdir ~/homebrew
 curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip-components 1 -C ~/homebrew
 echo 'export PATH="$HOME/homebrew/bin:$HOME/homebrew/sbin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
-brew install tmux node python@3.11
+brew install tmux node python3
 ```
 
-This installs everything under `~/homebrew` — no admin rights needed. npm global packages (`claude`, `instar`) will land in `~/homebrew/bin` automatically.
+This installs the latest versions of each, all under `~/homebrew`. npm global packages (`claude`, `instar`) will also install there and be on your PATH automatically.
 
 Then install project dependencies:
 
