@@ -36,8 +36,27 @@ cd ~/house-agent
 
 ### 3. Install dependencies
 
+If you're running as an **admin user** with system Homebrew:
+
 ```bash
 brew install tmux node python@3.11
+```
+
+If you're a **non-admin user** (or the system brew is not owned by you), install a local Homebrew first:
+
+```bash
+mkdir ~/homebrew
+curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip-components 1 -C ~/homebrew
+echo 'export PATH="$HOME/homebrew/bin:$HOME/homebrew/sbin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+brew install tmux node python@3.11
+```
+
+This installs everything under `~/homebrew` — no admin rights needed. npm global packages (`claude`, `instar`) will land in `~/homebrew/bin` automatically.
+
+Then install project dependencies:
+
+```bash
 npm install
 git submodule update --init --recursive
 ```
