@@ -1,0 +1,1 @@
+- [Telegram forwarding quieter](upgrade_v0_28_76.md) — v0.28.76: Removed noisy critical logs for pre-Stage-B lifeline forwards
