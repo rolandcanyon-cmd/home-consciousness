@@ -152,6 +152,94 @@ cd $HOME/instar-dev
 git push fork main --force-with-lease --no-verify
 ```
 
+### 10. Monitor fork CI after push
+After pushing, wait for GitHub Actions to complete on the fork. Check both the `CI` workflow and the `Publish to npm` workflow:
+
+```bash
+# Wait up to 15 minutes for CI runs triggered by the push to complete
+FORK_REPO="rolandcanyon-cmd/instar"
+PUSH_SHA=$(git rev-parse HEAD)
+DEADLINE=$(($(date +%s) + 900))  # 15 min timeout
+
+echo "Waiting for CI to start on $PUSH_SHA..."
+sleep 30  # give GitHub time to queue the run
+
+while [ $(date +%s) -lt $DEADLINE ]; do
+  # Get the latest runs for this SHA
+  RUNS=$(gh run list --repo "$FORK_REPO" --commit "$PUSH_SHA" --json name,status,conclusion,databaseId 2>/dev/null)
+  
+  if [ -z "$RUNS" ] || [ "$RUNS" = "[]" ]; then
+    echo "No runs yet, waiting..."
+    sleep 30
+    continue
+  fi
+  
+  # Check if all runs are complete
+  IN_PROGRESS=$(echo "$RUNS" | python3 -c "import json,sys; runs=json.load(sys.stdin); print(sum(1 for r in runs if r['status'] not in ('completed','')))")
+  
+  if [ "$IN_PROGRESS" = "0" ]; then
+    # All done — check for failures
+    FAILURES=$(echo "$RUNS" | python3 -c "import json,sys; runs=json.load(sys.stdin); print('\n'.join(f\"{r['name']}: {r['conclusion']}\" for r in runs if r['conclusion'] not in ('success','skipped','')))")
+    
+    if [ -n "$FAILURES" ]; then
+      echo "❌ CI failures detected:"
+      echo "$FAILURES"
+      
+      # Get failure details for each failed run
+      echo "$RUNS" | python3 -c "
+import json,sys,subprocess
+runs=json.load(sys.stdin)
+for r in runs:
+    if r['conclusion'] not in ('success','skipped',''):
+        result = subprocess.run(['gh','run','view',str(r['databaseId']),'--repo','$FORK_REPO','--log-failed'], capture_output=True, text=True)
+        print(f'=== {r[\"name\"]} ===')
+        print(result.stdout[-3000:] if len(result.stdout) > 3000 else result.stdout)
+" 2>&1
+      
+      # Attempt to fix the specific known failure: RELEASE_TOKEN → github.token fallback
+      # Check if it's the Publish to npm workflow failing on token
+      PUBLISH_FAIL=$(echo "$RUNS" | python3 -c "import json,sys; runs=json.load(sys.stdin); print('yes' if any(r['name']=='Publish to npm' and r['conclusion']=='failure' for r in runs) else 'no')")
+      
+      if [ "$PUBLISH_FAIL" = "yes" ]; then
+        echo "Publish to npm failed — checking if publish.yml has the github.token fallback..."
+        if grep -q 'RELEASE_TOKEN || github.token' .github/workflows/publish.yml; then
+          echo "Fallback already in place. Check NPM_TOKEN secret and re-run."
+          # Re-trigger the failed publish run
+          PUBLISH_RUN_ID=$(echo "$RUNS" | python3 -c "import json,sys; runs=json.load(sys.stdin); r=[x for x in runs if x['name']=='Publish to npm'][0]; print(r['databaseId'])")
+          gh run rerun "$PUBLISH_RUN_ID" --repo "$FORK_REPO" --failed 2>&1 && echo "Re-triggered Publish to npm run"
+        else
+          echo "Applying github.token fallback to publish.yml..."
+          sed -i 's/token: \${{ secrets.RELEASE_TOKEN }}/token: ${{ secrets.RELEASE_TOKEN || github.token }}/' .github/workflows/publish.yml
+          git add .github/workflows/publish.yml
+          git commit -m "fix(ci): fall back to github.token when RELEASE_TOKEN secret is unset [skip ci]"
+          git push fork main --force-with-lease --no-verify
+          echo "Fix pushed — CI will re-run automatically"
+        fi
+      fi
+      
+      # Report the CI failure regardless
+      FAIL_SUMMARY=$(echo "$RUNS" | python3 -c "import json,sys; runs=json.load(sys.stdin); print(', '.join(f\"{r['name']}\" for r in runs if r['conclusion'] not in ('success','skipped','')))")
+      # (report handled in Reporting section below)
+      CI_STATUS="failed: $FAIL_SUMMARY"
+    else
+      echo "✅ All CI checks passed"
+      CI_STATUS="passed"
+    fi
+    break
+  else
+    echo "$IN_PROGRESS run(s) still in progress, waiting..."
+    sleep 30
+  fi
+done
+
+if [ $(date +%s) -ge $DEADLINE ]; then
+  echo "⚠️ CI timeout after 15 minutes"
+  CI_STATUS="timeout"
+fi
+```
+
+Include `$CI_STATUS` in the push report. Alert via iMessage if CI failed or timed out.
+
 ### ROLLBACK
 ```bash
 cd $HOME/instar-dev
