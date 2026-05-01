@@ -120,23 +120,31 @@ fi
 # --- FunkyGibbon setup ---
 if [[ "$NO_KITTENKONG" == false ]]; then
     FG_DIR="${AGENT_DIR}/the-goodies-python/funkygibbon"
-    PYTHON3="$(which python3)"
+    FG_VENV="${AGENT_DIR}/the-goodies-python/.venv"
     echo ""
     echo "Setting up FunkyGibbon..."
 
-    # Install Python dependencies
+    # Create a virtual environment if it doesn't exist
+    if [[ ! -d "${FG_VENV}" ]]; then
+        echo "  Creating Python virtual environment..."
+        python3 -m venv "${FG_VENV}"
+    fi
+    VENV_PYTHON="${FG_VENV}/bin/python"
+    VENV_PIP="${FG_VENV}/bin/pip"
+
+    # Install FunkyGibbon and its dependencies into the venv
     echo "  Installing FunkyGibbon dependencies..."
-    pip3 install --quiet -r "${FG_DIR}/requirements.txt"
-    pip3 install --quiet -e "${FG_DIR}"
+    "${VENV_PIP}" install --quiet -r "${FG_DIR}/requirements.txt"
+    "${VENV_PIP}" install --quiet -e "${FG_DIR}"
     echo "  ✓ Dependencies installed"
 
     # Hash the admin password using Argon2id (same algorithm FunkyGibbon uses)
-    FG_PASSWORD_HASH=$(python3 -c "
+    FG_PASSWORD_HASH=$("${VENV_PYTHON}" -c "
 from argon2 import PasswordHasher
 ph = PasswordHasher(time_cost=2, memory_cost=65536, parallelism=1, hash_len=32, salt_len=16)
 print(ph.hash('${FUNKYGIBBON_PASSWORD}'))
 ")
-    JWT_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+    JWT_SECRET=$("${VENV_PYTHON}" -c "import secrets; print(secrets.token_hex(32))")
 
     # Write .env for FunkyGibbon (readable only by the current user)
     cat > "${FG_DIR}/.env" <<ENV
@@ -160,7 +168,7 @@ ENV
     <string>com.funkygibbon</string>
     <key>ProgramArguments</key>
     <array>
-        <string>${PYTHON3}</string>
+        <string>${VENV_PYTHON}</string>
         <string>-m</string>
         <string>funkygibbon</string>
     </array>
