@@ -105,9 +105,17 @@ The script does everything end-to-end:
 - Installs FunkyGibbon dependencies, configures the password, creates the macOS LaunchAgent, starts and verifies FunkyGibbon
 - Adds `NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem` to `~/.zshrc` (required for Homebrew Node.js to reach Anthropic APIs)
 - Writes your API key and iMessage whitelist directly to `.instar/config.json`
+- Hardlinks the Messages database into `.instar/imessage/` via `setup/link-imessage-db.sh` (stops Messages, links all three SQLite files, restarts Messages)
 - Starts the Instar server and verifies it's healthy
 
-When it finishes you should see `✓ Agent server running at http://localhost:4040`. If so, the agent is ready — send a message from your iMessage account to the house account to wake it up.
+**Order matters for the iMessage database.** The hardlinks must be created while the server is stopped and Messages is quit. The `link-imessage-db.sh` script handles this correctly. If you ever need to redo the links (e.g. after moving the database), run:
+
+```bash
+./setup/link-imessage-db.sh
+NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
+```
+
+When bootstrap finishes you should see `✓ Agent server running at http://localhost:4040`. Send a message from your iMessage account to the house account to wake it up.
 
 ### 7. Auto-start at login (optional)
 
@@ -186,6 +194,30 @@ iMessage ──▶ imsg CLI ──▶ Instar server (port 4040)
 ```
 
 ## Troubleshooting
+
+### iMessage not responding — agent shows connected but never replies
+
+Symptom: `imsg chats` timestamps don't update when messages arrive, and the activity log shows no iMessage events.
+
+Cause: the Messages database hardlinks were created in the wrong order (server or Messages was running when the links were made), leaving the SQLite WAL lock in a broken state.
+
+Fix — run the dedicated link script which handles the correct order:
+
+```bash
+./setup/link-imessage-db.sh
+NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
+```
+
+To add or remove authorized iMessage senders:
+
+```bash
+./setup/add-user.sh "you@icloud.com"      # add
+./setup/add-user.sh "+15551234567"         # add phone
+./setup/add-user.sh --list                 # show current
+./setup/add-user.sh --remove "addr"        # remove
+```
+
+Then restart the server to apply.
 
 ### Claude is prompting for OAuth / account login instead of using the API key
 

@@ -452,41 +452,17 @@ print(f"  imsg:       {imsg_path}")
 PYEOF
 echo "  ✓ config.json written"
 
-# --- iMessage database hardlink ---
-# The instar iMessage adapter reads from a hardlink to the real Messages DB.
-# This requires Terminal (or the running shell) to have Full Disk Access.
-IMESSAGE_DIR="${AGENT_DIR}/.instar/imessage"
-IMESSAGE_DB="${IMESSAGE_DIR}/chat.db"
-SYSTEM_DB="${HOME}/Library/Messages/chat.db"
-mkdir -p "${IMESSAGE_DIR}"
+# --- iMessage database hardlinks ---
+# All three SQLite files must be hardlinked in the correct order:
+# server stopped → Messages quit → link → Messages reopen → server start.
+# The dedicated script handles this safely and verifies link counts.
 echo ""
-echo "Linking iMessage database..."
-# Only hardlink the main chat.db — do NOT hardlink chat.db-shm or chat.db-wal.
-# Hardlinking the WAL/SHM files causes SQLite locking that freezes the Messages
-# database. The server reads via the node binary which needs FDA granted directly:
-#   System Settings → Privacy & Security → Full Disk Access → add node binary
-# With FDA on node, set dbPath to ~/Library/Messages/chat.db directly instead.
-if [[ -f "${IMESSAGE_DB}" ]]; then
-    echo "  ✓ chat.db already linked"
-elif [[ ! -f "${SYSTEM_DB}" ]]; then
-    echo "  ✗ ~/Library/Messages/chat.db not found — Messages app may not have been set up yet"
-else
-    if ln "${SYSTEM_DB}" "${IMESSAGE_DB}" 2>/dev/null; then
-        echo "  ✓ chat.db hardlinked from ~/Library/Messages/chat.db"
-        echo "  ⚠ For live message delivery, grant Full Disk Access to: $(which node 2>/dev/null || echo 'node binary')"
-        echo "    System Settings → Privacy & Security → Full Disk Access → add node"
-    else
-        echo "  ✗ Could not create hardlink — Terminal needs Full Disk Access"
-        echo "    Fix: System Settings → Privacy & Security → Full Disk Access → add Terminal"
-        echo "    Then rerun this script."
-    fi
-fi
+echo "Setting up iMessage database hardlinks..."
+bash "${SCRIPT_DIR}/link-imessage-db.sh"
 
 # --- Start server ---
 echo ""
 echo "Starting agent server..."
-instar server stop 2>/dev/null || true
-sleep 1
 NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
 
 # Wait for health (30s — server can be slow on first start)
