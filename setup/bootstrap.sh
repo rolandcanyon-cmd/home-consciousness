@@ -323,15 +323,38 @@ import json, pathlib, secrets
 path = pathlib.Path("${CONFIG_FILE}")
 config = json.loads(path.read_text()) if path.exists() else {}
 
+import shutil, os
+
 config.setdefault("sessions", {})["anthropicApiKey"] = "${API_KEY}"
 
 # Auth token — required for secure inter-component communication
 if not config.get("authToken"):
     config["authToken"] = secrets.token_hex(32)
 
+# iMessage messaging adapter
 imessage_user = "${IMESSAGE_USER}".strip()
+imsg_path = shutil.which("imsg") or os.path.expanduser("~/homebrew/bin/imsg")
+db_path = "${AGENT_DIR}/.instar/imessage/chat.db"
+
+# Find existing imessage adapter entry or create one
+messaging = config.setdefault("messaging", [])
+imessage_adapter = next((m for m in messaging if m.get("type") == "imessage"), None)
+if imessage_adapter is None:
+    imessage_adapter = {"type": "imessage", "enabled": True, "config": {}}
+    messaging.append(imessage_adapter)
+
+cfg = imessage_adapter.setdefault("config", {})
+cfg["cliPath"] = imsg_path
+cfg.setdefault("autoReconnect", True)
+cfg.setdefault("maxReconnectAttempts", 10)
+cfg.setdefault("immediateAck", {"enabled": True, "message": "...", "cooldownSeconds": 30})
+cfg.setdefault("directMessageTrigger", "always")
+cfg["dbPath"] = db_path
+
 if imessage_user:
-    config.setdefault("imessage", {})["allowedNumbers"] = [imessage_user]
+    contacts = cfg.setdefault("authorizedContacts", [])
+    if imessage_user not in contacts:
+        contacts.append(imessage_user)
 
 path.write_text(json.dumps(config, indent=2) + "\n")
 PYEOF
