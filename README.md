@@ -71,6 +71,12 @@ Note: API access is billed separately from any claude.ai subscription (Max, Pro,
   --fg-password your-funkygibbon-password
 ```
 
+**`--name`** is the agent's identity — it's substituted into `AGENT.md` as the agent's name ("I'm YourHouseName, the consciousness for your house") and seeded into `MEMORY.md` so the agent knows what it's called from the very first session.
+
+**`--user`** is your first name. It goes into `MEMORY.md` as the primary user, so the agent starts with context about who it works with rather than discovering it through conversation.
+
+Both are initial seeds — the agent evolves its memory over time, but the name stays stable. Neither affects the Instar server config; they're purely identity and memory scaffolding.
+
 The script will:
 - Generate `.instar/AGENT.md`, `MEMORY.md`, and `USER.md` from templates
 - Create `.instar/config.json` and prompt for your Claude API key
