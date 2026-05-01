@@ -452,6 +452,29 @@ print(f"  imsg:       {imsg_path}")
 PYEOF
 echo "  ✓ config.json written"
 
+# --- iMessage database hardlink ---
+# The instar iMessage adapter reads from a hardlink to the real Messages DB.
+# This requires Terminal (or the running shell) to have Full Disk Access.
+IMESSAGE_DIR="${AGENT_DIR}/.instar/imessage"
+IMESSAGE_DB="${IMESSAGE_DIR}/chat.db"
+SYSTEM_DB="${HOME}/Library/Messages/chat.db"
+mkdir -p "${IMESSAGE_DIR}"
+echo ""
+echo "Linking iMessage database..."
+if [[ -f "${IMESSAGE_DB}" ]]; then
+    echo "  ✓ chat.db already linked"
+elif [[ ! -f "${SYSTEM_DB}" ]]; then
+    echo "  ✗ ~/Library/Messages/chat.db not found — Messages app may not have been set up yet"
+else
+    if ln "${SYSTEM_DB}" "${IMESSAGE_DB}" 2>/dev/null; then
+        echo "  ✓ chat.db hardlinked from ~/Library/Messages/chat.db"
+    else
+        echo "  ✗ Could not create hardlink — Terminal needs Full Disk Access"
+        echo "    Fix: System Settings → Privacy & Security → Full Disk Access → add Terminal"
+        echo "    Then rerun this script."
+    fi
+fi
+
 # --- Start server ---
 echo ""
 echo "Starting agent server..."
@@ -459,13 +482,13 @@ instar server stop 2>/dev/null || true
 sleep 1
 NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
 
-# Wait for health
+# Wait for health (30s — server can be slow on first start)
 HEALTH_OK=false
-for i in $(seq 1 15); do
+for i in $(seq 1 30); do
     sleep 1
     _status=$(curl -s --max-time 1 http://localhost:4040/health 2>/dev/null \
         | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "")
-    if [[ "$_status" == "ok" ]]; then
+    if [[ "$_status" == "ok" || "$_status" == "degraded" ]]; then
         HEALTH_OK=true
         break
     fi
