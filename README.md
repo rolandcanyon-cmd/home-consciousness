@@ -14,7 +14,7 @@ A persistent, autonomous house agent built on [Instar](https://github.com/JKHead
 
 - A Mac (Mac mini recommended for always-on operation)
 - macOS with iMessage configured
-- [Claude Max](https://claude.ai) subscription — generate an API key from your account settings
+- [Anthropic API key](https://console.anthropic.com) — generate one from the Anthropic Console (separate from any claude.ai subscription)
 - [tmux](https://formulae.brew.sh/formula/tmux), [Node.js](https://nodejs.org) (latest), [Python 3](https://python.org) (latest) — installed via local Homebrew
 - [Claude Code](https://claude.ai/code) CLI: `npm install -g @anthropic-ai/claude-code`
 - [Instar](https://github.com/JKHeadley/instar): `npm install -g @jkheadley/instar`
@@ -57,7 +57,9 @@ git submodule update --init --recursive
 
 ### 4. Get a Claude API key
 
-Log in to [claude.ai](https://claude.ai) with your Claude Max account. Go to **Settings → API Keys** and create a new key. Keep it handy for the setup script.
+Go to [console.anthropic.com](https://console.anthropic.com), sign in (or create an account), and navigate to **Settings → API Keys** to create a new key. Keep it handy for the setup script.
+
+Note: API access is billed separately from any claude.ai subscription (Max, Pro, etc.). The Anthropic Console is a distinct product.
 
 ### 5. Run the setup script
 
