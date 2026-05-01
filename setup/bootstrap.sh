@@ -8,6 +8,8 @@
 # Options:
 #   --name NAME            Agent name (required)
 #   --user PRIMARY_USER    Primary user name (required)
+#   --api-key KEY          Anthropic API key (prompted if omitted)
+#   --imessage-user ADDR   iMessage address/phone to whitelist (prompted if omitted)
 #   --fg-url URL           FunkyGibbon URL (default: http://localhost:8000)
 #   --fg-password PASS     FunkyGibbon password (prompted if omitted)
 #   --no-kittenkong        Omit kittenkong MCP server from settings.json
@@ -20,6 +22,8 @@ AGENT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 AGENT_NAME=""
 PRIMARY_USER=""
+API_KEY=""
+IMESSAGE_USER=""
 FUNKYGIBBON_URL="http://localhost:8000"
 FUNKYGIBBON_PASSWORD=""
 NO_KITTENKONG=false
@@ -28,19 +32,21 @@ CREATED_DATE="$(date +%Y-%m-%d)"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --name)         AGENT_NAME="$2"; shift 2 ;;
-        --user)         PRIMARY_USER="$2"; shift 2 ;;
-        --fg-url)       FUNKYGIBBON_URL="$2"; shift 2 ;;
-        --fg-password)  FUNKYGIBBON_PASSWORD="$2"; shift 2 ;;
+        --name)          AGENT_NAME="$2"; shift 2 ;;
+        --user)          PRIMARY_USER="$2"; shift 2 ;;
+        --api-key)       API_KEY="$2"; shift 2 ;;
+        --imessage-user) IMESSAGE_USER="$2"; shift 2 ;;
+        --fg-url)        FUNKYGIBBON_URL="$2"; shift 2 ;;
+        --fg-password)   FUNKYGIBBON_PASSWORD="$2"; shift 2 ;;
         --no-kittenkong) NO_KITTENKONG=true; shift ;;
-        --force)        FORCE=true; shift ;;
+        --force)         FORCE=true; shift ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
 done
 
 if [[ -z "$AGENT_NAME" ]]; then
     echo "Error: --name is required"
-    echo "Usage: $0 --name AGENT_NAME [--user NAME] [--fg-url URL] [--fg-password PASS]"
+    echo "Usage: $0 --name AGENT_NAME --user NAME --api-key KEY --imessage-user EMAIL [options]"
     exit 1
 fi
 
@@ -49,6 +55,25 @@ if [[ "$NO_KITTENKONG" == false && -z "$FUNKYGIBBON_PASSWORD" ]]; then
     echo
     if [[ -z "$FUNKYGIBBON_PASSWORD" ]]; then
         NO_KITTENKONG=true
+    fi
+fi
+
+if [[ -z "$API_KEY" ]]; then
+    echo "Anthropic API key (from console.anthropic.com → Settings → API Keys):"
+    read -rsp "  sk-ant-... : " API_KEY
+    echo
+    if [[ -z "$API_KEY" ]]; then
+        echo "Error: API key is required"
+        exit 1
+    fi
+fi
+
+if [[ -z "$IMESSAGE_USER" ]]; then
+    echo "Your iMessage address or phone number (the account you'll message FROM):"
+    read -rp "  e.g. you@icloud.com or +15551234567 : " IMESSAGE_USER
+    echo
+    if [[ -z "$IMESSAGE_USER" ]]; then
+        echo "Warning: no iMessage user set — you can add one later in .instar/config.json"
     fi
 fi
 
@@ -272,50 +297,54 @@ export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem
 
 CONFIG_FILE="${AGENT_DIR}/.instar/config.json"
 
-# --- Initial config.json (API key + iMessage whitelist) ---
-# Write directly to config.json rather than using 'instar config set'.
-# 'instar config set' spawns Claude Code for validation, which requires auth —
-# creating a chicken-and-egg problem before the API key is configured.
+# --- config.json ---
+# Write directly — never use 'instar config set' before the API key is present,
+# as it spawns Claude Code for validation which then requires OAuth auth.
 echo ""
-echo "=== Initial Configuration ==="
-echo "Edit ${CONFIG_FILE} to set your credentials."
-echo ""
-echo "Add your Anthropic API key (get one at https://console.anthropic.com):"
-echo ""
+echo "Writing config.json..."
 python3 - <<PYEOF
 import json, pathlib
 
 path = pathlib.Path("${CONFIG_FILE}")
 config = json.loads(path.read_text()) if path.exists() else {}
 
-# Show current state
-sessions = config.get("sessions", {})
-imessage = config.get("imessage", {})
-key = sessions.get("anthropicApiKey", "")
-allowed = imessage.get("allowedNumbers", [])
+config.setdefault("sessions", {})["anthropicApiKey"] = "${API_KEY}"
 
-print("  Current sessions.anthropicApiKey:", repr(key) if key else "(not set)")
-print("  Current imessage.allowedNumbers: ", allowed if allowed else "(not set)")
+imessage_user = "${IMESSAGE_USER}".strip()
+if imessage_user:
+    config.setdefault("imessage", {})["allowedNumbers"] = [imessage_user]
+
+path.write_text(json.dumps(config, indent=2) + "\n")
 PYEOF
+echo "  ✓ config.json written"
+
+# --- Start server ---
+echo ""
+echo "Starting agent server..."
+instar server stop 2>/dev/null || true
+sleep 1
+NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
+
+# Wait for health
+HEALTH_OK=false
+for i in $(seq 1 15); do
+    sleep 1
+    STATUS=$(curl -s --max-time 1 http://localhost:4040/health 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "")
+    if [[ "$STATUS" == "ok" ]]; then
+        HEALTH_OK=true
+        break
+    fi
+done
+
+if [[ "$HEALTH_OK" == true ]]; then
+    echo "  ✓ Agent server running at http://localhost:4040"
+else
+    echo "  ✗ Server did not respond — check: tmux attach -t house-agent-server"
+fi
 
 echo ""
-echo "To set the API key without spawning Claude:"
-echo "  python3 -c \""
-echo "import json, pathlib"
-echo "path = pathlib.Path('${CONFIG_FILE}')"
-echo "c = json.loads(path.read_text()) if path.exists() else {}"
-echo "c.setdefault('sessions', {})['anthropicApiKey'] = 'sk-ant-YOUR_KEY'"
-echo "c.setdefault('imessage', {})['allowedNumbers'] = ['you@icloud.com']"
-echo "path.write_text(json.dumps(c, indent=2))"
-echo "\""
+echo "=== Done ==="
+echo "Send a message from ${IMESSAGE_USER:-your iMessage account} to the house account to wake the agent."
 echo ""
-echo "Then start the agent:"
-echo "  NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start"
-echo ""
-echo "Verify:"
-echo "  curl http://localhost:4040/health"
-echo ""
-echo "Optional — auto-start at login (after the key is set and server confirmed working):"
-echo "  instar server install"
-echo ""
-echo "For HA integration, add HA scripts to .claude/scripts/ and context to .instar/context/"
+echo "To auto-start at login:  instar server install"
+echo "For HA integration, add scripts to .claude/scripts/ and context to .instar/context/"

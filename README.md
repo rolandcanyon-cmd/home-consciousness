@@ -87,77 +87,36 @@ Note: API access is billed separately from any claude.ai subscription (Max, Pro,
 ./setup/bootstrap.sh \
   --name YourHouseName \
   --user YourFirstName \
-  --fg-url http://localhost:8000 \
   --fg-password your-funkygibbon-password
 ```
 
-**`--name`** is the agent's identity — it's substituted into `AGENT.md` as the agent's name ("I'm YourHouseName, the consciousness for your house") and seeded into `MEMORY.md` so the agent knows what it's called from the very first session.
+The script prompts for anything not supplied on the command line. You'll be asked for:
+- **FunkyGibbon password** — if not passed via `--fg-password`
+- **Anthropic API key** — get one from [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys (input is hidden like a password prompt)
+- **Your iMessage address** — the account you'll message the house from (e.g. `you@icloud.com` or `+15551234567`)
 
-**`--user`** is your first name. It goes into `MEMORY.md` as the primary user, so the agent starts with context about who it works with rather than discovering it through conversation.
+**`--name`** is the agent's identity — substituted into `AGENT.md` and `MEMORY.md` so the agent knows who it is from the first session.
 
-Both are initial seeds — the agent evolves its memory over time, but the name stays stable. Neither affects the Instar server config; they're purely identity and memory scaffolding.
+**`--user`** is your first name — seeded into `MEMORY.md` as the primary user.
 
-The script generates identity files and sets up FunkyGibbon end-to-end:
-- `.instar/AGENT.md` — the agent's identity
-- `.instar/MEMORY.md` — initial long-term memory
-- `.claude/settings.json` — Claude Code tool permissions and MCP servers
-- Installs FunkyGibbon's Python dependencies
-- Hashes your password and writes a `.env` to `the-goodies-python/funkygibbon/`
-- Creates `~/Library/LaunchAgents/com.funkygibbon.plist` so FunkyGibbon starts automatically at login
-- Starts FunkyGibbon and confirms it's responding
+The script does everything end-to-end:
+- Generates `.instar/AGENT.md`, `.instar/MEMORY.md`, `.claude/settings.json`
+- Installs FunkyGibbon dependencies, configures the password, creates the macOS LaunchAgent, starts and verifies FunkyGibbon
+- Adds `NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem` to `~/.zshrc` (required for Homebrew Node.js to reach Anthropic APIs)
+- Writes your API key and iMessage whitelist directly to `.instar/config.json`
+- Starts the Instar server and verifies it's healthy
 
-It does **not** create `config.json`, start the Instar server, or install the Instar LaunchDaemon. Those are the next steps.
+When it finishes you should see `✓ Agent server running at http://localhost:4040`. If so, the agent is ready — send a message from your iMessage account to the house account to wake it up.
 
-The bootstrap also adds `NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem` to your `~/.zshrc`. This is required — Homebrew Node.js has a different CA bundle from Claude Code's bundled runtime, and without it Instar will fail with `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` when calling Anthropic APIs.
+### 7. Auto-start at login (optional)
 
-### 7. Configure the agent
-
-Reload your shell config first (so the cert fix takes effect):
-
-```bash
-source ~/.zshrc
-```
-
-**Do not use `instar config set` for initial setup.** Before the API key is configured, `instar config set` spawns a Claude Code session to validate the change — which immediately asks for OAuth authentication, creating a chicken-and-egg problem. Edit the config file directly instead:
-
-```python
-python3 - <<'EOF'
-import json, pathlib
-path = pathlib.Path.home() / "house-agent/.instar/config.json"
-c = json.loads(path.read_text()) if path.exists() else {}
-c.setdefault("sessions", {})["anthropicApiKey"] = "sk-ant-YOUR_KEY"
-c.setdefault("imessage", {})["allowedNumbers"] = ["you@icloud.com"]
-path.write_text(json.dumps(c, indent=2))
-print("Wrote", path)
-EOF
-```
-
-Replace `sk-ant-YOUR_KEY` with your key from [console.anthropic.com](https://console.anthropic.com) and `you@icloud.com` with the iCloud address you'll message from. Phone numbers also work (e.g. `+15551234567`).
-
-**Critical: configure the API key before starting the server.** The server reads it at startup. Once the key is set, `instar config set` commands work normally (they use the running server, which now has credentials).
-
-### 8. Start the server
-
-Start it with the cert variable in the same command — this ensures it takes effect even if you haven't sourced your shell config yet:
-
-```bash
-NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
-```
-
-If the server is already running, stop it first:
-
-```bash
-instar server stop
-NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
-```
-
-To have it start automatically at login:
+To have the Instar server restart automatically after a reboot:
 
 ```bash
 instar server install
 ```
 
-The LaunchAgent created by `instar server install` uses a bundled Node.js binary that has proper CA certificates — it does not need `NODE_EXTRA_CA_CERTS`. That variable is only needed when running `instar server start` from a Homebrew Node.js terminal, which is why the bootstrap added it to `~/.zshrc`.
+The LaunchAgent this creates uses a bundled Node.js binary that has proper CA certificates built in — no `NODE_EXTRA_CA_CERTS` needed there. The `~/.zshrc` export is only needed when running `instar server start` manually from a Homebrew terminal.
 
 ### 9. Verify
 
