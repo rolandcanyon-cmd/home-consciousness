@@ -209,6 +209,9 @@ STARTSCRIPT
 PLIST
     echo "  ✓ LaunchAgent installed (auto-starts at login)"
 
+    # Truncate log before starting so we only see output from this run
+    : > "${FG_LOG}"
+
     # Start (or restart if already loaded)
     launchctl unload "${PLIST_PATH}" 2>/dev/null || true
     launchctl load "${PLIST_PATH}"
@@ -217,18 +220,23 @@ PLIST
     echo "  Waiting for FunkyGibbon to start (tailing log)..."
     echo "  ---"
     FG_READY=false
+    LAST_LINES=0
     for i in $(seq 1 15); do
         sleep 1
-        # Print any new log lines
+        # Print any new log lines since last check
         if [[ -f "${FG_LOG}" ]]; then
-            tail -n 5 "${FG_LOG}" 2>/dev/null | sed 's/^/  | /'
+            CURRENT_LINES=$(wc -l < "${FG_LOG}" 2>/dev/null || echo 0)
+            if [[ "$CURRENT_LINES" -gt "$LAST_LINES" ]]; then
+                tail -n +"$((LAST_LINES + 1))" "${FG_LOG}" 2>/dev/null | sed 's/^/  | /'
+                LAST_LINES="$CURRENT_LINES"
+            fi
         fi
         FG_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 1 "${FUNKYGIBBON_URL}/health" 2>/dev/null || echo "000")
         if [[ "$FG_STATUS" == "200" ]]; then
             FG_READY=true
             break
         fi
-        # Bail early if log shows a fatal error
+        # Bail early if log shows a fatal startup error
         if [[ -f "${FG_LOG}" ]] && grep -q "ImportError\|ModuleNotFoundError\|Traceback" "${FG_LOG}" 2>/dev/null; then
             echo "  ---"
             echo "  ✗ FunkyGibbon crashed on startup — full log:"
