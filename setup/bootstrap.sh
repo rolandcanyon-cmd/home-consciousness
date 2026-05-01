@@ -461,31 +461,25 @@ SYSTEM_DB="${HOME}/Library/Messages/chat.db"
 mkdir -p "${IMESSAGE_DIR}"
 echo ""
 echo "Linking iMessage database..."
-# SQLite WAL mode requires all three files to be hardlinked together.
-# Without chat.db-wal and chat.db-shm, the server sees a stale snapshot.
-_link_ok=true
-if [[ ! -f "${SYSTEM_DB}" ]]; then
+# Only hardlink the main chat.db — do NOT hardlink chat.db-shm or chat.db-wal.
+# Hardlinking the WAL/SHM files causes SQLite locking that freezes the Messages
+# database. The server reads via the node binary which needs FDA granted directly:
+#   System Settings → Privacy & Security → Full Disk Access → add node binary
+# With FDA on node, set dbPath to ~/Library/Messages/chat.db directly instead.
+if [[ -f "${IMESSAGE_DB}" ]]; then
+    echo "  ✓ chat.db already linked"
+elif [[ ! -f "${SYSTEM_DB}" ]]; then
     echo "  ✗ ~/Library/Messages/chat.db not found — Messages app may not have been set up yet"
-    _link_ok=false
 else
-    for _suffix in "" "-shm" "-wal"; do
-        _src="${SYSTEM_DB}${_suffix}"
-        _dst="${IMESSAGE_DB}${_suffix}"
-        if [[ -f "${_dst}" ]]; then
-            echo "  ✓ chat.db${_suffix} already linked"
-        elif [[ ! -f "${_src}" ]]; then
-            echo "  ⚠ ${_src} not found yet (created when Messages first syncs)"
-        else
-            if ln "${_src}" "${_dst}" 2>/dev/null; then
-                echo "  ✓ chat.db${_suffix} hardlinked"
-            else
-                echo "  ✗ Could not hardlink chat.db${_suffix} — Terminal needs Full Disk Access"
-                echo "    Fix: System Settings → Privacy & Security → Full Disk Access → add Terminal"
-                echo "    Then rerun this script."
-                _link_ok=false
-            fi
-        fi
-    done
+    if ln "${SYSTEM_DB}" "${IMESSAGE_DB}" 2>/dev/null; then
+        echo "  ✓ chat.db hardlinked from ~/Library/Messages/chat.db"
+        echo "  ⚠ For live message delivery, grant Full Disk Access to: $(which node 2>/dev/null || echo 'node binary')"
+        echo "    System Settings → Privacy & Security → Full Disk Access → add node"
+    else
+        echo "  ✗ Could not create hardlink — Terminal needs Full Disk Access"
+        echo "    Fix: System Settings → Privacy & Security → Full Disk Access → add Terminal"
+        echo "    Then rerun this script."
+    fi
 fi
 
 # --- Start server ---
