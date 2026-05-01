@@ -44,6 +44,7 @@ curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip-compone
 echo 'export PATH="$HOME/homebrew/bin:$HOME/homebrew/sbin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 brew install tmux node python3
+brew tap steipete/tap && brew install imsg
 ```
 
 This installs the latest versions of each, all under `~/homebrew`. npm global packages (`claude`, `instar`) will also install there and be on your PATH automatically.
