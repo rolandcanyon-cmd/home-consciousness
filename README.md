@@ -43,7 +43,7 @@ mkdir ~/homebrew
 curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip-components 1 -C ~/homebrew
 echo 'export PATH="$HOME/homebrew/bin:$HOME/homebrew/sbin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
-brew install tmux node python3
+brew install tmux node python3 go
 brew tap steipete/tap && brew install imsg
 ```
 

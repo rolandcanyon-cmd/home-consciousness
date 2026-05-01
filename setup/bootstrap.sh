@@ -127,6 +127,64 @@ else
 fi
 echo ""
 
+# --- attachments-sync (Go helper) ---
+# Mirrors iMessage photo attachments to a readable location.
+# Needs Full Disk Access — see the FDA prompt at the end of this script.
+ATTSYNC_SRC="${AGENT_DIR}/.instar/tools/attachments-sync"
+ATTSYNC_BIN="${AGENT_DIR}/.instar/bin/instar-attachments-sync"
+ATTSYNC_PLIST="${HOME}/Library/LaunchAgents/ai.instar.AttachmentsWatcher.plist"
+ATTSYNC_LOG="${AGENT_DIR}/.instar/logs/attachments-watcher.log"
+ATTSYNC_ERR="${AGENT_DIR}/.instar/logs/attachments-watcher.err"
+
+echo "Building attachments-sync..."
+mkdir -p "${AGENT_DIR}/.instar/bin" "${AGENT_DIR}/.instar/logs"
+if command -v go &>/dev/null; then
+    (cd "${ATTSYNC_SRC}" && go build -o "${ATTSYNC_BIN}" .)
+    echo "  ✓ Binary built: ${ATTSYNC_BIN}"
+else
+    echo "  ✗ Go not found — install with: brew install go"
+    echo "    Then rerun this script to build attachments-sync"
+fi
+
+# Install LaunchAgent (idempotent)
+mkdir -p "${HOME}/Library/LaunchAgents"
+cat > "${ATTSYNC_PLIST}" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>ai.instar.AttachmentsWatcher</string>
+    <key>Program</key>
+    <string>${ATTSYNC_BIN}</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>${ATTSYNC_LOG}</string>
+    <key>StandardErrorPath</key>
+    <string>${ATTSYNC_ERR}</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOME</key>
+        <string>${HOME}</string>
+    </dict>
+    <key>ThrottleInterval</key>
+    <integer>5</integer>
+</dict>
+</plist>
+PLIST
+
+if [[ -f "${ATTSYNC_BIN}" ]]; then
+    launchctl unload "${ATTSYNC_PLIST}" 2>/dev/null || true
+    launchctl load "${ATTSYNC_PLIST}"
+    echo "  ✓ AttachmentsWatcher LaunchAgent installed"
+else
+    echo "  ⚠ LaunchAgent written but not loaded — binary missing (build Go first)"
+fi
+echo ""
+
 # --- settings.json ---
 echo "Generating .claude/settings.json..."
 TEMPLATE="${SCRIPT_DIR}/settings.json.template"
@@ -408,6 +466,17 @@ else
     echo "Fix the server issue above, then rerun this script."
 fi
 
+echo ""
+echo "=== Manual step required: Full Disk Access ==="
+echo "The attachments-sync helper needs Full Disk Access to read iMessage attachments."
+echo "Without it, photos sent via iMessage will not be visible to the agent."
+echo ""
+echo "  1. Open: System Settings → Privacy & Security → Full Disk Access"
+echo "  2. Click + and add: ${ATTSYNC_BIN}"
+echo "  3. Toggle it ON"
+echo ""
+echo "This only needs to be done once. You can open the pane now:"
+echo "  open 'x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles'"
 echo ""
 echo "To auto-start at login:  instar server install"
 echo "For HA integration, add scripts to .claude/scripts/ and context to .instar/context/"
