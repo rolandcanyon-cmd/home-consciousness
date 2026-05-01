@@ -108,11 +108,14 @@ The script generates identity files and sets up FunkyGibbon end-to-end:
 
 It does **not** create `config.json`, start the Instar server, or install the Instar LaunchDaemon. Those are the next steps.
 
+The bootstrap also adds `NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem` to your `~/.zshrc`. This is required — Homebrew Node.js has a different CA bundle from Claude Code's bundled runtime, and without it Instar will fail with `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` when calling Anthropic APIs.
+
 ### 7. Configure the agent
 
-At minimum you need to set your Anthropic API key and whitelist the iMessage account you'll use to control the house:
+Reload your shell config first (so the cert fix takes effect), then set your Anthropic API key and whitelist the iMessage account you'll use to control the house:
 
 ```bash
+source ~/.zshrc
 instar config set sessions.anthropicApiKey YOUR_KEY
 instar config set imessage.allowedNumbers '["your-imessage-account@icloud.com"]'
 ```
@@ -201,17 +204,18 @@ iMessage ──▶ imsg CLI ──▶ Instar server (port 4040)
 
 ### `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` when starting the server
 
-Instar uses your Homebrew Node.js, which has a different CA bundle from Claude Code (which bundles its own runtime). Point Node to the macOS system CA bundle:
+The bootstrap script adds `NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem` to `~/.zshrc` automatically. If you see this error, it means either the bootstrap hasn't been run yet, or the shell config hasn't been reloaded:
 
 ```bash
-export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem
+source ~/.zshrc
 instar server start
 ```
 
-To make this permanent:
+If you're setting up without the bootstrap (manual install), add it yourself:
 
 ```bash
 echo 'export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem' >> ~/.zshrc
+source ~/.zshrc
 ```
 
 ## Updating

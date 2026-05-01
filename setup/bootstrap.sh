@@ -254,11 +254,29 @@ PLIST
     fi
 fi
 
+# --- NODE_EXTRA_CA_CERTS ---
+# Homebrew Node.js has a different CA bundle from Claude Code's bundled runtime.
+# Without this, Instar fails with UNABLE_TO_GET_ISSUER_CERT_LOCALLY when calling
+# Anthropic APIs. Set it now for the current shell and persist it to .zshrc.
+echo ""
+echo "Configuring Node.js TLS certificates..."
+CA_EXPORT='export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem'
+ZSHRC="${HOME}/.zshrc"
+if ! grep -qF "$CA_EXPORT" "$ZSHRC" 2>/dev/null; then
+    echo "$CA_EXPORT" >> "$ZSHRC"
+    echo "  ✓ Added NODE_EXTRA_CA_CERTS to ~/.zshrc"
+else
+    echo "  ✓ NODE_EXTRA_CA_CERTS already in ~/.zshrc"
+fi
+export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem
+
 echo ""
 echo "=== Next Steps ==="
-echo "1. Configure .instar/config.json (auth token, Anthropic key, iMessage whitelist)"
-echo "   See: instar config --help"
-echo "2. Start the agent: instar server start"
-echo "3. Verify: curl http://localhost:4040/health"
+echo "1. Reload shell config: source ~/.zshrc"
+echo "2. Configure the agent:"
+echo "   instar config set sessions.anthropicApiKey YOUR_KEY"
+echo "   instar config set imessage.allowedNumbers '[\"your-imessage@icloud.com\"]'"
+echo "3. Start the agent: instar server start"
+echo "4. Verify: curl http://localhost:4040/health"
 echo ""
 echo "For HA integration, add HA scripts to .claude/scripts/ and context to .instar/context/"
