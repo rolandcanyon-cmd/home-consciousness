@@ -461,18 +461,31 @@ SYSTEM_DB="${HOME}/Library/Messages/chat.db"
 mkdir -p "${IMESSAGE_DIR}"
 echo ""
 echo "Linking iMessage database..."
-if [[ -f "${IMESSAGE_DB}" ]]; then
-    echo "  ✓ chat.db already linked"
-elif [[ ! -f "${SYSTEM_DB}" ]]; then
+# SQLite WAL mode requires all three files to be hardlinked together.
+# Without chat.db-wal and chat.db-shm, the server sees a stale snapshot.
+_link_ok=true
+if [[ ! -f "${SYSTEM_DB}" ]]; then
     echo "  ✗ ~/Library/Messages/chat.db not found — Messages app may not have been set up yet"
+    _link_ok=false
 else
-    if ln "${SYSTEM_DB}" "${IMESSAGE_DB}" 2>/dev/null; then
-        echo "  ✓ chat.db hardlinked from ~/Library/Messages/chat.db"
-    else
-        echo "  ✗ Could not create hardlink — Terminal needs Full Disk Access"
-        echo "    Fix: System Settings → Privacy & Security → Full Disk Access → add Terminal"
-        echo "    Then rerun this script."
-    fi
+    for _suffix in "" "-shm" "-wal"; do
+        _src="${SYSTEM_DB}${_suffix}"
+        _dst="${IMESSAGE_DB}${_suffix}"
+        if [[ -f "${_dst}" ]]; then
+            echo "  ✓ chat.db${_suffix} already linked"
+        elif [[ ! -f "${_src}" ]]; then
+            echo "  ⚠ ${_src} not found yet (created when Messages first syncs)"
+        else
+            if ln "${_src}" "${_dst}" 2>/dev/null; then
+                echo "  ✓ chat.db${_suffix} hardlinked"
+            else
+                echo "  ✗ Could not hardlink chat.db${_suffix} — Terminal needs Full Disk Access"
+                echo "    Fix: System Settings → Privacy & Security → Full Disk Access → add Terminal"
+                echo "    Then rerun this script."
+                _link_ok=false
+            fi
+        fi
+    done
 fi
 
 # --- Start server ---
