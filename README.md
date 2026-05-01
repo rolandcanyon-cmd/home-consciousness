@@ -90,14 +90,14 @@ It does **not** create `config.json`, start the server, or install any LaunchDae
 instar config --help
 ```
 
-At minimum you need to set your Anthropic API key and configure iMessage:
+At minimum you need to set your Anthropic API key and whitelist the iMessage account you'll use to control the house:
 
 ```bash
 instar config set sessions.anthropicApiKey YOUR_KEY
-instar config set imessage.allowedNumbers '["your-phone-number"]'
+instar config set imessage.allowedNumbers '["your-imessage-account@icloud.com"]'
 ```
 
-For optional Telegram integration, set `telegram.botToken` and `telegram.chatId` as well.
+`allowedNumbers` accepts phone numbers or iCloud email addresses. Only accounts listed here can send commands to the agent.
 
 ### 7. Start the server
 
