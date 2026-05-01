@@ -318,12 +318,16 @@ export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem
 echo ""
 echo "Writing config.json..."
 python3 - <<PYEOF
-import json, pathlib
+import json, pathlib, secrets
 
 path = pathlib.Path("${CONFIG_FILE}")
 config = json.loads(path.read_text()) if path.exists() else {}
 
 config.setdefault("sessions", {})["anthropicApiKey"] = "${API_KEY}"
+
+# Auth token — required for secure inter-component communication
+if not config.get("authToken"):
+    config["authToken"] = secrets.token_hex(32)
 
 imessage_user = "${IMESSAGE_USER}".strip()
 if imessage_user:
