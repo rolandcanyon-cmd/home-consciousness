@@ -112,36 +112,43 @@ The bootstrap also adds `NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem` to your `~/.zshr
 
 ### 7. Configure the agent
 
-Reload your shell config first (so the cert fix takes effect), then set your Anthropic API key:
+Reload your shell config first (so the cert fix takes effect):
 
 ```bash
 source ~/.zshrc
-instar config set sessions.anthropicApiKey YOUR_KEY
 ```
 
-Replace `YOUR_KEY` with your actual API key from [console.anthropic.com](https://console.anthropic.com).
+**Do not use `instar config set` for initial setup.** Before the API key is configured, `instar config set` spawns a Claude Code session to validate the change — which immediately asks for OAuth authentication, creating a chicken-and-egg problem. Edit the config file directly instead:
 
-**Critical: set the API key before starting the server.** The server reads it at startup. If you configure the key after the server is already running, the new value won't take effect until you restart the server.
-
-Then whitelist the iMessage account you'll use to control the house:
-
-```bash
-instar config set imessage.allowedNumbers '["your-imessage-account@icloud.com"]'
+```python
+python3 - <<'EOF'
+import json, pathlib
+path = pathlib.Path.home() / "house-agent/.instar/config.json"
+c = json.loads(path.read_text()) if path.exists() else {}
+c.setdefault("sessions", {})["anthropicApiKey"] = "sk-ant-YOUR_KEY"
+c.setdefault("imessage", {})["allowedNumbers"] = ["you@icloud.com"]
+path.write_text(json.dumps(c, indent=2))
+print("Wrote", path)
+EOF
 ```
 
-`allowedNumbers` accepts phone numbers or iCloud email addresses. Only accounts listed here can send commands to the agent.
+Replace `sk-ant-YOUR_KEY` with your key from [console.anthropic.com](https://console.anthropic.com) and `you@icloud.com` with the iCloud address you'll message from. Phone numbers also work (e.g. `+15551234567`).
+
+**Critical: configure the API key before starting the server.** The server reads it at startup. Once the key is set, `instar config set` commands work normally (they use the running server, which now has credentials).
 
 ### 8. Start the server
 
+Start it with the cert variable in the same command — this ensures it takes effect even if you haven't sourced your shell config yet:
+
 ```bash
-instar server start
+NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
 ```
 
-If the server is already running, stop it first — you must restart after configuring the API key:
+If the server is already running, stop it first:
 
 ```bash
 instar server stop
-instar server start
+NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
 ```
 
 To have it start automatically at login:

@@ -270,25 +270,52 @@ else
 fi
 export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem
 
+CONFIG_FILE="${AGENT_DIR}/.instar/config.json"
+
+# --- Initial config.json (API key + iMessage whitelist) ---
+# Write directly to config.json rather than using 'instar config set'.
+# 'instar config set' spawns Claude Code for validation, which requires auth —
+# creating a chicken-and-egg problem before the API key is configured.
 echo ""
-echo "=== Next Steps ==="
-echo "1. Reload shell config:  source ~/.zshrc"
+echo "=== Initial Configuration ==="
+echo "Edit ${CONFIG_FILE} to set your credentials."
 echo ""
-echo "2. Set your Anthropic API key (do this BEFORE starting the server):"
-echo "   instar config set sessions.anthropicApiKey YOUR_KEY"
-echo "   Get a key at https://console.anthropic.com → Settings → API Keys"
+echo "Add your Anthropic API key (get one at https://console.anthropic.com):"
 echo ""
-echo "3. Whitelist the iMessage account you'll control the house from:"
-echo "   instar config set imessage.allowedNumbers '[\"you@icloud.com\"]'"
-echo "   (Phone numbers also work, e.g. +15551234567)"
+python3 - <<PYEOF
+import json, pathlib
+
+path = pathlib.Path("${CONFIG_FILE}")
+config = json.loads(path.read_text()) if path.exists() else {}
+
+# Show current state
+sessions = config.get("sessions", {})
+imessage = config.get("imessage", {})
+key = sessions.get("anthropicApiKey", "")
+allowed = imessage.get("allowedNumbers", [])
+
+print("  Current sessions.anthropicApiKey:", repr(key) if key else "(not set)")
+print("  Current imessage.allowedNumbers: ", allowed if allowed else "(not set)")
+PYEOF
+
 echo ""
-echo "4. Start the agent:"
-echo "   instar server start"
-echo "   (If the server was already running, stop it first: instar server stop)"
+echo "To set the API key without spawning Claude:"
+echo "  python3 -c \""
+echo "import json, pathlib"
+echo "path = pathlib.Path('${CONFIG_FILE}')"
+echo "c = json.loads(path.read_text()) if path.exists() else {}"
+echo "c.setdefault('sessions', {})['anthropicApiKey'] = 'sk-ant-YOUR_KEY'"
+echo "c.setdefault('imessage', {})['allowedNumbers'] = ['you@icloud.com']"
+echo "path.write_text(json.dumps(c, indent=2))"
+echo "\""
 echo ""
-echo "5. Verify:  curl http://localhost:4040/health"
+echo "Then start the agent:"
+echo "  NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start"
 echo ""
-echo "6. Optional — auto-start at login:"
-echo "   instar server install"
+echo "Verify:"
+echo "  curl http://localhost:4040/health"
+echo ""
+echo "Optional — auto-start at login (after the key is set and server confirmed working):"
+echo "  instar server install"
 echo ""
 echo "For HA integration, add HA scripts to .claude/scripts/ and context to .instar/context/"
