@@ -77,14 +77,16 @@ Note: API access is billed separately from any claude.ai subscription (Max, Pro,
 
 Both are initial seeds — the agent evolves its memory over time, but the name stays stable. Neither affects the Instar server config; they're purely identity and memory scaffolding.
 
-FunkyGibbon must already be running before you run this script — the script wires the password into the kittenkong MCP config and then checks that FunkyGibbon is reachable and the password is accepted. You'll see a ✓ or ✗ at the end.
-
-The script generates three files from templates:
+The script generates identity files and sets up FunkyGibbon end-to-end:
 - `.instar/AGENT.md` — the agent's identity
 - `.instar/MEMORY.md` — initial long-term memory
-- `.claude/settings.json` — Claude Code tool permissions and MCP servers (including kittenkong with your FunkyGibbon credentials)
+- `.claude/settings.json` — Claude Code tool permissions and MCP servers
+- Installs FunkyGibbon's Python dependencies
+- Hashes your password and writes a `.env` to `the-goodies-python/funkygibbon/`
+- Creates `~/Library/LaunchAgents/com.funkygibbon.plist` so FunkyGibbon starts automatically at login
+- Starts FunkyGibbon and confirms it's responding
 
-It does **not** create `config.json`, start the Instar server, or install any LaunchDaemon. Those are the next steps.
+It does **not** create `config.json`, start the Instar server, or install the Instar LaunchDaemon. Those are the next steps.
 
 ### 6. Configure the agent
 

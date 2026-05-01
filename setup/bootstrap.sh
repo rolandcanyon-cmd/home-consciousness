@@ -117,24 +117,100 @@ else
     echo "  ✓ .instar/MEMORY.md (fresh)"
 fi
 
-# --- FunkyGibbon connectivity check ---
+# --- FunkyGibbon setup ---
 if [[ "$NO_KITTENKONG" == false ]]; then
+    FG_DIR="${AGENT_DIR}/the-goodies-python/funkygibbon"
+    PYTHON3="$(which python3)"
     echo ""
-    echo "Checking FunkyGibbon at ${FUNKYGIBBON_URL}..."
-    FG_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-        --max-time 5 \
-        -u ":${FUNKYGIBBON_PASSWORD}" \
-        "${FUNKYGIBBON_URL}/api/health" 2>/dev/null || echo "000")
-    if [[ "$FG_STATUS" == "200" ]]; then
-        echo "  ✓ FunkyGibbon reachable and password accepted"
-    elif [[ "$FG_STATUS" == "401" || "$FG_STATUS" == "403" ]]; then
-        echo "  ✗ FunkyGibbon reachable but password rejected (HTTP ${FG_STATUS})"
-        echo "    Check your FunkyGibbon password and re-run with --force"
-    elif [[ "$FG_STATUS" == "000" ]]; then
-        echo "  ✗ FunkyGibbon not reachable at ${FUNKYGIBBON_URL}"
-        echo "    Make sure FunkyGibbon is running before starting the agent"
+    echo "Setting up FunkyGibbon..."
+
+    # Install Python dependencies
+    echo "  Installing FunkyGibbon dependencies..."
+    pip3 install --quiet -r "${FG_DIR}/requirements.txt"
+    pip3 install --quiet -e "${FG_DIR}"
+    echo "  ✓ Dependencies installed"
+
+    # Hash the admin password using Argon2id (same algorithm FunkyGibbon uses)
+    FG_PASSWORD_HASH=$(python3 -c "
+from argon2 import PasswordHasher
+ph = PasswordHasher(time_cost=2, memory_cost=65536, parallelism=1, hash_len=32, salt_len=16)
+print(ph.hash('${FUNKYGIBBON_PASSWORD}'))
+")
+    JWT_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+
+    # Write .env for FunkyGibbon (readable only by the current user)
+    cat > "${FG_DIR}/.env" <<ENV
+ADMIN_PASSWORD_HASH=${FG_PASSWORD_HASH}
+JWT_SECRET=${JWT_SECRET}
+API_HOST=127.0.0.1
+API_PORT=8000
+ENV
+    chmod 600 "${FG_DIR}/.env"
+    echo "  ✓ Admin password configured"
+
+    # Create macOS LaunchAgent for auto-start at login
+    PLIST_PATH="${HOME}/Library/LaunchAgents/com.funkygibbon.plist"
+    mkdir -p "${HOME}/Library/LaunchAgents"
+    cat > "${PLIST_PATH}" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.funkygibbon</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>${PYTHON3}</string>
+        <string>-m</string>
+        <string>funkygibbon</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>${FG_DIR}</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>ADMIN_PASSWORD_HASH</key>
+        <string>${FG_PASSWORD_HASH}</string>
+        <key>JWT_SECRET</key>
+        <string>${JWT_SECRET}</string>
+        <key>API_HOST</key>
+        <string>127.0.0.1</string>
+        <key>API_PORT</key>
+        <string>8000</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>${HOME}/Library/Logs/funkygibbon.log</string>
+    <key>StandardErrorPath</key>
+    <string>${HOME}/Library/Logs/funkygibbon.log</string>
+</dict>
+</plist>
+PLIST
+    echo "  ✓ LaunchAgent installed (auto-starts at login)"
+
+    # Start (or restart if already loaded)
+    launchctl unload "${PLIST_PATH}" 2>/dev/null || true
+    launchctl load "${PLIST_PATH}"
+
+    # Wait up to 10 seconds for FunkyGibbon to be ready
+    echo "  Waiting for FunkyGibbon to start..."
+    FG_READY=false
+    for i in $(seq 1 10); do
+        FG_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "${FUNKYGIBBON_URL}/health" 2>/dev/null || echo "000")
+        if [[ "$FG_STATUS" == "200" ]]; then
+            FG_READY=true
+            break
+        fi
+        sleep 1
+    done
+
+    if [[ "$FG_READY" == true ]]; then
+        echo "  ✓ FunkyGibbon is running at ${FUNKYGIBBON_URL}"
     else
-        echo "  ⚠ FunkyGibbon returned HTTP ${FG_STATUS} — check it is running correctly"
+        echo "  ✗ FunkyGibbon did not respond within 10 seconds"
+        echo "    Check logs: tail -f ~/Library/Logs/funkygibbon.log"
     fi
 fi
 
