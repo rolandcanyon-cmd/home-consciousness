@@ -395,18 +395,37 @@ config = json.loads(path.read_text()) if path.exists() else {}
 
 import shutil, os
 
+# --- API key ---
 config.setdefault("sessions", {})["anthropicApiKey"] = "${API_KEY}"
 
-# Auth token — required for secure inter-component communication
+# --- Auth token ---
 if not config.get("authToken"):
     config["authToken"] = secrets.token_hex(32)
 
-# iMessage messaging adapter
+# --- Session paths (critical — without these instar can't spawn Claude headlessly) ---
+claude_path = shutil.which("claude") or os.path.expanduser("~/homebrew/bin/claude")
+tmux_path   = shutil.which("tmux")   or "/opt/homebrew/bin/tmux"
+sessions = config.setdefault("sessions", {})
+sessions.setdefault("claudePath", claude_path)
+sessions.setdefault("tmuxPath",   tmux_path)
+sessions.setdefault("maxSessions", 10)
+sessions.setdefault("idlePromptKillMinutes", 60)
+sessions.setdefault("defaultMaxDurationMinutes", 480)
+
+# --- Scheduler ---
+config.setdefault("scheduler", {})["enabled"] = True
+config["scheduler"].setdefault("maxParallelJobs", 2)
+
+# --- Tunnel (quick Cloudflare tunnel for remote access) ---
+config.setdefault("tunnel", {"enabled": True, "type": "quick"})
+
+# --- iMessage messaging adapter ---
 imessage_user = "${IMESSAGE_USER}".strip()
 imsg_path = shutil.which("imsg") or os.path.expanduser("~/homebrew/bin/imsg")
-db_path = "${AGENT_DIR}/.instar/imessage/chat.db"
+imessage_dir = "${AGENT_DIR}/.instar/imessage"
+db_path = imessage_dir + "/chat.db"
+os.makedirs(imessage_dir, exist_ok=True)
 
-# Find existing imessage adapter entry or create one
 messaging = config.setdefault("messaging", [])
 imessage_adapter = next((m for m in messaging if m.get("type") == "imessage"), None)
 if imessage_adapter is None:
@@ -427,6 +446,9 @@ if imessage_user:
         contacts.append(imessage_user)
 
 path.write_text(json.dumps(config, indent=2) + "\n")
+print(f"  claudePath: {claude_path}")
+print(f"  tmuxPath:   {tmux_path}")
+print(f"  imsg:       {imsg_path}")
 PYEOF
 echo "  ✓ config.json written"
 
