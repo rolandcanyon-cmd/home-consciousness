@@ -57,19 +57,23 @@ git submodule update --init --recursive
 
 ### 4. Install Claude Code and Instar
 
+Install both into your local Homebrew prefix so you have write access:
+
 ```bash
-npm install -g @anthropic-ai/claude-code
-npm install -g @jkheadley/instar
+npm install -g --prefix ~/homebrew @anthropic-ai/claude-code
+npm install -g --prefix ~/homebrew @jkheadley/instar
 ```
 
-Verify both are on your PATH:
+If Claude Code is already installed system-wide (e.g. from a previous Anthropic installer), skip that line — `claude` will already be on your PATH.
+
+Verify both are accessible:
 
 ```bash
 claude --version
 instar --version
 ```
 
-If the commands aren't found, make sure `~/homebrew/bin` is in your PATH (the step above adds it to `.zshrc` — run `source ~/.zshrc` if you opened a new terminal since then).
+If either command isn't found, run `source ~/.zshrc` to reload your PATH (the Homebrew setup step adds `~/homebrew/bin` to it).
 
 ### 5. Get a Claude API key
 
