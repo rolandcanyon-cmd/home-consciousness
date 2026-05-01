@@ -117,9 +117,30 @@ else
     echo "  ✓ .instar/MEMORY.md (fresh)"
 fi
 
+# --- FunkyGibbon connectivity check ---
+if [[ "$NO_KITTENKONG" == false ]]; then
+    echo ""
+    echo "Checking FunkyGibbon at ${FUNKYGIBBON_URL}..."
+    FG_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+        --max-time 5 \
+        -u ":${FUNKYGIBBON_PASSWORD}" \
+        "${FUNKYGIBBON_URL}/api/health" 2>/dev/null || echo "000")
+    if [[ "$FG_STATUS" == "200" ]]; then
+        echo "  ✓ FunkyGibbon reachable and password accepted"
+    elif [[ "$FG_STATUS" == "401" || "$FG_STATUS" == "403" ]]; then
+        echo "  ✗ FunkyGibbon reachable but password rejected (HTTP ${FG_STATUS})"
+        echo "    Check your FunkyGibbon password and re-run with --force"
+    elif [[ "$FG_STATUS" == "000" ]]; then
+        echo "  ✗ FunkyGibbon not reachable at ${FUNKYGIBBON_URL}"
+        echo "    Make sure FunkyGibbon is running before starting the agent"
+    else
+        echo "  ⚠ FunkyGibbon returned HTTP ${FG_STATUS} — check it is running correctly"
+    fi
+fi
+
 echo ""
 echo "=== Next Steps ==="
-echo "1. Configure .instar/config.json (Telegram token, auth token, Anthropic key, etc.)"
+echo "1. Configure .instar/config.json (auth token, Anthropic key, iMessage whitelist)"
 echo "   See: instar config --help"
 echo "2. Start the agent: instar server start"
 echo "3. Verify: curl http://localhost:4040/health"
