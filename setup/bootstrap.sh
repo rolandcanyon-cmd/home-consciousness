@@ -58,6 +58,12 @@ echo "Directory: $AGENT_DIR"
 echo "User:      $PRIMARY_USER"
 echo ""
 
+# --- Ensure submodules are initialized and up to date ---
+echo "Updating submodules..."
+git -C "${AGENT_DIR}" submodule update --init --recursive
+echo "  ✓ Submodules ready"
+echo ""
+
 # --- settings.json ---
 echo "Generating .claude/settings.json..."
 TEMPLATE="${SCRIPT_DIR}/settings.json.template"
