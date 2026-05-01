@@ -17,7 +17,7 @@ A persistent, autonomous house agent built on [Instar](https://github.com/JKHead
 - [Anthropic API key](https://console.anthropic.com) — generate one from the Anthropic Console (separate from any claude.ai subscription)
 - [tmux](https://formulae.brew.sh/formula/tmux), [Node.js](https://nodejs.org) (latest), [Python 3](https://python.org) (latest) — installed via local Homebrew
 - [Claude Code](https://claude.ai/code) CLI: `npm install -g @anthropic-ai/claude-code`
-- [Instar](https://github.com/JKHeadley/instar): `npm install -g @jkheadley/instar`
+- [Instar](https://github.com/JKHeadley/instar): `npm install -g instar`
 
 ## Installation
 
@@ -61,7 +61,7 @@ Install both into your local Homebrew prefix. This keeps everything self-contain
 
 ```bash
 npm install -g --prefix ~/homebrew @anthropic-ai/claude-code
-npm install -g --prefix ~/homebrew @jkheadley/instar
+npm install -g --prefix ~/homebrew instar
 ```
 
 Since `~/homebrew/bin` is first in your PATH, these local installs will always take precedence.
