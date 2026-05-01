@@ -77,27 +77,55 @@ Note: API access is billed separately from any claude.ai subscription (Max, Pro,
 
 Both are initial seeds — the agent evolves its memory over time, but the name stays stable. Neither affects the Instar server config; they're purely identity and memory scaffolding.
 
-The script will:
-- Generate `.instar/AGENT.md`, `MEMORY.md`, and `USER.md` from templates
-- Create `.instar/config.json` and prompt for your Claude API key
-- Install the Instar LaunchDaemon so the agent starts automatically
-- Start the agent server on port 4040
+The script generates three files from templates:
+- `.instar/AGENT.md` — the agent's identity
+- `.instar/MEMORY.md` — initial long-term memory
+- `.claude/settings.json` — Claude Code tool permissions and MCP servers
 
-### 6. Wake up the house on iMessage
+It does **not** create `config.json`, start the server, or install any LaunchDaemon. Those are the next steps.
 
-Send a message from your personal iMessage to the house account:
+### 6. Configure the agent
 
-> "Hello — are you there?"
+```bash
+instar config --help
+```
 
-The agent will respond, introduce itself, and ask for any initial configuration. From this point forward, you control the house by messaging it.
+At minimum you need to set your Anthropic API key and configure iMessage:
 
-### 7. Verify
+```bash
+instar config set sessions.anthropicApiKey YOUR_KEY
+instar config set imessage.allowedNumbers '["your-phone-number"]'
+```
+
+For optional Telegram integration, set `telegram.botToken` and `telegram.chatId` as well.
+
+### 7. Start the server
+
+```bash
+instar server start
+```
+
+To have it start automatically at login:
+
+```bash
+instar server install
+```
+
+### 8. Verify
 
 ```bash
 curl http://localhost:4040/health
 ```
 
 You should see `{"status":"ok"}`.
+
+### 9. Wake up the house on iMessage
+
+Send a message from your personal iMessage to the house account:
+
+> "Hello — are you there?"
+
+The agent will respond and introduce itself. From this point forward, you control the house by messaging it.
 
 ---
 
