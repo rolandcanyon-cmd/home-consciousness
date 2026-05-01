@@ -55,13 +55,29 @@ npm install
 git submodule update --init --recursive
 ```
 
-### 4. Get a Claude API key
+### 4. Install Claude Code and Instar
+
+```bash
+npm install -g @anthropic-ai/claude-code
+npm install -g @jkheadley/instar
+```
+
+Verify both are on your PATH:
+
+```bash
+claude --version
+instar --version
+```
+
+If the commands aren't found, make sure `~/homebrew/bin` is in your PATH (the step above adds it to `.zshrc` — run `source ~/.zshrc` if you opened a new terminal since then).
+
+### 5. Get a Claude API key
 
 Go to [console.anthropic.com](https://console.anthropic.com), sign in (or create an account), and navigate to **Settings → API Keys** to create a new key. Keep it handy for the setup script.
 
 Note: API access is billed separately from any claude.ai subscription (Max, Pro, etc.). The Anthropic Console is a distinct product.
 
-### 5. Run the setup script
+### 6. Run the setup script
 
 ```bash
 ./setup/bootstrap.sh \
@@ -88,7 +104,7 @@ The script generates identity files and sets up FunkyGibbon end-to-end:
 
 It does **not** create `config.json`, start the Instar server, or install the Instar LaunchDaemon. Those are the next steps.
 
-### 6. Configure the agent
+### 7. Configure the agent
 
 ```bash
 instar config --help
@@ -103,7 +119,7 @@ instar config set imessage.allowedNumbers '["your-imessage-account@icloud.com"]'
 
 `allowedNumbers` accepts phone numbers or iCloud email addresses. Only accounts listed here can send commands to the agent.
 
-### 7. Start the server
+### 8. Start the server
 
 ```bash
 instar server start
@@ -115,7 +131,7 @@ To have it start automatically at login:
 instar server install
 ```
 
-### 8. Verify
+### 9. Verify
 
 ```bash
 curl http://localhost:4040/health
@@ -123,7 +139,7 @@ curl http://localhost:4040/health
 
 You should see `{"status":"ok"}`.
 
-### 9. Wake up the house on iMessage
+### 10. Wake up the house on iMessage
 
 Send a message from your personal iMessage to the house account:
 
