@@ -110,10 +110,6 @@ It does **not** create `config.json`, start the Instar server, or install the In
 
 ### 7. Configure the agent
 
-```bash
-instar config --help
-```
-
 At minimum you need to set your Anthropic API key and whitelist the iMessage account you'll use to control the house:
 
 ```bash
