@@ -197,6 +197,23 @@ iMessage ──▶ imsg CLI ──▶ Instar server (port 4040)
               (AI layer)    (cron jobs)    (knowledge graph)
 ```
 
+## Troubleshooting
+
+### `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` when starting the server
+
+Instar uses your Homebrew Node.js, which has a different CA bundle from Claude Code (which bundles its own runtime). Point Node to the macOS system CA bundle:
+
+```bash
+export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem
+instar server start
+```
+
+To make this permanent:
+
+```bash
+echo 'export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem' >> ~/.zshrc
+```
+
 ## Updating
 
 ```bash
