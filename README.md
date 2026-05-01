@@ -112,19 +112,24 @@ The bootstrap also adds `NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem` to your `~/.zshr
 
 ### 7. Configure the agent
 
-Reload your shell config first (so the cert fix takes effect), then set your Anthropic API key and whitelist the iMessage account you'll use to control the house:
+Reload your shell config first (so the cert fix takes effect), then set your Anthropic API key:
 
 ```bash
 source ~/.zshrc
 instar config set sessions.anthropicApiKey YOUR_KEY
+```
+
+Replace `YOUR_KEY` with your actual API key from [console.anthropic.com](https://console.anthropic.com).
+
+**Critical: set the API key before starting the server.** The server reads it at startup. If you configure the key after the server is already running, the new value won't take effect until you restart the server.
+
+Then whitelist the iMessage account you'll use to control the house:
+
+```bash
 instar config set imessage.allowedNumbers '["your-imessage-account@icloud.com"]'
 ```
 
-Replace `YOUR_KEY` with your actual API key from [console.anthropic.com](https://console.anthropic.com). Replace `your-imessage-account@icloud.com` with the iCloud address you'll message from.
-
 `allowedNumbers` accepts phone numbers or iCloud email addresses. Only accounts listed here can send commands to the agent.
-
-**Important:** Configure the API key before starting the server. If you've already started the server, restart it after this step — the server reads config at startup and won't pick up a newly-set key without a restart.
 
 ### 8. Start the server
 
@@ -132,7 +137,7 @@ Replace `YOUR_KEY` with your actual API key from [console.anthropic.com](https:/
 instar server start
 ```
 
-If the server was already running (e.g. you started it earlier for testing), stop it and start it fresh:
+If the server is already running, stop it first — you must restart after configuring the API key:
 
 ```bash
 instar server stop
@@ -144,6 +149,8 @@ To have it start automatically at login:
 ```bash
 instar server install
 ```
+
+The LaunchAgent created by `instar server install` uses a bundled Node.js binary that has proper CA certificates — it does not need `NODE_EXTRA_CA_CERTS`. That variable is only needed when running `instar server start` from a Homebrew Node.js terminal, which is why the bootstrap added it to `~/.zshrc`.
 
 ### 9. Verify
 
