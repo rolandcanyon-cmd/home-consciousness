@@ -120,11 +120,22 @@ instar config set sessions.anthropicApiKey YOUR_KEY
 instar config set imessage.allowedNumbers '["your-imessage-account@icloud.com"]'
 ```
 
+Replace `YOUR_KEY` with your actual API key from [console.anthropic.com](https://console.anthropic.com). Replace `your-imessage-account@icloud.com` with the iCloud address you'll message from.
+
 `allowedNumbers` accepts phone numbers or iCloud email addresses. Only accounts listed here can send commands to the agent.
+
+**Important:** Configure the API key before starting the server. If you've already started the server, restart it after this step — the server reads config at startup and won't pick up a newly-set key without a restart.
 
 ### 8. Start the server
 
 ```bash
+instar server start
+```
+
+If the server was already running (e.g. you started it earlier for testing), stop it and start it fresh:
+
+```bash
+instar server stop
 instar server start
 ```
 
@@ -201,6 +212,18 @@ iMessage ──▶ imsg CLI ──▶ Instar server (port 4040)
 ```
 
 ## Troubleshooting
+
+### Claude is prompting for OAuth / account login instead of using the API key
+
+If a Claude auth prompt appears when the server first processes a message, it means the server started before the API key was configured, or Claude Code on this machine has an existing account session that took precedence.
+
+Fix: stop the server, then start it again after the API key is set. The server reads `sessions.anthropicApiKey` from config at startup and passes it as an environment variable to spawned Claude sessions — this overrides any existing OAuth credentials on the machine.
+
+```bash
+instar server stop
+# confirm API key is set: instar config get sessions.anthropicApiKey
+instar server start
+```
 
 ### `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` when starting the server
 
