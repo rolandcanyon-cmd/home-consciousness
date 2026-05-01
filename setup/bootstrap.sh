@@ -115,6 +115,18 @@ git -C "${AGENT_DIR}" submodule update --init --recursive
 echo "  ✓ Submodules ready"
 echo ""
 
+# --- imsg (iMessage CLI) ---
+echo "Checking imsg..."
+if command -v imsg &>/dev/null; then
+    echo "  ✓ imsg already installed ($(which imsg))"
+else
+    echo "  Installing imsg (steipete/tap)..."
+    brew tap steipete/tap
+    brew install imsg
+    echo "  ✓ imsg installed"
+fi
+echo ""
+
 # --- settings.json ---
 echo "Generating .claude/settings.json..."
 TEMPLATE="${SCRIPT_DIR}/settings.json.template"
