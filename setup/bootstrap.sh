@@ -138,10 +138,11 @@ if [[ "$NO_KITTENKONG" == false ]]; then
     VENV_PYTHON="${FG_VENV}/bin/python"
     VENV_PIP="${FG_VENV}/bin/pip"
 
-    # Install FunkyGibbon and its dependencies into the venv
+    # Install FunkyGibbon's dependencies into the venv
+    # (no editable install — poetry-core can't resolve the package layout;
+    # we run python -m funkygibbon from the parent directory instead)
     echo "  Installing FunkyGibbon dependencies..."
     "${VENV_PIP}" install --quiet -r "${FG_DIR}/requirements.txt"
-    "${VENV_PIP}" install --quiet -e "${FG_DIR}"
     echo "  ✓ Dependencies installed"
 
     # Hash the admin password using Argon2id (same algorithm FunkyGibbon uses)
@@ -163,6 +164,8 @@ ENV
     echo "  ✓ Admin password configured"
 
     # Create macOS LaunchAgent for auto-start at login
+    # WorkingDirectory is the parent of funkygibbon/ so `python -m funkygibbon` resolves correctly
+    FG_PARENT_DIR="${AGENT_DIR}/the-goodies-python"
     PLIST_PATH="${HOME}/Library/LaunchAgents/com.funkygibbon.plist"
     mkdir -p "${HOME}/Library/LaunchAgents"
     cat > "${PLIST_PATH}" <<PLIST
@@ -179,7 +182,7 @@ ENV
         <string>funkygibbon</string>
     </array>
     <key>WorkingDirectory</key>
-    <string>${FG_DIR}</string>
+    <string>${FG_PARENT_DIR}</string>
     <key>EnvironmentVariables</key>
     <dict>
         <key>ADMIN_PASSWORD_HASH</key>
