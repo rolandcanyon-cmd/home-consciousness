@@ -1,1 +1,3 @@
 - [Telegram forwarding quieter](upgrade_v0_28_76.md) — v0.28.76: Removed noisy critical logs for pre-Stage-B lifeline forwards
+- [Token ledger observability](upgrade_v0_28_77.md) — v0.28.77: New token visibility (GET /tokens/summary, /tokens/sessions, /tokens/by-project); Tokens dashboard tab
+- [Token ledger performance fix](upgrade_v0_28_78.md) — v0.28.78: Bounded token ledger scan prevents startup stalls on deep session history
