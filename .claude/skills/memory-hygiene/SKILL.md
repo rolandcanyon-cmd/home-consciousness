@@ -61,10 +61,11 @@ curl -s -X POST http://localhost:${INSTAR_PORT:-4040}/evolution/learnings \
 
 ## Handoff
 
-Write handoff notes:
+**MANDATORY — always write handoff notes regardless of findings:**
 
 \`\`\`
-echo "Last hygiene: $(date). Words: N. Entries: N. Removed: N. Flagged: N." > .instar/state/job-handoff-memory-hygiene.md
+WORDS=$(wc -w < .instar/MEMORY.md | tr -d " ")
+echo "Last hygiene: $(date). Words: $WORDS. Status: [clean|issues found|size exceeded]." > .instar/state/job-handoff-memory-hygiene.md
 \`\`\`
 
-If MEMORY.md is clean and well-organized, exit silently.
+Do not exit silently. The handoff note is required so the overseer can track whether hygiene is actually running.
