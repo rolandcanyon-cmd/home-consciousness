@@ -101,6 +101,20 @@ print(contacts[0] if contacts else '')
     [[ -z "$IMESSAGE_USER" && -n "$_existing_imessage" ]] && IMESSAGE_USER="$_existing_imessage"
 fi
 
+# GitHub user from existing git remote (origin → https://github.com/USER/REPO.git)
+if [[ -z "$GITHUB_USER" ]]; then
+    _origin_url=$(git -C "${AGENT_DIR}" remote get-url origin 2>/dev/null || echo "")
+    _existing_gh_user=$(echo "$_origin_url" | sed -n 's|https://github.com/\([^/]*\)/.*|\1|p' | xargs 2>/dev/null || echo "")
+    [[ -n "$_existing_gh_user" ]] && GITHUB_USER="$_existing_gh_user"
+fi
+
+# GitHub token from ~/.git-credentials (https://USER:TOKEN@github.com)
+if [[ -z "$GITHUB_TOKEN" && -n "$GITHUB_USER" ]]; then
+    _existing_gh_token=$(grep -m1 "github.com" "${HOME}/.git-credentials" 2>/dev/null \
+        | sed -n "s|https://[^:]*:\([^@]*\)@github.com|\1|p" | xargs 2>/dev/null || echo "")
+    [[ -n "$_existing_gh_token" ]] && GITHUB_TOKEN="$_existing_gh_token"
+fi
+
 # --- Check if FunkyGibbon is already running ---
 FG_ALREADY_RUNNING=false
 if [[ "$NO_KITTENKONG" == false ]]; then
