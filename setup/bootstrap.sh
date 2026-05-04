@@ -65,8 +65,24 @@ if [[ -z "$PRIMARY_USER" ]]; then
     [[ -z "$PRIMARY_USER" ]] && { echo "Error: your name is required"; exit 1; }
 fi
 
-# --- Load existing config values as defaults ---
+# --- Load existing values as defaults ---
 # So rerunning the script doesn't re-prompt for things already configured.
+
+# Agent name from existing AGENT.md
+_agent_md="${AGENT_DIR}/.instar/AGENT.md"
+if [[ -z "$AGENT_NAME" && -f "$_agent_md" ]]; then
+    _existing_name=$(grep -m1 '^\*\*Name\*\*:' "$_agent_md" | sed 's/\*\*Name\*\*:[[:space:]]*//' | xargs 2>/dev/null || echo "")
+    [[ -n "$_existing_name" ]] && AGENT_NAME="$_existing_name"
+fi
+
+# Primary user from existing MEMORY.md
+_memory_md="${AGENT_DIR}/.instar/MEMORY.md"
+if [[ -z "$PRIMARY_USER" && -f "$_memory_md" ]]; then
+    _existing_user=$(grep -m1 'Primary user:' "$_memory_md" | sed 's/.*Primary user:[[:space:]]*//' | xargs 2>/dev/null || echo "")
+    [[ -n "$_existing_user" ]] && PRIMARY_USER="$_existing_user"
+fi
+
+# API key and iMessage address from existing config.json
 if [[ -f "${CONFIG_FILE}" ]]; then
     _existing_key=$(python3 -c "
 import json, pathlib
@@ -76,10 +92,12 @@ print(c.get('sessions', {}).get('anthropicApiKey', ''))
     _existing_imessage=$(python3 -c "
 import json, pathlib
 c = json.loads(pathlib.Path('${CONFIG_FILE}').read_text())
-nums = c.get('imessage', {}).get('allowedNumbers', [])
-print(nums[0] if nums else '')
+msgs = c.get('messaging', [])
+cfg = next((m.get('config', {}) for m in msgs if m.get('type') == 'imessage'), {})
+contacts = cfg.get('authorizedContacts', [])
+print(contacts[0] if contacts else '')
 " 2>/dev/null || echo "")
-    [[ -z "$API_KEY" && -n "$_existing_key" ]]      && API_KEY="$_existing_key"
+    [[ -z "$API_KEY" && -n "$_existing_key" ]]           && API_KEY="$_existing_key"
     [[ -z "$IMESSAGE_USER" && -n "$_existing_imessage" ]] && IMESSAGE_USER="$_existing_imessage"
 fi
 
