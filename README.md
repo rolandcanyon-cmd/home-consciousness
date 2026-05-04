@@ -23,9 +23,20 @@ A persistent, autonomous house agent built on [Instar](https://github.com/JKHead
 
 ### 1. Set up a dedicated house account
 
-Create (or adopt) an Apple iCloud account dedicated to the house — e.g. `yourhouse@icloud.com`. This is the iMessage identity the agent will use. Sign in to iMessage on the Mac with this account.
+Create a **standard (non-admin) macOS user account** on the local machine dedicated to the house agent. This keeps the agent isolated from your personal account and administrator privileges.
 
-Create a macOS user account for the house agent on the local machine, or use an existing admin account.
+**Naming convention:** base the names on your house address or nickname. For example, for "123 Forest View":
+
+| What | Example |
+|------|---------|
+| iCloud / Apple ID | `forestview123@icloud.com` |
+| macOS full name | `Forest View` |
+| macOS username / home dir | `forestview` → `/Users/forestview` |
+| Agent name (used in `AGENT.md`) | `Forest` (or whatever you prefer) |
+
+To create the account: **System Settings → Users & Groups → Add User** — set the account type to **Standard** (not Administrator).
+
+Sign in to the house iCloud account on this user account, and enable iMessage in Messages.app using that Apple ID. This is the iMessage identity the agent will reply from.
 
 ### 2. Clone the repo
 
