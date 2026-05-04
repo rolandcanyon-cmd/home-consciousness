@@ -87,18 +87,6 @@
                 ]
             }
         ],
-        "TaskCompleted": [
-            {
-                "matcher": "",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "node {{AGENT_DIR}}/.instar/hooks/instar/hook-event-reporter.js",
-                        "timeout": 3000
-                    }
-                ]
-            }
-        ],
         "SessionEnd": [
             {
                 "matcher": "",

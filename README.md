@@ -202,15 +202,9 @@ NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
 
 When bootstrap finishes you should see `✓ Agent server running at http://localhost:4040`. Send a message from your iMessage account to the house account to wake it up.
 
-### 7. Auto-start at login (optional)
+### 7. Auto-start at login
 
-To have the Instar server restart automatically after a reboot:
-
-```bash
-instar server install
-```
-
-The LaunchAgent this creates uses a bundled Node.js binary that has proper CA certificates built in — no `NODE_EXTRA_CA_CERTS` needed there. The `~/.zshrc` export is only needed when running `instar server start` manually from a Homebrew terminal.
+Auto-start (launchd on macOS) is installed **automatically** the first time `instar server start` runs — no separate install step needed. After the first start, the server will restart automatically on login and on crash. The `NODE_EXTRA_CA_CERTS` export in `~/.zshrc` is only needed when running `instar server start` manually from a terminal; launchd gets the certificate path set in the plist.
 
 ### 9. Verify
 
