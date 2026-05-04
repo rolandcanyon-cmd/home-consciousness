@@ -717,17 +717,23 @@ else
     echo "Fix the server issue above, then rerun this script."
 fi
 
-echo ""
-echo "=== Manual step required: Full Disk Access ==="
-echo "The attachments-sync helper needs Full Disk Access to read iMessage attachments."
-echo "Without it, photos sent via iMessage will not be visible to the agent."
-echo ""
-echo "  1. Open: System Settings → Privacy & Security → Full Disk Access"
-echo "  2. Click + and add: ${ATTSYNC_BIN}"
-echo "  3. Toggle it ON"
-echo ""
-echo "This only needs to be done once. You can open the pane now:"
-echo "  open 'x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles'"
-echo ""
+# Show the FDA reminder only on a fresh install (watcher wasn't already loaded).
+# On rerun, _attsync_loaded > 0 means the LaunchAgent was already running before
+# this script started, so FDA was granted during the first install.
+if [[ "$_attsync_loaded" -eq 0 && -f "${ATTSYNC_BIN}" ]]; then
+    echo ""
+    echo "=== Manual step required: Full Disk Access ==="
+    echo "The attachments-sync helper needs Full Disk Access to read iMessage attachments."
+    echo "Without it, photos sent via iMessage will not be visible to the agent."
+    echo ""
+    echo "  1. Open: System Settings → Privacy & Security → Full Disk Access"
+    echo "  2. Click + and add: ${ATTSYNC_BIN}"
+    echo "  3. Toggle it ON"
+    echo ""
+    echo "This only needs to be done once. You can open the pane now:"
+    echo "  open 'x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles'"
+    echo ""
+fi
+
 echo "To reinstall auto-start: instar autostart install"
 echo "For HA integration, add scripts to .claude/scripts/ and context to .instar/context/"
