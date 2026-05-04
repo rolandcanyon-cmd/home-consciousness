@@ -45,6 +45,10 @@ To create the account: **System Settings → Users & Groups → Add User** — s
 
 **Enable fast user switching (house account):** repeat the same step — **System Settings → Control Centre → Fast User Switching → Account Name** — so you can switch back to your admin account without logging out.
 
+**Open the install instructions:** open Safari and browse to `https://github.com/rolandcanyon-cmd/home-consciousness` — keep this README visible in the browser so you can follow along during setup.
+
+**Open Terminal:** click the search icon (magnifying glass) in the top-right of the menu bar to open Spotlight, type `terminal`, and press Return. All remaining setup steps run from here.
+
 ### 2. Clone the repo
 
 ```bash
