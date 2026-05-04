@@ -55,17 +55,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ -z "$AGENT_NAME" ]]; then
-    read -rp "Agent name (e.g. Forest, Corfe): " AGENT_NAME
-    [[ -z "$AGENT_NAME" ]] && { echo "Error: agent name is required"; exit 1; }
-fi
-
-if [[ -z "$PRIMARY_USER" ]]; then
-    read -rp "Your first name (e.g. Roland): " PRIMARY_USER
-    [[ -z "$PRIMARY_USER" ]] && { echo "Error: your name is required"; exit 1; }
-fi
-
-# --- Load existing values as defaults ---
+# --- Load existing values as defaults (before prompts) ---
 # So rerunning the script doesn't re-prompt for things already configured.
 
 # Agent name from existing AGENT.md
@@ -80,6 +70,16 @@ _memory_md="${AGENT_DIR}/.instar/MEMORY.md"
 if [[ -z "$PRIMARY_USER" && -f "$_memory_md" ]]; then
     _existing_user=$(grep -m1 'Primary user:' "$_memory_md" | sed 's/.*Primary user:[[:space:]]*//' | xargs 2>/dev/null || echo "")
     [[ -n "$_existing_user" ]] && PRIMARY_USER="$_existing_user"
+fi
+
+if [[ -z "$AGENT_NAME" ]]; then
+    read -rp "Agent name (e.g. Forest, Corfe): " AGENT_NAME
+    [[ -z "$AGENT_NAME" ]] && { echo "Error: agent name is required"; exit 1; }
+fi
+
+if [[ -z "$PRIMARY_USER" ]]; then
+    read -rp "Your first name (e.g. Roland): " PRIMARY_USER
+    [[ -z "$PRIMARY_USER" ]] && { echo "Error: your name is required"; exit 1; }
 fi
 
 # API key and iMessage address from existing config.json
