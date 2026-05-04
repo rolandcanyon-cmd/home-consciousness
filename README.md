@@ -170,13 +170,10 @@ Note: API access is billed separately from any claude.ai subscription (Max, Pro,
 ### 6. Run the setup script
 
 ```bash
-./setup/bootstrap.sh \
-  --name YourHouseName \
-  --user YourFirstName \
-  --fg-password your-funkygibbon-password
+./setup/bootstrap.sh
 ```
 
-The script prompts for anything not supplied on the command line. You'll be asked for:
+The script will prompt you for everything it needs:
 - **FunkyGibbon password** — if not passed via `--fg-password`
 - **Anthropic API key** — get one from [console.anthropic.com](https://console.anthropic.com) → Manage → API Keys (input is hidden like a password prompt)
 - **Your iMessage address** — the account you'll message the house from (e.g. `you@icloud.com` or `+15551234567`)
