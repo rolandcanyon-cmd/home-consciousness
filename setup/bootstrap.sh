@@ -522,7 +522,13 @@ if [[ -n "$GITHUB_USER" && -n "$GITHUB_TOKEN" ]]; then
     PRIVATE_REMOTE="https://github.com/${GITHUB_USER}/${BACKUP_REPO_NAME}.git"
     git -C "${AGENT_DIR}" remote set-url origin "${PRIVATE_REMOTE}" 2>/dev/null \
         || git -C "${AGENT_DIR}" remote add origin "${PRIVATE_REMOTE}"
-    echo "  ✓ Remote → ${PRIVATE_REMOTE}"
+    echo "  ✓ Remote origin → ${PRIVATE_REMOTE}"
+
+    # Keep home-consciousness as 'upstream' so updates can be pulled with: git pull upstream main
+    PUBLIC_REMOTE="https://github.com/rolandcanyon-cmd/home-consciousness.git"
+    git -C "${AGENT_DIR}" remote set-url upstream "${PUBLIC_REMOTE}" 2>/dev/null \
+        || git -C "${AGENT_DIR}" remote add upstream "${PUBLIC_REMOTE}"
+    echo "  ✓ Remote upstream → ${PUBLIC_REMOTE} (pull updates with: git pull upstream main)"
 
     # Initial push
     if git -C "${AGENT_DIR}" push -u origin main 2>&1; then
