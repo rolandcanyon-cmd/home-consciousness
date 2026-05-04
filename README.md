@@ -85,14 +85,17 @@ curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip-compone
 
 This will print curl download progress followed by tar extraction. No errors means it worked.
 
-**3c. Add Homebrew to your PATH**
+**3c. Add Homebrew to your PATH and fix Node certificate trust**
 
 ```bash
 echo 'export PATH="$HOME/homebrew/bin:$HOME/homebrew/sbin:$PATH"' >> ~/.zshrc
+echo 'export NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-No output means success. Verify Homebrew is on your PATH:
+No output means success. The `NODE_EXTRA_CA_CERTS` line is required — Homebrew-installed Node.js does not use the macOS system certificate store by default, which causes `npm install` to fail with SSL issuer errors without it.
+
+Verify Homebrew is on your PATH:
 
 ```bash
 brew --version
