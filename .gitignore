@@ -15,6 +15,7 @@
 # Derived data
 .instar/memory.db
 .instar/memory.db-*
+.instar/server-data/
 
 # Claude Code
 .claude/projects/
