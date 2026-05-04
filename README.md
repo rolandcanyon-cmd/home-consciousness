@@ -163,7 +163,7 @@ If either command isn't found, run `source ~/.zshrc` first.
 
 ### 5. Get a Claude API key
 
-Go to [console.anthropic.com](https://console.anthropic.com), sign in (or create an account), and navigate to **Settings → API Keys** to create a new key. Keep it handy for the setup script.
+Go to [console.anthropic.com](https://console.anthropic.com), sign in (or create an account), and navigate to **Manage → API Keys** to create a new key. Keep it handy for the setup script.
 
 Note: API access is billed separately from any claude.ai subscription (Max, Pro, etc.). The Anthropic Console is a distinct product.
 
@@ -178,7 +178,7 @@ Note: API access is billed separately from any claude.ai subscription (Max, Pro,
 
 The script prompts for anything not supplied on the command line. You'll be asked for:
 - **FunkyGibbon password** — if not passed via `--fg-password`
-- **Anthropic API key** — get one from [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys (input is hidden like a password prompt)
+- **Anthropic API key** — get one from [console.anthropic.com](https://console.anthropic.com) → Manage → API Keys (input is hidden like a password prompt)
 - **Your iMessage address** — the account you'll message the house from (e.g. `you@icloud.com` or `+15551234567`)
 - **GitHub username** — the house GitHub account (e.g. `forestview123`)
 - **GitHub personal access token** — with `repo` scope, created at GitHub → Settings → Developer settings → Personal access tokens
