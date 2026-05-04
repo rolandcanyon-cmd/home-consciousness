@@ -533,6 +533,17 @@ echo ""
 echo "Setting up iMessage database hardlinks..."
 bash "${SCRIPT_DIR}/link-imessage-db.sh"
 
+# --- Initialise iMessage poll offset ---
+# Set the watermark to the current max ROWID so the agent only processes
+# messages received after this install, not the entire history.
+_imessage_db="${HOME}/Library/Messages/chat.db"
+_offset_file="${AGENT_DIR}/.instar/imessage-poll-offset.json"
+if [[ ! -f "$_offset_file" ]]; then
+    _max_rowid=$(sqlite3 "$_imessage_db" "SELECT COALESCE(MAX(ROWID),0) FROM message;" 2>/dev/null || echo "0")
+    echo "{\"lastRowId\":${_max_rowid},\"savedAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > "$_offset_file"
+    echo "  ✓ iMessage poll offset initialised at ROWID ${_max_rowid} (ignoring history)"
+fi
+
 # --- Start server ---
 echo ""
 echo "Starting agent server..."

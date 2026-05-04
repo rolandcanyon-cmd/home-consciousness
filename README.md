@@ -304,6 +304,18 @@ To add or remove authorized iMessage senders:
 
 Then restart the server to apply.
 
+### Agent receives messages but never replies (shows "…" then silence)
+
+The agent received the message (the "…" ack was sent by the server), but the Claude session didn't complete. On a fresh install the most common cause is a first-run auth or login prompt waiting in the terminal.
+
+Switch to the house account and check the tmux session:
+
+```bash
+tmux attach -t house-agent-server
+```
+
+If you see a login prompt or any interactive question, answer it (or press Escape/Enter to dismiss). Once the first session completes cleanly, all subsequent messages will be handled automatically.
+
 ### Claude is prompting for OAuth / account login instead of using the API key
 
 If a Claude auth prompt appears when the server first processes a message, it means the server started before the API key was configured, or Claude Code on this machine has an existing account session that took precedence.
