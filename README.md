@@ -51,32 +51,87 @@ To create the account: **System Settings → Users & Groups → Add User** — s
 
 ### 2. Clone the repo
 
+Copy and paste this into Terminal:
+
 ```bash
 git clone https://github.com/rolandcanyon-cmd/home-consciousness.git ~/house-agent
 cd ~/house-agent
 ```
 
+You should see git printing a series of `Receiving objects` progress lines, finishing with `Resolving deltas`. No errors means it worked.
+
 ### 3. Install dependencies
 
-Install a local Homebrew under your home directory — this is the recommended approach regardless of whether you have admin rights. It keeps everything self-contained and avoids conflicts with system packages or other users on the same machine.
+Each block below can be copy-pasted separately. Run them in order and check the expected result before moving on.
+
+**3a. Create a local Homebrew directory**
 
 ```bash
 mkdir ~/homebrew
+```
+
+No output means success. If you see `mkdir: /Users/…/homebrew: File exists`, that's fine — it already exists.
+
+**3b. Download and install Homebrew into it**
+
+```bash
 curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip-components 1 -C ~/homebrew
+```
+
+This will print curl download progress followed by tar extraction. No errors means it worked.
+
+**3c. Add Homebrew to your PATH**
+
+```bash
 echo 'export PATH="$HOME/homebrew/bin:$HOME/homebrew/sbin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
+```
+
+No output means success. Verify Homebrew is on your PATH:
+
+```bash
+brew --version
+```
+
+You should see a version string like `Homebrew 4.x.x`.
+
+**3d. Install system packages**
+
+```bash
 brew install tmux node python3 go
+```
+
+This takes a few minutes. Each package prints `==> Installing …` lines. When it finishes you should be back at the prompt with no errors.
+
+**3e. Install imsg (iMessage CLI)**
+
+```bash
 brew tap steipete/tap && brew install imsg
 ```
 
-This installs the latest versions of each, all under `~/homebrew`. npm global packages (`claude`, `instar`) will also install there and be on your PATH automatically.
+You should see `==> Tapping steipete/tap` followed by `==> Installing imsg`. Verify it installed:
 
-Then install project dependencies:
+```bash
+imsg --version
+```
+
+You should see a version number.
+
+**3f. Install project dependencies**
 
 ```bash
 npm install
+```
+
+You should see packages being fetched and a summary line like `added N packages`. No errors means it worked.
+
+**3g. Initialise git submodules**
+
+```bash
 git submodule update --init --recursive
 ```
+
+You should see lines like `Cloning into '…'` for each submodule. No errors means it worked.
 
 ### 4. Install Claude Code and Instar
 
