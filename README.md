@@ -14,6 +14,7 @@ A persistent, autonomous house agent built on [Instar](https://github.com/JKHead
 
 - A Mac (Mac mini recommended for always-on operation)
 - macOS with iMessage configured
+- **Xcode** — install from the App Store and **launch it at least once** while logged in as an admin user to accept the license agreement. The Xcode command-line tools are required by Homebrew and must be accepted before switching to the house account.
 - [Anthropic API key](https://console.anthropic.com) — generate one from the Anthropic Console (separate from any claude.ai subscription)
 - [tmux](https://formulae.brew.sh/formula/tmux), [Node.js](https://nodejs.org) (latest), [Python 3](https://python.org) (latest) — installed via local Homebrew
 - [Claude Code](https://claude.ai/code) CLI: `npm install -g @anthropic-ai/claude-code`
@@ -36,7 +37,13 @@ Create a **standard (non-admin) macOS user account** on the local machine dedica
 
 To create the account: **System Settings → Users & Groups → Add User** — set the account type to **Standard** (not Administrator).
 
-Sign in to the house iCloud account on this user account, and enable iMessage in Messages.app using that Apple ID. This is the iMessage identity the agent will reply from.
+**Enable fast user switching (admin account):** while still logged in as admin, go to **System Settings → Control Centre**, find **Fast User Switching**, and set it to show the **Account Name** in the menu bar. This makes it easy to switch between your account and the house account without logging out.
+
+**Switch to the house account:** click the account name in the menu bar and select the house account. Log in for the first time.
+
+**Sign in to iCloud:** once in the house account, go to **System Settings → Sign in with your Apple ID** and sign in with the house Apple ID (e.g. `forestview123@icloud.com`). Enable iMessage in Messages.app — this is the iMessage identity the agent will reply from.
+
+**Enable fast user switching (house account):** repeat the same step — **System Settings → Control Centre → Fast User Switching → Account Name** — so you can switch back to your admin account without logging out.
 
 ### 2. Clone the repo
 
