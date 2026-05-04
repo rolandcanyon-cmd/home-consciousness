@@ -257,22 +257,42 @@ Report the failure via iMessage.
 
 ## Reporting
 
-Send via `imsg send --to "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" --text "MESSAGE"` only if:
-- Upstream had new commits (say what changed)
-- Conflicts occurred
-- Build/verify failed
-- Rollback performed
+**Always send a heartbeat at the end of every run**, even when nothing changed. Use:
 
-Silent when nothing changed.
+```bash
+PHONE=$(python3 -c "import json; d=json.load(open('$AGENT_DIR/.instar/config.json')); print(d.get('imessage',{}).get('userPhone',''))")
+cat <<MSG | $AGENT_DIR/.claude/scripts/imessage-reply.sh "$PHONE"
+MESSAGE TEXT HERE
+MSG
+```
+
+**Heartbeat format (no-change run):**
+```
+Instar daily sync ✓ — upstream unchanged, still at [SHORT_SHA]. Our CI-fix commit in place. Server healthy.
+```
+
+**Heartbeat format (rebase run):**
+```
+Instar daily sync — pulled [N] upstream commit(s): [one-line summary of changes]. Rebuilt and restarted. CI: [passed/failed/timeout].
+```
+
+**Always escalate immediately (same message) if:**
+- Conflicts occurred (include which files)
+- Build failed (include error summary)
+- Verify checks failed
+- Rollback was performed
+- CI failed after push
 
 ## Our customizations (for reference)
 
-As of 2026-04-24, all our custom commits have been merged upstream. We are at **zero divergence** — instar-dev/main = JKHeadley/instar/main at v0.28.73.
+As of 2026-05-04, we have **1 commit** above upstream (JKHeadley/instar):
 
-Previously maintained custom commits (now upstream):
+- **`ddea02a9` fix(ci): fall back to github.token when RELEASE_TOKEN secret is unset** — keeps fork CI green when RELEASE_TOKEN secret is absent. Candidate for upstream PR.
+
+Previously maintained custom commits (now merged upstream):
 - **Immediate ack**: sends "..." before session spawn
 - **1:1 trigger fix**: mention mode only gates group chats
-- **OAuth vs API key auto-detect**: routes tokens to correct env var (CLAUDE_CODE_OAUTH_TOKEN vs ANTHROPIC_API_KEY) — this was the auth message fix
+- **OAuth vs API key auto-detect**: routes tokens to correct env var
 - **directMessageTrigger config respect**
 - **Attachment hardlinking** (multiple commits)
 
