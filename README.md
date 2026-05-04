@@ -257,14 +257,33 @@ Once FunkyGibbon is running, use `/room-walk` via iMessage to catalog each room.
 
 ## Skills
 
-Key slash commands available via iMessage:
+Slash commands available via iMessage. See the linked skill file for the full guide on each.
 
-| Command | Description |
-|---------|-------------|
-| `/room-walk <room>` | Catalog a room's devices conversationally |
-| `/room-edit <room>` | Update an already-catalogued room |
-| `/away-mode` | Departure/return checklist and automations |
-| `/morning-weather` | Fetch and send today's weather |
+### House knowledge
+
+| Command | Description | Guide |
+|---------|-------------|-------|
+| `/room-walk <room>` | Stand in a room and catalog everything — devices, keypads, doors, sensors. Produces a reviewable diff before writing to FunkyGibbon. | [SKILL.md](.claude/skills/room-walk/SKILL.md) |
+| `/room-edit <room>` | Update an already-catalogued room: rename, add/remove devices, fix typos, mark devices inoperable. | [SKILL.md](.claude/skills/room-edit/SKILL.md) |
+| `/app-walk <app>` | Catalog a smart home app (Alexa, Tuya, Hayward Omni, HomeKit, etc.) by walking through it together — send screenshots, describe screens, and the agent records devices and routines into FunkyGibbon. | [SKILL.md](.claude/skills/app-walk/SKILL.md) |
+| `/shortcut-library` | Manage the house iOS Shortcuts library — register new shortcuts, list what's registered, generate onboarding packages. | [SKILL.md](.claude/skills/shortcut-library/SKILL.md) |
+
+### Daily operations
+
+| Command | Description | Guide |
+|---------|-------------|-------|
+| `/away-mode` | Departure/return checklist — disables Alexa routines, sets water heater to vacation mode, generates a checklist. | [SKILL.md](.claude/skills/away-mode/SKILL.md) |
+| `/morning-weather` | Fetch today's weather from Tempest and Ambient Weather stations and send via iMessage. | [SKILL.md](.claude/skills/morning-weather/SKILL.md) |
+| `/zone2-pandora <station>` | Turn on Yamaha Zone 2 and play a Pandora station by name. | [SKILL.md](.claude/skills/zone2-pandora/SKILL.md) |
+
+### Agent maintenance
+
+| Command | Description | Guide |
+|---------|-------------|-------|
+| `/imessage-fork-maintenance` | Daily rebase of the iMessage fork against upstream Instar, rebuild, deploy, verify. | [SKILL.md](.claude/skills/imessage-fork-maintenance/SKILL.md) |
+| `/git-sync` | Intelligent sync with tiered escalation — Haiku for clean syncs, Opus for merge conflicts. | [SKILL.md](.claude/skills/git-sync/SKILL.md) |
+| `/memory-hygiene` | Review MEMORY.md for stale entries, duplicates, and quality issues. | [SKILL.md](.claude/skills/memory-hygiene/SKILL.md) |
+| `/guardian-pulse` | Check whether scheduled jobs are running and healthy. | [SKILL.md](.claude/skills/guardian-pulse/SKILL.md) |
 
 ## Architecture
 
