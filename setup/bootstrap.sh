@@ -561,7 +561,16 @@ else
     echo "  ⚠ claude not found in PATH — run 'source ~/.zshrc' and rerun this script"
 fi
 
-# --- Start server ---
+# --- Install and start server ---
+# Install the launchd agent first so the server auto-restarts on login/crash,
+# then start it. Running 'server start' after 'server install' is safe — install
+# loads the plist which starts the process; if it's already running it's a no-op.
+echo ""
+echo "Installing server as a login item (auto-start on login)..."
+NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server install \
+    && echo "  ✓ Server registered with launchd" \
+    || echo "  ⚠ launchd registration failed — server will not auto-start"
+
 echo ""
 echo "Starting agent server..."
 NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
