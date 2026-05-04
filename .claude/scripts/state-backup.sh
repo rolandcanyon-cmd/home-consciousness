@@ -59,9 +59,28 @@ if [[ -z "$(git status --porcelain)" ]]; then
     exit 0
 fi
 
+# Resolve the agent name so backup commits are attributed to whichever agent
+# owns this install — not hardcoded. Same precedence bootstrap.sh uses:
+# config.json agentName first, then AGENT.md "**Name**: ..." line, then "House".
+AGENT_NAME=""
+if [[ -f "${AGENT_DIR}/.instar/config.json" ]]; then
+    AGENT_NAME=$(python3 -c "
+import json
+try:
+    print(json.load(open('${AGENT_DIR}/.instar/config.json')).get('agentName') or '')
+except Exception:
+    print('')
+" 2>/dev/null || echo "")
+fi
+if [[ -z "$AGENT_NAME" && -f "${AGENT_DIR}/.instar/AGENT.md" ]]; then
+    AGENT_NAME=$(grep -m1 '^\*\*Name\*\*:' "${AGENT_DIR}/.instar/AGENT.md" \
+        | sed 's/\*\*Name\*\*:[[:space:]]*//' | xargs 2>/dev/null || echo "")
+fi
+[[ -z "$AGENT_NAME" ]] && AGENT_NAME="House"
+
 git add -A
 TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-git -c user.name="Corfe Agent" -c user.email="agent@corfe.local" \
+git -c user.name="${AGENT_NAME} Agent" -c user.email="agent@local" \
     commit -m "backup: state snapshot ${TIMESTAMP}" >/dev/null
 
 if ! git push origin state-backup 2>&1 | tail -3; then
