@@ -16,9 +16,9 @@ A persistent, autonomous house agent built on [Instar](https://github.com/JKHead
 - macOS with iMessage configured
 - **Xcode** — install from the App Store and **launch it at least once** while logged in as an admin user to accept the license agreement. The Xcode command-line tools are required by Homebrew and must be accepted before switching to the house account.
 - [Anthropic API key](https://console.anthropic.com) — generate one from the Anthropic Console (separate from any claude.ai subscription)
-- [tmux](https://formulae.brew.sh/formula/tmux), [Node.js](https://nodejs.org) (latest), [Python 3](https://python.org) (latest) — installed via local Homebrew
-- [Claude Code](https://claude.ai/code) CLI: `npm install -g @anthropic-ai/claude-code`
-- [Instar](https://github.com/JKHeadley/instar): `npm install -g instar`
+- [tmux](https://formulae.brew.sh/formula/tmux), [Node.js](https://nodejs.org) (latest), [Python 3](https://python.org) (latest) — installed via local Homebrew in the steps below
+- [Claude Code](https://claude.ai/code) CLI — installed in Step 4
+- [Instar](https://github.com/JKHeadley/instar) — installed in Step 4
 
 ## Installation
 
