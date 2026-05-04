@@ -56,9 +56,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$AGENT_NAME" ]]; then
-    echo "Error: --name is required"
-    echo "Usage: $0 --name AGENT_NAME --user YOUR_NAME [options]"
-    exit 1
+    read -rp "Agent name (e.g. Forest, Corfe): " AGENT_NAME
+    [[ -z "$AGENT_NAME" ]] && { echo "Error: agent name is required"; exit 1; }
+fi
+
+if [[ -z "$PRIMARY_USER" ]]; then
+    read -rp "Your first name (e.g. Roland): " PRIMARY_USER
+    [[ -z "$PRIMARY_USER" ]] && { echo "Error: your name is required"; exit 1; }
 fi
 
 # --- Load existing config values as defaults ---
@@ -94,7 +98,7 @@ if [[ "$NO_KITTENKONG" == false && "$FG_ALREADY_RUNNING" == false && -z "$FUNKYG
 fi
 
 if [[ -z "$API_KEY" ]]; then
-    echo "Anthropic API key (from console.anthropic.com → Settings → API Keys):"
+    echo "Anthropic API key (from console.anthropic.com → Manage → API Keys):"
     read -rsp "  sk-ant-... : " API_KEY
     echo
     if [[ -z "$API_KEY" ]]; then
