@@ -15,6 +15,7 @@ A persistent, autonomous house agent built on [Instar](https://github.com/JKHead
 - A Mac (Mac mini recommended for always-on operation)
 - macOS with iMessage configured
 - **Xcode** — install from the App Store and **launch it at least once** while logged in as an admin user to accept the license agreement. The Xcode command-line tools are required by Homebrew and must be accepted before switching to the house account.
+- **A GitHub account for the house** — create one at [github.com](https://github.com) using the house Apple ID (e.g. `forestview123@icloud.com`). The bootstrap script uses this to create a private repo for backing up the agent's state (memory, jobs, skills). Generate a personal access token with `repo` scope at **GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)**.
 - [Anthropic API key](https://console.anthropic.com) — generate one from the Anthropic Console (separate from any claude.ai subscription)
 - [tmux](https://formulae.brew.sh/formula/tmux), [Node.js](https://nodejs.org) (latest), [Python 3](https://python.org) (latest) — installed via local Homebrew in the steps below
 - [Claude Code](https://claude.ai/code) CLI — installed in Step 4
@@ -172,6 +173,8 @@ The script prompts for anything not supplied on the command line. You'll be aske
 - **FunkyGibbon password** — if not passed via `--fg-password`
 - **Anthropic API key** — get one from [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys (input is hidden like a password prompt)
 - **Your iMessage address** — the account you'll message the house from (e.g. `you@icloud.com` or `+15551234567`)
+- **GitHub username** — the house GitHub account (e.g. `forestview123`)
+- **GitHub personal access token** — with `repo` scope, created at GitHub → Settings → Developer settings → Personal access tokens
 
 **`--name`** is the agent's identity — substituted into `AGENT.md` and `MEMORY.md` so the agent knows who it is from the first session.
 
@@ -181,6 +184,7 @@ The script does everything end-to-end:
 - Generates `.instar/AGENT.md`, `.instar/MEMORY.md`, `.claude/settings.json`
 - Installs FunkyGibbon dependencies, configures the password, creates the macOS LaunchAgent, starts and verifies FunkyGibbon
 - Adds `NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem` to `~/.zshrc` (required for Homebrew Node.js to reach Anthropic APIs)
+- Creates a **private GitHub repo** (`house-agent`) under the house account and pushes the agent state to it — this is the backup target for the hourly git-sync job
 - Writes your API key and iMessage whitelist directly to `.instar/config.json`
 - Hardlinks the Messages database into `.instar/imessage/` via `setup/link-imessage-db.sh` (stops Messages, links all three SQLite files, restarts Messages)
 - Starts the Instar server and verifies it's healthy

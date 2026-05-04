@@ -11,6 +11,9 @@
 #   --user PRIMARY_USER    Your first name (required)
 #   --api-key KEY          Anthropic API key (prompted if not set)
 #   --imessage-user ADDR   iMessage address/phone to whitelist (prompted if not set)
+#   --github-user USER     GitHub username for the house account (prompted if not set)
+#   --github-token TOKEN   GitHub personal access token with repo scope (prompted if not set)
+#   --backup-repo NAME     Name for the private backup repo (default: house-agent)
 #   --fg-url URL           FunkyGibbon URL (default: http://localhost:8000)
 #   --fg-password PASS     FunkyGibbon password (prompted if FunkyGibbon not running)
 #   --no-kittenkong        Omit kittenkong MCP server from settings.json
@@ -26,6 +29,9 @@ AGENT_NAME=""
 PRIMARY_USER=""
 API_KEY=""
 IMESSAGE_USER=""
+GITHUB_USER=""
+GITHUB_TOKEN=""
+BACKUP_REPO_NAME="house-agent"
 FUNKYGIBBON_URL="http://localhost:8000"
 FUNKYGIBBON_PASSWORD=""
 NO_KITTENKONG=false
@@ -38,6 +44,9 @@ while [[ $# -gt 0 ]]; do
         --user)          PRIMARY_USER="$2"; shift 2 ;;
         --api-key)       API_KEY="$2"; shift 2 ;;
         --imessage-user) IMESSAGE_USER="$2"; shift 2 ;;
+        --github-user)   GITHUB_USER="$2"; shift 2 ;;
+        --github-token)  GITHUB_TOKEN="$2"; shift 2 ;;
+        --backup-repo)   BACKUP_REPO_NAME="$2"; shift 2 ;;
         --fg-url)        FUNKYGIBBON_URL="$2"; shift 2 ;;
         --fg-password)   FUNKYGIBBON_PASSWORD="$2"; shift 2 ;;
         --no-kittenkong) NO_KITTENKONG=true; shift ;;
@@ -99,6 +108,20 @@ if [[ -z "$IMESSAGE_USER" ]]; then
     read -rp "  e.g. you@icloud.com or +15551234567 : " IMESSAGE_USER
     echo
     [[ -z "$IMESSAGE_USER" ]] && echo "Warning: no iMessage user set — you can add one later in ${CONFIG_FILE}"
+fi
+
+if [[ -z "$GITHUB_USER" ]]; then
+    echo "GitHub username for the house account (for private state backup):"
+    read -rp "  e.g. forestview123 : " GITHUB_USER
+    echo
+fi
+
+if [[ -z "$GITHUB_TOKEN" && -n "$GITHUB_USER" ]]; then
+    echo "GitHub personal access token for ${GITHUB_USER} (repo scope required):"
+    echo "  Create one at: https://github.com/settings/tokens/new?scopes=repo"
+    read -rsp "  ghp_... : " GITHUB_TOKEN
+    echo
+    [[ -z "$GITHUB_TOKEN" ]] && echo "Warning: no GitHub token — skipping private backup repo setup"
 fi
 
 # --- Header ---
@@ -451,6 +474,52 @@ print(f"  tmuxPath:   {tmux_path}")
 print(f"  imsg:       {imsg_path}")
 PYEOF
 echo "  ✓ config.json written"
+
+# --- Private backup repo ---
+if [[ -n "$GITHUB_USER" && -n "$GITHUB_TOKEN" ]]; then
+    echo ""
+    echo "Setting up private backup repo..."
+
+    # Create private repo via GitHub API (safe to call even if it already exists)
+    HTTP_CODE=$(curl -s -o /tmp/gh-create-repo.json -w "%{http_code}" \
+        -X POST \
+        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Accept: application/vnd.github.v3+json" \
+        https://api.github.com/user/repos \
+        -d "{\"name\":\"${BACKUP_REPO_NAME}\",\"private\":true,\"description\":\"Private state backup for ${AGENT_NAME} house agent\"}")
+
+    if [[ "$HTTP_CODE" == "201" ]]; then
+        echo "  ✓ Created private repo: ${GITHUB_USER}/${BACKUP_REPO_NAME}"
+    elif [[ "$HTTP_CODE" == "422" ]]; then
+        echo "  ✓ Repo already exists: ${GITHUB_USER}/${BACKUP_REPO_NAME}"
+    else
+        echo "  ✗ Failed to create repo (HTTP ${HTTP_CODE})"
+        cat /tmp/gh-create-repo.json
+    fi
+
+    # Store credentials in ~/.git-credentials so git can push without prompting
+    GIT_CREDENTIALS_FILE="${HOME}/.git-credentials"
+    CREDENTIAL_LINE="https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com"
+    if ! grep -qF "github.com" "${GIT_CREDENTIALS_FILE}" 2>/dev/null; then
+        echo "${CREDENTIAL_LINE}" >> "${GIT_CREDENTIALS_FILE}"
+        chmod 600 "${GIT_CREDENTIALS_FILE}"
+    fi
+    git config --global credential.helper store
+    echo "  ✓ GitHub credentials configured"
+
+    # Point the repo remote at the private backup repo
+    PRIVATE_REMOTE="https://github.com/${GITHUB_USER}/${BACKUP_REPO_NAME}.git"
+    git -C "${AGENT_DIR}" remote set-url origin "${PRIVATE_REMOTE}" 2>/dev/null \
+        || git -C "${AGENT_DIR}" remote add origin "${PRIVATE_REMOTE}"
+    echo "  ✓ Remote → ${PRIVATE_REMOTE}"
+
+    # Initial push
+    if git -C "${AGENT_DIR}" push -u origin main 2>&1; then
+        echo "  ✓ Initial push to private backup repo"
+    else
+        echo "  ✗ Push failed — check token permissions and try: git push -u origin main"
+    fi
+fi
 
 # --- iMessage database hardlinks ---
 # All three SQLite files must be hardlinked in the correct order:
