@@ -133,7 +133,7 @@
             ]
         },
         "kittenkong": {
-            "command": "node_modules/.bin/tsx",
+            "command": "{{AGENT_DIR}}/the-goodies-typescript/packages/kittenkong/node_modules/.bin/tsx",
             "args": [
                 "{{AGENT_DIR}}/the-goodies-typescript/packages/kittenkong/src/mcp-server.ts"
             ],
