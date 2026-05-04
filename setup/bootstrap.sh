@@ -565,9 +565,46 @@ echo ""
 if [[ "$HEALTH_OK" == true ]]; then
     echo "  ✓ Agent server running at http://localhost:4040"
 
-    # Send a welcome message to the configured iMessage user
+    # Install startup-announce LaunchAgent — fires on every login to report version + health
+    _announce_plist="${HOME}/Library/LaunchAgents/ai.instar.${AGENT_NAME}.Announce.plist"
+    _announce_script="${AGENT_DIR}/setup/startup-announce.sh"
+    chmod +x "$_announce_script"
+    mkdir -p "${HOME}/Library/LaunchAgents"
+    cat > "$_announce_plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>ai.instar.${AGENT_NAME}.Announce</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>${_announce_script}</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>${AGENT_DIR}</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <false/>
+    <key>StandardOutPath</key>
+    <string>${AGENT_DIR}/.instar/logs/startup-announce.log</string>
+    <key>StandardErrorPath</key>
+    <string>${AGENT_DIR}/.instar/logs/startup-announce.log</string>
+</dict>
+</plist>
+PLIST
+    launchctl unload "$_announce_plist" 2>/dev/null || true
+    launchctl load "$_announce_plist"
+    echo "  ✓ Startup announce LaunchAgent installed (sends version + health on every login)"
+
+    # Also send the initial welcome now
     if [[ -n "$IMESSAGE_USER" ]]; then
-        _welcome="${AGENT_NAME} is online and ready. Send me a message any time."
+        _auth=$(python3 -c "import json; print(json.load(open('${CONFIG_FILE}')).get('authToken',''))" 2>/dev/null || echo "")
+        _version=$(curl -s --max-time 5 -H "Authorization: Bearer ${_auth}" http://localhost:4040/updates 2>/dev/null \
+            | python3 -c "import json,sys; print(json.load(sys.stdin).get('currentVersion','unknown'))" 2>/dev/null || echo "unknown")
+        _welcome="${AGENT_NAME} v${_version} is online and ready."
         imsg send "$IMESSAGE_USER" "$_welcome" 2>/dev/null \
             && echo "  ✓ Welcome message sent to ${IMESSAGE_USER}" \
             || echo "  ✗ Welcome message failed — iMessage may need a moment to settle"
