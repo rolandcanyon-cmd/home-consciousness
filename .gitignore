@@ -16,6 +16,7 @@
 .instar/jobs/
 .instar/jobs.json.pre-migrate-*
 .instar/keys/
+.instar/.backup-worktree/
 
 # SQLite databases and WAL files
 .instar/*.db
