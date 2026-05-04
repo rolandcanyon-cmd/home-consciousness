@@ -304,17 +304,17 @@ To add or remove authorized iMessage senders:
 
 Then restart the server to apply.
 
-### Agent receives messages but never replies (shows "…" then silence)
+### "Claude not ready" error in tmux / agent receives messages but never replies (shows "…" then silence)
 
 The agent received the message (the "…" ack was sent by the server), but the Claude session didn't complete. On a fresh install the most common cause is a first-run auth or login prompt waiting in the terminal.
 
-Switch to the house account and check the tmux session:
+On a fresh account, Claude Code needs to be initialised once before instar can spawn sessions. The bootstrap script does this automatically, but if it was skipped or failed, initialise it manually:
 
-```bash
-tmux attach -t house-agent-server
-```
+Open a regular Terminal window (not the tmux session) and run `claude`. Accept any Terms of Service prompt. If it asks how to authenticate, choose API key and paste the key from [console.anthropic.com](https://console.anthropic.com) → Manage → API Keys. Once that completes, the instar server will spawn sessions correctly.
 
-If you see a login prompt or any interactive question, answer it (or press Escape/Enter to dismiss). Once the first session completes cleanly, all subsequent messages will be handled automatically.
+To view the tmux session to see what's happening: press **Ctrl+B** then **[** to enter scroll mode, use arrow keys or Page Up to scroll, and press **Q** to exit.
+
+If the session is stuck waiting for input: press **Ctrl+B** then **[** to scroll up and read what it's showing, or press **Ctrl+B** then send a keypress to dismiss it. Once the first session completes cleanly, all subsequent messages will be handled automatically.
 
 ### Claude is prompting for OAuth / account login instead of using the API key
 

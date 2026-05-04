@@ -544,6 +544,23 @@ if [[ ! -f "$_offset_file" ]]; then
     echo "  ✓ iMessage poll offset initialised at ROWID ${_max_rowid} (ignoring history)"
 fi
 
+# --- Initialise Claude Code ---
+# On a fresh account, Claude Code shows a first-run ToS/auth screen the first time
+# it runs. If instar spawns a session before this is accepted, it times out with
+# "Claude not ready". Run a quick non-interactive check now so first-run is done
+# before the server starts.
+echo ""
+echo "Initialising Claude Code..."
+_claude_bin=$(command -v claude 2>/dev/null || echo "")
+if [[ -n "$_claude_bin" ]]; then
+    # -p runs non-interactively; ANTHROPIC_API_KEY tells Claude Code to skip OAuth
+    ANTHROPIC_API_KEY="$API_KEY" "$_claude_bin" -p "." --dangerously-skip-permissions \
+        2>/dev/null | head -1 >/dev/null && echo "  ✓ Claude Code initialised" \
+        || echo "  ⚠ Claude Code init returned non-zero — may need manual first-run (open Terminal and run: claude)"
+else
+    echo "  ⚠ claude not found in PATH — run 'source ~/.zshrc' and rerun this script"
+fi
+
 # --- Start server ---
 echo ""
 echo "Starting agent server..."
