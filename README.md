@@ -204,7 +204,12 @@ When bootstrap finishes you should see `✓ Agent server running at http://local
 
 ### 7. Auto-start at login
 
-Auto-start (launchd on macOS) is installed **automatically** the first time `instar server start` runs — no separate install step needed. After the first start, the server will restart automatically on login and on crash. The `NODE_EXTRA_CA_CERTS` export in `~/.zshrc` is only needed when running `instar server start` manually from a terminal; launchd gets the certificate path set in the plist.
+The `bootstrap.sh` script runs `instar autostart install` automatically. This installs a launchd agent that starts the server on login and restarts it on crash. To verify or reinstall manually:
+
+```bash
+instar autostart status
+instar autostart install   # if not installed
+```
 
 ### 9. Verify
 

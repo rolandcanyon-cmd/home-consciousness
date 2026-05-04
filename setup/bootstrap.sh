@@ -562,11 +562,16 @@ else
 fi
 
 # --- Start server ---
-# 'instar server start' installs the launchd agent automatically on first run
-# (self-healing built into the server startup). No separate install step needed.
 echo ""
-echo "Starting agent server (launchd auto-start is installed automatically)..."
+echo "Starting agent server..."
 NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
+
+# Install launchd auto-start (crash recovery + login persistence)
+# Must be run explicitly — the server's internal self-healing can fail silently.
+echo ""
+echo "Installing launchd auto-start..."
+instar autostart install && echo "  ✓ Auto-start installed (server restarts on crash and login)" \
+    || echo "  ⚠ Auto-start install failed — run 'instar autostart install' manually"
 
 # Wait for health (30s — server can be slow on first start)
 HEALTH_OK=false
@@ -650,5 +655,5 @@ echo ""
 echo "This only needs to be done once. You can open the pane now:"
 echo "  open 'x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles'"
 echo ""
-echo "To auto-start at login:  instar server install"
+echo "To reinstall auto-start: instar autostart install"
 echo "For HA integration, add scripts to .claude/scripts/ and context to .instar/context/"
