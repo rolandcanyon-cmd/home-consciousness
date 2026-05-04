@@ -1,29 +1,35 @@
-# Runtime state
+# Runtime state — never commit these
 .instar/state/
 .instar/logs/
 .instar/*.tmp
-
-# Secrets
-.instar/config.json
-.instar/machine/
-.instar/secrets/
-.instar/shadow-install/
-
-# Backups (local only)
+.instar/server-data/
+.instar/imessage/
+.instar/ledger/
+.instar/bin/
+.instar/views/
+.instar/paste/
 .instar/backups/
+.instar/machine/
+.instar/shadow-install/
+.instar/secrets/
 
-# Derived data
+# SQLite databases and WAL files
+.instar/*.db
+.instar/*.db-shm
+.instar/*.db-wal
 .instar/memory.db
 .instar/memory.db-*
-.instar/server-data/
 
-# Claude Code
-.claude/projects/
-.claude/todos/
-.claude/scripts/__pycache__/
-.claude/scripts/.instar/
-# Paste files (may contain sensitive content)
-.instar/paste/
+# Runtime JSON files updated by the server
+.instar/feedback.json
+.instar/security.jsonl
+.instar/degradations.json
+.instar/skill-telemetry.jsonl
+.instar/imessage-messages.jsonl
+.instar/imessage-poll-offset.json
+
+# Secrets and per-machine config
+.instar/config.json
 .instar/context/project.dc
 .instar/secrets/pr-gate/
 
@@ -39,6 +45,12 @@
 # Tokens and auth
 .kittenkong-token.json
 
+# Claude Code
+.claude/projects/
+.claude/todos/
+.claude/scripts/__pycache__/
+.claude/scripts/.instar/
+
 # Playwright browser sessions
 .playwright-mcp/
 
@@ -52,5 +64,6 @@ logs/
 *.png
 *.jpg
 test_funkygibbon.db
+
 # Accidental files
 *T*:*:*.???Z
