@@ -41,7 +41,7 @@ To create the account: **System Settings → Users & Groups → Add User** — s
 
 **Switch to the house account:** click the account name in the menu bar and select the house account. Log in for the first time.
 
-**Sign in to iCloud:** once in the house account, go to **System Settings → Sign in with your Apple ID** and sign in with the house Apple ID (e.g. `forestview123@icloud.com`). Enable iMessage in Messages.app — this is the iMessage identity the agent will reply from.
+**Sign in to iCloud:** macOS will automatically prompt for iCloud login when you first log in to a new account. Sign in with the house Apple ID (e.g. `forestview123@icloud.com`). Once signed in, enable iMessage in Messages.app — this is the iMessage identity the agent will reply from.
 
 **Enable fast user switching (house account):** repeat the same step — **System Settings → Control Centre → Fast User Switching → Account Name** — so you can switch back to your admin account without logging out.
 
