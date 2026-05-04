@@ -15,7 +15,7 @@ A persistent, autonomous house agent built on [Instar](https://github.com/JKHead
 - A Mac (Mac mini recommended for always-on operation)
 - macOS with iMessage configured
 - **Xcode** — install from the App Store and **launch it at least once** while logged in as an admin user to accept the license agreement. The Xcode command-line tools are required by Homebrew and must be accepted before switching to the house account.
-- **A GitHub account for the house** — create one at [github.com](https://github.com) using the house Apple ID (e.g. `forestview123@icloud.com`). The bootstrap script uses this to create a private repo for backing up the agent's state (memory, jobs, skills). Generate a personal access token with `repo` scope at **GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)**.
+- **A GitHub account for the house** — created during Step 1 using the house Apple ID. Used to back up agent state to a private repo.
 - [Anthropic API key](https://console.anthropic.com) — generate one from the Anthropic Console (separate from any claude.ai subscription)
 - [tmux](https://formulae.brew.sh/formula/tmux), [Node.js](https://nodejs.org) (latest), [Python 3](https://python.org) (latest) — installed via local Homebrew in the steps below
 - [Claude Code](https://claude.ai/code) CLI — installed in Step 4
@@ -49,6 +49,10 @@ To create the account: **System Settings → Users & Groups → Add User** — s
 **Open the install instructions:** open Safari and browse to `https://github.com/rolandcanyon-cmd/home-consciousness` — keep this README visible in the browser so you can follow along during setup.
 
 **Open Terminal:** click the search icon (magnifying glass) in the top-right of the menu bar to open Spotlight, type `terminal`, and press Return. All remaining setup steps run from here.
+
+**Create a GitHub account for the house:** in Safari, go to [github.com](https://github.com) and create a new account using the house Apple ID (e.g. `forestview123@icloud.com`). This account will own a private repo that backs up the agent's state (memory, jobs, skills) automatically.
+
+**Generate a personal access token:** once logged in to GitHub, go to **Settings → Developer settings → Personal access tokens → Tokens (classic)**, click **Generate new token (classic)**, give it a name like `house-agent`, select the **repo** scope, and click **Generate token**. Copy the token — you'll need it when the setup script runs. Store it somewhere safe (e.g. paste it into Notes temporarily).
 
 ### 2. Clone the repo
 
