@@ -570,6 +570,94 @@ if [[ -n "$GITHUB_USER" && -n "$GITHUB_TOKEN" ]]; then
     fi
 fi
 
+# --- State backup branch & worktree ---
+# Backup channel for the agent's identity and learning state. Hourly snapshots
+# get pushed to the state-backup branch on origin. The branch is orphan
+# (no shared history with main), so the install template stays clean while
+# the running install's persistent state has somewhere safe to live.
+if [[ -n "$GITHUB_USER" ]] && git -C "${AGENT_DIR}" remote get-url origin >/dev/null 2>&1; then
+    echo ""
+    echo "Setting up state backup..."
+    BACKUP_BRANCH="state-backup"
+
+    # Create the orphan branch on origin if it doesn't exist yet.
+    if git -C "${AGENT_DIR}" ls-remote --exit-code --heads origin "$BACKUP_BRANCH" >/dev/null 2>&1; then
+        echo "  ✓ ${BACKUP_BRANCH} branch already exists on origin"
+    else
+        _tmp_dir=$(mktemp -d)
+        ORIGIN_URL=$(git -C "${AGENT_DIR}" remote get-url origin)
+        if git clone --quiet --depth 1 "$ORIGIN_URL" "$_tmp_dir/repo" 2>/dev/null; then
+            (
+                cd "$_tmp_dir/repo"
+                git checkout --quiet --orphan "$BACKUP_BRANCH"
+                git rm -rf --quiet . 2>/dev/null || true
+                cat > README.md <<README_EOF
+# State Backup — ${AGENT_NAME}
+
+Hourly snapshots of the agent's identity (\`AGENT.md\`), learnings (\`MEMORY.md\`),
+and other persistent state. This branch has no shared history with \`main\` —
+\`main\` stays clean as the install template, this branch holds the running
+install's evolving state.
+
+## Restore
+
+To recover state on a new install: clone the repo, check out the
+\`${BACKUP_BRANCH}\` branch into a temp directory, and copy the \`.instar/\`
+files into the new install.
+README_EOF
+                cat > .gitignore <<'IGN_EOF'
+# Whitelist approach: ignore everything by default, then explicitly allow
+# the state files we want to back up.
+*
+
+!.gitignore
+!README.md
+
+# Allow walking into .instar/ but exclude its contents by default.
+!.instar/
+.instar/*
+
+# Whitelisted state files
+!.instar/AGENT.md
+!.instar/MEMORY.md
+!.instar/USER.md
+!.instar/soul.md
+!.instar/jobs.json
+
+# Whitelisted state directories — recurse with !dir/ + !dir/** pattern.
+!.instar/context/
+!.instar/context/**
+!.instar/integrations/
+!.instar/integrations/**
+!.instar/episodes/
+!.instar/episodes/**
+IGN_EOF
+                git add -A
+                git -c user.name="${AGENT_NAME} Agent" -c user.email="agent@local" \
+                    commit --quiet -m "init: orphan state-backup branch for hourly state snapshots"
+                git push --quiet -u origin "$BACKUP_BRANCH"
+            )
+            echo "  ✓ Created orphan ${BACKUP_BRANCH} branch on origin"
+        else
+            echo "  ✗ Failed to clone origin for branch creation — skipping"
+        fi
+        rm -rf "$_tmp_dir"
+    fi
+
+    # Create the worktree at .instar/.backup-worktree (gitignored on main).
+    BACKUP_WORKTREE="${AGENT_DIR}/.instar/.backup-worktree"
+    if [[ -e "${BACKUP_WORKTREE}/.git" ]]; then
+        echo "  ✓ State backup worktree already in place"
+    else
+        git -C "${AGENT_DIR}" fetch --quiet origin "$BACKUP_BRANCH" 2>/dev/null || true
+        if git -C "${AGENT_DIR}" worktree add --quiet "${BACKUP_WORKTREE}" "$BACKUP_BRANCH" 2>/dev/null; then
+            echo "  ✓ State backup worktree at .instar/.backup-worktree"
+        else
+            echo "  ✗ Failed to create state backup worktree — backup job will fail until fixed"
+        fi
+    fi
+fi
+
 # --- iMessage database hardlinks ---
 # All three SQLite files must be hardlinked in the correct order:
 # server stopped → Messages quit → link → Messages reopen → server start.
@@ -618,6 +706,48 @@ if [[ -n "$_claude_bin" ]]; then
 else
     echo "  ⚠ claude not found in PATH — run 'source ~/.zshrc' and rerun this script"
 fi
+
+# --- Seed default jobs ---
+# Adds the standard set of recurring jobs to .instar/jobs.json before the
+# server starts, so the scheduler picks them up on first boot. `instar job
+# add` is idempotent — duplicate slugs are skipped with a warning.
+#
+# morning-weather is intentionally NOT seeded by default: the current skill
+# is hardware-specific (Tempest station + AmbientWeather widgets) and would
+# fail on a fresh install. Add it manually once you have a generic weather
+# source configured.
+echo ""
+echo "Seeding default jobs..."
+
+instar job add --slug state-backup --name "State Backup" \
+    --schedule "0 * * * *" --priority low --type script \
+    --execute ".claude/scripts/state-backup.sh" \
+    --description "Hourly snapshot of identity/learning files to origin/state-backup" \
+    >/dev/null 2>&1 && echo "  ✓ state-backup (hourly)" || echo "  ✓ state-backup already configured"
+
+instar job add --slug evolution-review --name "Evolution Review" \
+    --schedule "0 */6 * * *" --priority medium --type prompt \
+    --execute "Review pending evolution proposals via GET /evolution/proposals. For each pending proposal, evaluate feasibility/conflicts/value, then either implement it or move it to deferred state with a reason." \
+    --description "Evaluate and implement queued self-improvement proposals" \
+    >/dev/null 2>&1 && echo "  ✓ evolution-review (every 6h)" || echo "  ✓ evolution-review already configured"
+
+instar job add --slug insight-harvest --name "Insight Harvest" \
+    --schedule "0 */8 * * *" --priority low --type prompt \
+    --execute "Read recent learnings via GET /evolution/learnings, identify recurring patterns, and synthesize them into evolution proposals via POST /evolution/proposals. Skip if there are fewer than 5 new learnings since the last harvest." \
+    --description "Synthesize recurring learnings into evolution proposals" \
+    >/dev/null 2>&1 && echo "  ✓ insight-harvest (every 8h)" || echo "  ✓ insight-harvest already configured"
+
+instar job add --slug commitment-check --name "Commitment Check" \
+    --schedule "0 */4 * * *" --priority medium --type prompt \
+    --execute "Check action queue via GET /evolution/actions for overdue commitments. For each overdue item, post to attention queue with priority=high. Then surface a summary." \
+    --description "Surface overdue action items to attention queue" \
+    >/dev/null 2>&1 && echo "  ✓ commitment-check (every 4h)" || echo "  ✓ commitment-check already configured"
+
+instar job add --slug imessage-fork-maintenance --name "iMessage Fork Maintenance" \
+    --schedule "30 7 * * *" --priority medium --type skill \
+    --execute "imessage-fork-maintenance" \
+    --description "Daily rebase of iMessage fork against upstream Instar (7:30am)" \
+    >/dev/null 2>&1 && echo "  ✓ imessage-fork-maintenance (7:30am daily)" || echo "  ✓ imessage-fork-maintenance already configured"
 
 # --- Start server ---
 echo ""

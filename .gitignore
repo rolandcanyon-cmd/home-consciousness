@@ -13,6 +13,7 @@
 .instar/machine/
 .instar/shadow-install/
 .instar/secrets/
+.instar/.backup-worktree/
 
 # SQLite databases and WAL files
 .instar/*.db
