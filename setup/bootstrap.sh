@@ -163,19 +163,26 @@ ATTSYNC_PLIST="${HOME}/Library/LaunchAgents/ai.instar.AttachmentsWatcher.plist"
 ATTSYNC_LOG="${AGENT_DIR}/.instar/logs/attachments-watcher.log"
 ATTSYNC_ERR="${AGENT_DIR}/.instar/logs/attachments-watcher.err"
 
-echo "Building attachments-sync..."
 mkdir -p "${AGENT_DIR}/.instar/bin" "${AGENT_DIR}/.instar/logs"
-if command -v go &>/dev/null; then
+if [[ -f "${ATTSYNC_BIN}" ]]; then
+    echo "attachments-sync binary already built — skipping"
+    echo "  ✓ ${ATTSYNC_BIN}"
+elif command -v go &>/dev/null; then
+    echo "Building attachments-sync..."
     (cd "${ATTSYNC_SRC}" && go build -o "${ATTSYNC_BIN}" .)
     echo "  ✓ Binary built: ${ATTSYNC_BIN}"
 else
-    echo "  ✗ Go not found — install with: brew install go"
-    echo "    Then rerun this script to build attachments-sync"
+    echo "attachments-sync: Go not found — install with: brew install go, then rerun"
 fi
 
-# Install LaunchAgent (idempotent)
+# Install LaunchAgent if not already loaded
 mkdir -p "${HOME}/Library/LaunchAgents"
-cat > "${ATTSYNC_PLIST}" <<PLIST
+_attsync_loaded=$(launchctl list 2>/dev/null | grep -c "ai.instar.AttachmentsWatcher" || true)
+if [[ "$_attsync_loaded" -gt 0 && -f "${ATTSYNC_BIN}" ]]; then
+    echo "AttachmentsWatcher LaunchAgent already loaded — skipping"
+    echo "  ✓ ai.instar.AttachmentsWatcher"
+else
+    cat > "${ATTSYNC_PLIST}" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -202,13 +209,13 @@ cat > "${ATTSYNC_PLIST}" <<PLIST
 </dict>
 </plist>
 PLIST
-
-if [[ -f "${ATTSYNC_BIN}" ]]; then
-    launchctl unload "${ATTSYNC_PLIST}" 2>/dev/null || true
-    launchctl load "${ATTSYNC_PLIST}"
-    echo "  ✓ AttachmentsWatcher LaunchAgent installed"
-else
-    echo "  ⚠ LaunchAgent written but not loaded — binary missing (build Go first)"
+    if [[ -f "${ATTSYNC_BIN}" ]]; then
+        launchctl unload "${ATTSYNC_PLIST}" 2>/dev/null || true
+        launchctl load "${ATTSYNC_PLIST}"
+        echo "  ✓ AttachmentsWatcher LaunchAgent installed"
+    else
+        echo "  ⚠ LaunchAgent written but not loaded — binary missing (install Go and rerun)"
+    fi
 fi
 echo ""
 
@@ -548,15 +555,19 @@ fi
 # On a fresh account, Claude Code shows a first-run ToS/auth screen the first time
 # it runs. If instar spawns a session before this is accepted, it times out with
 # "Claude not ready". Run a quick non-interactive check now so first-run is done
-# before the server starts.
+# before the server starts. Skip if already initialised (marker: ~/.claude exists).
 echo ""
 echo "Initialising Claude Code..."
 _claude_bin=$(command -v claude 2>/dev/null || echo "")
 if [[ -n "$_claude_bin" ]]; then
-    # -p runs non-interactively; ANTHROPIC_API_KEY tells Claude Code to skip OAuth
-    ANTHROPIC_API_KEY="$API_KEY" "$_claude_bin" -p "." --dangerously-skip-permissions \
-        2>/dev/null | head -1 >/dev/null && echo "  ✓ Claude Code initialised" \
-        || echo "  ⚠ Claude Code init returned non-zero — may need manual first-run (open Terminal and run: claude)"
+    if [[ -d "${HOME}/.claude" ]]; then
+        echo "  ✓ Claude Code already initialised (~/.claude exists)"
+    else
+        # -p runs non-interactively; ANTHROPIC_API_KEY tells Claude Code to skip OAuth
+        ANTHROPIC_API_KEY="$API_KEY" "$_claude_bin" -p "." --dangerously-skip-permissions \
+            2>/dev/null | head -1 >/dev/null && echo "  ✓ Claude Code initialised" \
+            || echo "  ⚠ Claude Code init returned non-zero — may need manual first-run (open Terminal and run: claude)"
+    fi
 else
     echo "  ⚠ claude not found in PATH — run 'source ~/.zshrc' and rerun this script"
 fi
@@ -564,14 +575,24 @@ fi
 # --- Start server ---
 echo ""
 echo "Starting agent server..."
-NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
+_server_health=$(curl -s --max-time 2 http://localhost:4040/health 2>/dev/null \
+    | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "")
+if [[ "$_server_health" == "ok" || "$_server_health" == "degraded" ]]; then
+    echo "  ✓ Server already running at http://localhost:4040"
+else
+    NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem instar server start
+fi
 
 # Install launchd auto-start (crash recovery + login persistence)
 # Must be run explicitly — the server's internal self-healing can fail silently.
 echo ""
 echo "Installing launchd auto-start..."
-instar autostart install && echo "  ✓ Auto-start installed (server restarts on crash and login)" \
-    || echo "  ⚠ Auto-start install failed — run 'instar autostart install' manually"
+if instar autostart status 2>/dev/null | grep -qi "installed\|running\|loaded"; then
+    echo "  ✓ Auto-start already installed"
+else
+    instar autostart install && echo "  ✓ Auto-start installed (server restarts on crash and login)" \
+        || echo "  ⚠ Auto-start install failed — run 'instar autostart install' manually"
+fi
 
 # Wait for health (30s — server can be slow on first start)
 HEALTH_OK=false
@@ -594,7 +615,12 @@ if [[ "$HEALTH_OK" == true ]]; then
     _announce_script="${AGENT_DIR}/setup/startup-announce.sh"
     chmod +x "$_announce_script"
     mkdir -p "${HOME}/Library/LaunchAgents"
-    cat > "$_announce_plist" <<PLIST
+    _announce_label="ai.instar.${AGENT_NAME}.Announce"
+    _announce_loaded=$(launchctl list 2>/dev/null | grep -c "${_announce_label}" || true)
+    if [[ "$_announce_loaded" -gt 0 ]]; then
+        echo "  ✓ Startup announce LaunchAgent already loaded"
+    else
+        cat > "$_announce_plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -619,9 +645,10 @@ if [[ "$HEALTH_OK" == true ]]; then
 </dict>
 </plist>
 PLIST
-    launchctl unload "$_announce_plist" 2>/dev/null || true
-    launchctl load "$_announce_plist"
-    echo "  ✓ Startup announce LaunchAgent installed (sends version + health on every login)"
+        launchctl unload "$_announce_plist" 2>/dev/null || true
+        launchctl load "$_announce_plist"
+        echo "  ✓ Startup announce LaunchAgent installed (sends version + health on every login)"
+    fi
 
     # Also send the initial welcome now
     if [[ -n "$IMESSAGE_USER" ]]; then
