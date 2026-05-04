@@ -1,6 +1,7 @@
 # Runtime state — never commit these
 .instar/state/
 .instar/logs/
+.instar/audit/
 .instar/*.tmp
 .instar/server-data/
 .instar/imessage/
