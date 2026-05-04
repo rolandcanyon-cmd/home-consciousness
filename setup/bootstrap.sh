@@ -553,13 +553,17 @@ done
 echo ""
 if [[ "$HEALTH_OK" == true ]]; then
     echo "  ✓ Agent server running at http://localhost:4040"
+
+    # Send a welcome message to the configured iMessage user
+    if [[ -n "$IMESSAGE_USER" ]]; then
+        _welcome="${AGENT_NAME} is online and ready. Send me a message any time."
+        imsg send "$IMESSAGE_USER" "$_welcome" 2>/dev/null \
+            && echo "  ✓ Welcome message sent to ${IMESSAGE_USER}" \
+            || echo "  ✗ Welcome message failed — iMessage may need a moment to settle"
+    fi
+
     echo ""
     echo "=== Done ==="
-    if [[ -n "$IMESSAGE_USER" ]]; then
-        echo "Send a message from ${IMESSAGE_USER} to the house iMessage account to wake the agent."
-    else
-        echo "Send a message from your iMessage account to the house account to wake the agent."
-    fi
 else
     echo "  ✗ Server did not respond — check: tmux attach -t house-agent-server"
     echo ""
