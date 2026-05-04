@@ -573,10 +573,19 @@ fi
 # --- iMessage database hardlinks ---
 # All three SQLite files must be hardlinked in the correct order:
 # server stopped → Messages quit → link → Messages reopen → server start.
-# The dedicated script handles this safely and verifies link counts.
+# Skip if hardlinks are already correct (same inode = same file).
 echo ""
-echo "Setting up iMessage database hardlinks..."
-bash "${SCRIPT_DIR}/link-imessage-db.sh"
+echo "Checking iMessage database hardlinks..."
+_src_db="${HOME}/Library/Messages/chat.db"
+_dst_db="${AGENT_DIR}/.instar/imessage/chat.db"
+_src_inode=$(stat -f "%i" "${_src_db}" 2>/dev/null || echo "")
+_dst_inode=$(stat -f "%i" "${_dst_db}" 2>/dev/null || echo "")
+if [[ -n "$_src_inode" && -n "$_dst_inode" && "$_src_inode" == "$_dst_inode" ]]; then
+    echo "  ✓ iMessage database hardlinks already in place (inode ${_src_inode})"
+else
+    echo "  Hardlinks missing or stale — running link script..."
+    bash "${SCRIPT_DIR}/link-imessage-db.sh"
+fi
 
 # --- Initialise iMessage poll offset ---
 # Set the watermark to the current max ROWID so the agent only processes
