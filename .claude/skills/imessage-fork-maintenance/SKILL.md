@@ -285,9 +285,11 @@ Instar daily sync — pulled [N] upstream commit(s): [one-line summary of change
 
 ## Our customizations (for reference)
 
-As of 2026-05-04, we have **1 commit** above upstream (JKHeadley/instar):
+As of 2026-05-13, we have **3 commits** above upstream (JKHeadley/instar):
 
-- **`ddea02a9` fix(ci): fall back to github.token when RELEASE_TOKEN secret is unset** — keeps fork CI green when RELEASE_TOKEN secret is absent. Candidate for upstream PR.
+- **`494285c9` fix(ci): fall back to github.token when RELEASE_TOKEN secret is unset** — keeps fork CI green when RELEASE_TOKEN secret is absent. Candidate for upstream PR.
+- **`ff4ec013` fix(scheduler): add explicit types for js-yaml listener params, install missing js-yaml dep** — upstream v0.28.101 shipped `AgentMdJobLoader.ts` with implicit-any TS errors and `js-yaml` missing from `node_modules`. Build-breaking upstream bug; candidate for upstream PR.
+- **`4cccfce6` fix(upgrades): remove inline code from NEXT.md What to Tell Your User section** — upstream's NEXT.md had backtick-wrapped identifiers in the user-facing section, which the Check upgrade guide CI step now rejects. Upstream should apply same fix before their next release.
 
 Previously maintained custom commits (now merged upstream):
 - **Immediate ack**: sends "..." before session spawn
@@ -296,4 +298,4 @@ Previously maintained custom commits (now merged upstream):
 - **directMessageTrigger config respect**
 - **Attachment hardlinking** (multiple commits)
 
-When new customizations are needed, add ONE commit on top of upstream and keep it rebased. If upstream merges equivalent features, drop our commit and rebase clean.
+When new customizations are needed, add commits on top of upstream and keep them rebased. If upstream merges equivalent features, drop our commit and rebase clean. The goal is to return to 1 commit (the CI-fix) as soon as upstream ships fixes for the build errors.
