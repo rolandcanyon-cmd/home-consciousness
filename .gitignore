@@ -28,6 +28,8 @@
 .instar/skill-telemetry.jsonl
 .instar/imessage-messages.jsonl
 .instar/imessage-poll-offset.json
+.instar/machine-health/
+.instar/projects-digest.cache
 
 # Secrets and per-machine config
 .instar/config.json
