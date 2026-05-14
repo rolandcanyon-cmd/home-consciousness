@@ -13,6 +13,9 @@
 .instar/machine/
 .instar/shadow-install/
 .instar/secrets/
+.instar/jobs/
+.instar/jobs.json.pre-migrate-*
+.instar/keys/
 
 # SQLite databases and WAL files
 .instar/*.db
