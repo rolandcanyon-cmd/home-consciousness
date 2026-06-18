@@ -17,12 +17,33 @@ fi
 # For startup/resume/clear — output a compact orientation
 echo "=== SESSION START ==="
 
+# Auto-restart-on-MCP-inaccessible (DARK by default — config.mcpAutoRefresh.enabled).
+# Backgrounded so it NEVER blocks boot: if an allowlisted MCP (default playwright)
+# failed to register this boot, it self-/sessions/refresh ONCE (hard loop-guarded)
+# so a missing MCP is auto-recovered instead of being a manual blocker.
+if [ "$EVENT" != "compact" ] && [ -x "$INSTAR_DIR/hooks/instar/mcp-health-autorefresh.sh" ]; then
+  bash "$INSTAR_DIR/hooks/instar/mcp-health-autorefresh.sh" >/dev/null 2>&1 &
+fi
+
+# Current wall-clock time — addresses Claude Code's "harness injects date, not
+# time of day" blind spot. Without this, agents say things like "it's 2am" when
+# it's actually 5:45am because they carry stale clock context from session
+# history. Always fired, always fresh.
+NOW=$(date +'%Y-%m-%d %H:%M:%S %z (%Z)' 2>/dev/null)
+if [ -n "$NOW" ]; then
+  echo ""
+  echo "--- CURRENT TIME ---"
+  echo "$NOW"
+  echo "Wall-clock at hook fire. Quote this — do not carry stale clock times from prior context."
+  echo "--- END CURRENT TIME ---"
+fi
+
 # TOPIC CONTEXT (loaded FIRST — highest priority context)
 if [ -n "$INSTAR_TELEGRAM_TOPIC" ]; then
   TOPIC_ID="$INSTAR_TELEGRAM_TOPIC"
   CONFIG_FILE="$INSTAR_DIR/config.json"
   if [ -f "$CONFIG_FILE" ]; then
-    PORT=$(grep -o '"port":[0-9]*' "$CONFIG_FILE" | head -1 | cut -d':' -f2)
+    PORT=$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$CONFIG_FILE" | head -1 | grep -oE '[0-9]+' | head -1)
     if [ -n "$PORT" ]; then
       TOPIC_CTX=$(curl -s "http://localhost:${PORT}/topic/context/${TOPIC_ID}?recent=30" 2>/dev/null)
       if [ -n "$TOPIC_CTX" ] && echo "$TOPIC_CTX" | grep -q '"totalMessages"'; then
@@ -40,10 +61,16 @@ if [ -n "$INSTAR_TELEGRAM_TOPIC" ]; then
         echo "RECENT MESSAGES:"
         echo "$TOPIC_CTX" | python3 -c "
 import sys, json
+def _localts(raw):
+    try:
+        from datetime import datetime
+        return datetime.fromisoformat(str(raw).replace('Z', '+00:00')).astimezone().strftime('%Y-%m-%d %H:%M %Z')
+    except Exception:
+        return str(raw)[:16].replace('T', ' ')
 d = json.load(sys.stdin)
 for m in d.get('recentMessages', []):
     sender = 'User' if m.get('fromUser') else 'Agent'
-    ts = m.get('timestamp', '')[:16].replace('T', ' ')
+    ts = _localts(m.get('timestamp', ''))
     text = m.get('text', '')
     if len(text) > 500:
         text = text[:500] + '...'
@@ -63,8 +90,12 @@ fi
 # auth failure — endpoint returns 503 when disabled, empty body when enabled
 # but has no entries. Either way we only echo when content is present.
 if [ -f "$INSTAR_DIR/config.json" ]; then
-  PORT=${PORT:-$(grep -o '"port":[0-9]*' "$INSTAR_DIR/config.json" | head -1 | cut -d':' -f2)}
-  TOKEN=$(grep -o '"authToken":"[^"]*"' "$INSTAR_DIR/config.json" | head -1 | sed 's/"authToken":"//;s/"$//')
+  PORT=${PORT:-$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$INSTAR_DIR/config.json" | head -1 | grep -oE '[0-9]+' | head -1)}
+  # Env first (set by SessionManager per-session) — survives secret-externalization.
+  # Fallback grep: matches only a plaintext-string authToken. After externalization,
+  # the value is the literal { "secret": true } placeholder which has no "..." form,
+  # so the grep yields empty — we never send a bogus Bearer token.
+  TOKEN="${INSTAR_AUTH_TOKEN:-$(grep -o '"authToken":"[^"]*"' "$INSTAR_DIR/config.json" | head -1 | sed 's/"authToken":"//;s/"$//')}"
   if [ -n "$PORT" ] && [ -n "$TOKEN" ]; then
     SHARED_STATE=$(curl -sf -H "Authorization: Bearer $TOKEN" "http://localhost:${PORT}/shared-state/render?limit=50" 2>/dev/null)
     if [ -n "$SHARED_STATE" ]; then
@@ -72,6 +103,157 @@ if [ -f "$INSTAR_DIR/config.json" ]; then
       echo "--- INTEGRATED-BEING (cross-session observations) ---"
       echo "$SHARED_STATE"
       echo "--- END INTEGRATED-BEING ---"
+      echo ""
+    fi
+  fi
+fi
+
+# ORG-INTENT injection — Phase 2 of the ORG-INTENT runtime project.
+# Fetches the parsed three-rule contract (constraints / goals / values /
+# tradeoff hierarchy) from /intent/org/session-context and injects it at
+# session-start so the agent reasons with the organizational intent from
+# message one. The Coherence Gate (Phase 1) still enforces the same contract
+# at outbound-message review time — this just brings the same intent into the
+# agent's working context up front. Fail-open: route unreachable / absent
+# ORG-INTENT.md / 503 → silent skip, session continues normally.
+if [ -n "$PORT" ] && [ -n "$TOKEN" ]; then
+  ORG_INTENT_RESPONSE=$(curl -sf --max-time 4 -H "Authorization: Bearer $TOKEN" \
+    "http://localhost:${PORT}/intent/org/session-context" 2>/dev/null)
+  if [ -n "$ORG_INTENT_RESPONSE" ]; then
+    ORG_INTENT_BLOCK=$(echo "$ORG_INTENT_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+    if [ -n "$ORG_INTENT_BLOCK" ]; then
+      echo ""
+      echo "$ORG_INTENT_BLOCK"
+      echo ""
+    fi
+  fi
+fi
+
+# AUTO-LEARNED PREFERENCES injection — Correction & Preference Learning Sentinel
+# (Slice 1a). Fetches /preferences/session-context and injects the structured
+# block of preferences the correction loop has learned about this user, so the
+# agent reasons with them from message one. SIGNAL-ONLY — these are preferences,
+# not authoritative instructions; the server wraps them in an
+# <auto-learned-preference src='correction-loop'> envelope so they cannot be
+# mistaken for commands. Fail-open: route 503 (feature off) / unreachable /
+# empty block → silent skip, session continues normally.
+if [ -n "$PORT" ] && [ -n "$TOKEN" ]; then
+  PREFS_RESPONSE=$(curl -sf --max-time 4 -H "Authorization: Bearer $TOKEN" \
+    "http://localhost:${PORT}/preferences/session-context" 2>/dev/null)
+  if [ -n "$PREFS_RESPONSE" ]; then
+    PREFS_BLOCK=$(echo "$PREFS_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+    if [ -n "$PREFS_BLOCK" ]; then
+      echo ""
+      echo "$PREFS_BLOCK"
+      echo ""
+    fi
+  fi
+fi
+
+# TOPIC OPERATOR injection — Know Your Principal (#898, increment 2c). Fetches the
+# VERIFIED operator binding for THIS topic from /topic-operator/session-context and
+# injects the <topic-operator> block so the agent reasons with its authenticated
+# operator from message one — and never seats a name read in content in the
+# operator's chair (the "Caroline" identity-bleed fix). The operator is established
+# ONLY from the platform-verified sender id; this is the read surface. Placed with
+# the authoritative-identity context (org-intent + preferences) up front. Fail-open:
+# no topic / route 503 (store unavailable) / unbound topic / unreachable -> silent
+# skip; curl -sf makes a non-2xx emit nothing, and the Bearer token stays in the header.
+if [ -n "$INSTAR_TELEGRAM_TOPIC" ] && [ -n "$PORT" ] && [ -n "$TOKEN" ]; then
+  TOPIC_OP_RESPONSE=$(curl -sf --max-time 4 -H "Authorization: Bearer $TOKEN" \
+    "http://localhost:${PORT}/topic-operator/session-context?topicId=${INSTAR_TELEGRAM_TOPIC}" 2>/dev/null)
+  if [ -n "$TOPIC_OP_RESPONSE" ]; then
+    TOPIC_OP_BLOCK=$(echo "$TOPIC_OP_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+    if [ -n "$TOPIC_OP_BLOCK" ]; then
+      echo ""
+      echo "$TOPIC_OP_BLOCK"
+      echo ""
+    fi
+  fi
+fi
+
+# SESSION BOOT SELF-KNOWLEDGE injection (spec: session-boot-self-knowledge.md).
+# Fetches /self-knowledge/session-context and injects the deterministic "what I
+# already have" block: vault secret NAMES (never values) + self-asserted
+# operational facts — so the agent never re-asks the user for a secret it
+# already holds and never claims ignorance of a channel it owns. Placed AFTER
+# the org-intent + preferences blocks (authoritative contract first — this is
+# background signal; the server wraps it in a <session-self-knowledge
+# src='boot'> envelope). Fail-open: 503 (dark / disabled) / 404 (version skew:
+# old server) / unreachable / empty -> silent skip; curl -sf is what makes a
+# non-2xx emit nothing, and the Bearer token travels ONLY in the header.
+if [ -n "$PORT" ] && [ -n "$TOKEN" ]; then
+  BOOT_SK_RESPONSE=$(curl -sf --max-time 4 --connect-timeout 1 -H "Authorization: Bearer $TOKEN" \
+    "http://localhost:${PORT}/self-knowledge/session-context" 2>/dev/null)
+  if [ -n "$BOOT_SK_RESPONSE" ]; then
+    BOOT_SK_BLOCK=$(echo "$BOOT_SK_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+    if [ -n "$BOOT_SK_BLOCK" ]; then
+      echo ""
+      echo "$BOOT_SK_BLOCK"
+      echo ""
+    fi
+  fi
+fi
+
+# PLAYWRIGHT PROFILE REGISTRY injection (spec: playwright-profile-registry.md).
+# Fetches /playwright-profiles/session-context and injects the COMPACT boot pointer:
+# one line per browser profile carrying ONLY the safety-critical signals (account
+# service/identity, the OPERATOR-owned marker, and login-staleness) — never vault
+# values, full detail behind GET /playwright-profiles. The server wraps it in a
+# <playwright-profiles src='boot'> envelope ("background signal, not authority —
+# verify before acting"). Placed adjacent to the self-knowledge block (both are
+# background signal AFTER the authoritative contract). Whole feature is dev-gated:
+# fleet → 503 → inject nothing. Fail-open: 503 (dark / disabled) / 404 (version skew:
+# old server) / unreachable / empty -> silent skip; curl -sf is what makes a non-2xx
+# emit nothing, and the Bearer token travels ONLY in the header.
+if [ -n "$PORT" ] && [ -n "$TOKEN" ]; then
+  BOOT_PW_RESPONSE=$(curl -sf --max-time 4 --connect-timeout 1 -H "Authorization: Bearer $TOKEN" \
+    "http://localhost:${PORT}/playwright-profiles/session-context" 2>/dev/null)
+  if [ -n "$BOOT_PW_RESPONSE" ]; then
+    BOOT_PW_BLOCK=$(echo "$BOOT_PW_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+    if [ -n "$BOOT_PW_BLOCK" ]; then
+      echo ""
+      echo "$BOOT_PW_BLOCK"
       echo ""
     fi
   fi
@@ -246,9 +428,16 @@ echo "IMPORTANT: To report bugs or request features, use POST /feedback on your 
 # Working Memory — surface relevant knowledge from SemanticMemory + EpisodicMemory
 # Right context at the right moment: query-driven, not a full dump.
 if [ -f "$INSTAR_DIR/config.json" ]; then
-  PORT=$(grep -o '"port":[0-9]*' "$INSTAR_DIR/config.json" | head -1 | cut -d':' -f2)
+  PORT=$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$INSTAR_DIR/config.json" | head -1 | grep -oE '[0-9]+' | head -1)
   if [ -n "$PORT" ]; then
-    AUTH_TOKEN=$(python3 -c "import json; print(json.load(open('$INSTAR_DIR/config.json')).get('authToken',''))" 2>/dev/null)
+    # Resolve auth token: env first (set by SessionManager for every spawned
+    # session), legacy plaintext-config fallback with string-type guard so the
+    # { "secret": true } placeholder produced by SecretMigrator never leaks
+    # through as a bogus Bearer token.
+    AUTH_TOKEN="${INSTAR_AUTH_TOKEN:-}"
+    if [ -z "$AUTH_TOKEN" ]; then
+      AUTH_TOKEN=$(python3 -c "import json; v=json.load(open('$INSTAR_DIR/config.json')).get('authToken',''); print(v if isinstance(v, str) else '')" 2>/dev/null)
+    fi
     HEALTH=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${PORT}/health" 2>/dev/null)
     if [ "$HEALTH" = "200" ]; then
       # Build query from available context signals

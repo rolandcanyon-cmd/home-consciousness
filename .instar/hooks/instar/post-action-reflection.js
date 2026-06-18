@@ -6,13 +6,19 @@
 //
 // "Every action is an opportunity to learn. Most of that learning is lost
 // because nobody paused to ask: what did this teach me?"
+//
+// ESM-SAFE: dynamic `await import(...)` inside an async IIFE so this runs in
+// both CJS and ESM host package types. See hook-event-reporter.js header.
 
-const fs = require('node:fs');
-const pathMod = require('node:path');
+(async () => {
+  const fs = await import('node:fs');
+  const pathMod = await import('node:path');
 
-let data = '';
-process.stdin.on('data', chunk => data += chunk);
-process.stdin.on('end', () => {
+  let data = '';
+  try {
+    for await (const chunk of process.stdin) data += chunk;
+  } catch { process.exit(0); }
+
   try {
     const input = JSON.parse(data);
     if (input.tool_name !== 'Bash') process.exit(0);
@@ -103,4 +109,4 @@ process.stdin.on('end', () => {
     process.stdout.write(JSON.stringify({ decision: 'approve', additionalContext: reminder }));
   } catch { /* don't break on errors */ }
   process.exit(0);
-});
+})();

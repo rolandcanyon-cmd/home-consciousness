@@ -9,10 +9,16 @@
 // Calls the Instar server for active job context to make the checkpoint actionable.
 
 // CJS imports — this is a standalone hook script, not an ESM module
-const _r = require;
-const fs = _r('fs');
-const path = _r('path');
-const http = _r('http');
+//
+// ESM-SAFE: dynamic `await import(...)` inside an async IIFE so this runs in
+// both CJS and ESM host package types. Bare top-level `require(...)` throws in
+// ESM scope when the host has "type":"module" — silently killed this hook on
+// every fire. See hook-event-reporter.js header for the documented pattern.
+
+(async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const http = await import('node:http');
 
 const STATE_FILE = path.join('.instar', 'state', 'scope-coherence.json');
 const DEPTH_THRESHOLD = 20;
@@ -48,14 +54,30 @@ function fetchActiveJob() {
   });
 }
 
-let data = '';
-process.stdin.on('data', chunk => data += chunk);
-process.stdin.on('end', async () => {
+  let data = '';
   try {
+    for await (const chunk of process.stdin) data += chunk;
+  } catch { process.exit(0); }
+
+  try {
+    // ALLOW = empty stdout + exit 0. We deliberately do NOT emit
+    // {decision:'approve'} on the allow paths: codex's Stop-hook contract treats
+    // any non-empty stdout that isn't a recognized block decision as invalid
+    // ('hook returned invalid stop hook JSON output'), so an explicit approve-JSON
+    // breaks every codex session completion. Claude treats empty == approve, so
+    // emitting nothing is byte-equivalent there. Only the BLOCK path writes JSON
+    // (codex accepts {decision:'block',...}). Sibling of #604 (autonomous-stop-hook).
+    let _input = {};
+    try { _input = JSON.parse(data); } catch {}
+    if (_input && _input.stop_hook_active) {
+      // Re-entry guard: never re-block a correction continuation. (allow = empty)
+      process.exit(0);
+      return;
+    }
+
     // Never block headless/job sessions — no human to dismiss the block.
     // INSTAR_SESSION_ID is set for all server-spawned sessions.
     if (process.env.INSTAR_SESSION_ID && !process.env.TERM_PROGRAM) {
-      process.stdout.write(JSON.stringify({ decision: 'approve' }));
       process.exit(0);
       return;
     }
@@ -65,7 +87,6 @@ process.stdin.on('end', async () => {
     const depth = state.implementationDepth || 0;
 
     if (depth < DEPTH_THRESHOLD) {
-      process.stdout.write(JSON.stringify({ decision: 'approve' }));
       process.exit(0);
       return;
     }
@@ -74,7 +95,6 @@ process.stdin.on('end', async () => {
     if (state.lastCheckpointPrompt) {
       const elapsed = now - new Date(state.lastCheckpointPrompt).getTime();
       if (elapsed < COOLDOWN_MS) {
-        process.stdout.write(JSON.stringify({ decision: 'approve' }));
         process.exit(0);
         return;
       }
@@ -84,7 +104,6 @@ process.stdin.on('end', async () => {
     if (state.sessionStart) {
       const age = now - new Date(state.sessionStart).getTime();
       if (age < MIN_AGE_MS) {
-        process.stdout.write(JSON.stringify({ decision: 'approve' }));
         process.exit(0);
         return;
       }
@@ -136,7 +155,8 @@ process.stdin.on('end', async () => {
 
     process.stdout.write(JSON.stringify({ decision: 'block', reason: reason }));
   } catch {
-    process.stdout.write(JSON.stringify({ decision: 'approve' }));
+    // On any error, allow (empty stdout) — never emit approve-JSON (codex-unsafe).
   }
   process.exit(0);
-});
+})();
+

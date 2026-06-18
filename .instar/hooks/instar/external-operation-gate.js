@@ -67,25 +67,34 @@ process.stdin.on('end', async () => {
     // Build description
     const description = action.replace(/_/g, ' ') + ' on ' + service;
 
-    // Read config (port + auth token) via dynamic import to stay ESM-compatible
+    // Read config (port + auth token) via dynamic import to stay ESM-compatible.
+    // Auth-token resolution: INSTAR_AUTH_TOKEN env first (SessionManager injects
+    // it into every spawned session, survives secret-externalization), legacy
+    // plaintext-config fallback with a string-type guard so the { secret: true }
+    // placeholder produced by SecretMigrator can never leak through as a Bearer.
     let port = 4321;
-    let authToken = '';
+    let authToken = process.env.INSTAR_AUTH_TOKEN || '';
     try {
       const nodeFs = await import('node:fs');
       const configPath = (process.env.CLAUDE_PROJECT_DIR || '.') + '/.instar/config.json';
       const raw = nodeFs.readFileSync(configPath, 'utf-8');
       const cfg = JSON.parse(raw);
       port = cfg.port || 4321;
-      authToken = cfg.authToken || '';
+      if (!authToken && typeof cfg.authToken === 'string') authToken = cfg.authToken;
     } catch { /* use defaults */ }
 
-    // Call the gate API using global fetch (Node 18+)
+    // Call the gate API using global fetch (Node 18+). sessionName lets the
+    // server enforce the revivalMode side-effect gate (PROMISE-BEACON-ESCALATION-
+    // SPEC I13): a session revived to follow through on a dead promise is held
+    // status-only until it revalidates. INSTAR_SESSION_NAME is injected into
+    // every spawned session via tmux -e; absent for non-session callers (no gate).
     const postData = JSON.stringify({
       service,
       mutability,
       reversibility,
       description,
       itemCount,
+      sessionName: process.env.INSTAR_SESSION_NAME || '',
     });
 
     const controller = new AbortController();
@@ -105,14 +114,17 @@ process.stdin.on('end', async () => {
 
       const decision = await res.json();
 
-      if (decision.action === 'block') {
+      const actionDecision = decision.action;
+      const permitsOperation = actionDecision === 'proceed' || actionDecision === 'allow';
+
+      if (actionDecision === 'block') {
         process.stderr.write('BLOCKED: External operation gate denied this action.\n');
         process.stderr.write('Reason: ' + (decision.reason || 'Operation not permitted') + '\n');
         process.stderr.write('Service: ' + service + ', Action: ' + action + '\n');
         process.exit(2);
       }
 
-      if (decision.action === 'show-plan') {
+      if (actionDecision === 'show-plan') {
         const ctx = [
           '=== EXTERNAL OPERATION GATE: APPROVAL REQUIRED ===',
           'Operation: ' + description,
@@ -132,12 +144,19 @@ process.stdin.on('end', async () => {
         process.exit(0);
       }
 
-      if (decision.action === 'suggest-alternative' && decision.alternative) {
+      if (actionDecision === 'suggest-alternative' && decision.alternative) {
         process.stdout.write(JSON.stringify({
           decision: 'approve',
           additionalContext: 'External Operation Gate suggests: ' + decision.alternative,
         }));
         process.exit(0);
+      }
+
+      if (!permitsOperation) {
+        process.stderr.write('BLOCKED: External operation gate returned an unknown action.\n');
+        process.stderr.write('Action: ' + String(actionDecision || 'missing') + '\n');
+        process.stderr.write('Service: ' + service + ', Action: ' + action + '\n');
+        process.exit(2);
       }
 
       // Identity grounding for external write/send/publish operations.

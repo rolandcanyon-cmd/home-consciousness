@@ -23,7 +23,7 @@ if [ -n "$INSTAR_TELEGRAM_TOPIC" ]; then
   TOPIC_ID="$INSTAR_TELEGRAM_TOPIC"
   CONFIG_FILE="$INSTAR_DIR/config.json"
   if [ -f "$CONFIG_FILE" ]; then
-    PORT=$(grep -o '"port":[0-9]*' "$CONFIG_FILE" | head -1 | cut -d':' -f2)
+    PORT=$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$CONFIG_FILE" | head -1 | grep -oE '[0-9]+' | head -1)
     if [ -n "$PORT" ]; then
       TOPIC_CTX=$(curl -s "http://localhost:${PORT}/topic/context/${TOPIC_ID}?recent=20" 2>/dev/null)
       if [ -n "$TOPIC_CTX" ] && echo "$TOPIC_CTX" | grep -q '"totalMessages"'; then
@@ -44,11 +44,17 @@ if [ -n "$INSTAR_TELEGRAM_TOPIC" ]; then
         echo "RECENT MESSAGES:"
         echo "$TOPIC_CTX" | python3 -c "
 import sys, json
+def _localts(raw):
+    try:
+        from datetime import datetime
+        return datetime.fromisoformat(str(raw).replace('Z', '+00:00')).astimezone().strftime('%Y-%m-%d %H:%M %Z')
+    except Exception:
+        return str(raw)[:16].replace('T', ' ')
 d = json.load(sys.stdin)
 msgs = d.get('recentMessages', [])
 for m in msgs:
     sender = 'User' if m.get('fromUser') else 'Agent'
-    ts = m.get('timestamp', '')[:16].replace('T', ' ')
+    ts = _localts(m.get('timestamp', ''))
     text = m.get('text', '')
     if len(text) > 500:
         text = text[:500] + '...'
@@ -71,7 +77,7 @@ if pending_user:
     print('UNANSWERED MESSAGE(S) FROM USER:')
     for pm in pending_user:
         pm_text = pm.get('text', '')[:200]
-        pm_ts = pm.get('timestamp', '')[:16].replace('T', ' ')
+        pm_ts = _localts(pm.get('timestamp', ''))
         print(f'  [{pm_ts}] \"{pm_text}\"')
     print()
     print('You MUST address these messages substantively. Do NOT respond')
@@ -203,9 +209,16 @@ echo ""
 # Working Memory — surface relevant knowledge after compaction
 # This restores what you knew before compaction that's relevant now.
 if [ -f "$INSTAR_DIR/config.json" ]; then
-  PORT=$(grep -o '"port":[0-9]*' "$INSTAR_DIR/config.json" | head -1 | cut -d':' -f2)
+  PORT=$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$INSTAR_DIR/config.json" | head -1 | grep -oE '[0-9]+' | head -1)
   if [ -n "$PORT" ]; then
-    AUTH_TOKEN=$(python3 -c "import json; print(json.load(open('$INSTAR_DIR/config.json')).get('authToken',''))" 2>/dev/null)
+    # Resolve auth token: env first (set by SessionManager for every spawned
+    # session), legacy plaintext-config fallback with string-type guard so the
+    # { "secret": true } placeholder produced by SecretMigrator never leaks
+    # through as a bogus Bearer token.
+    AUTH_TOKEN="${INSTAR_AUTH_TOKEN:-}"
+    if [ -z "$AUTH_TOKEN" ]; then
+      AUTH_TOKEN=$(python3 -c "import json; v=json.load(open('$INSTAR_DIR/config.json')).get('authToken',''); print(v if isinstance(v, str) else '')" 2>/dev/null)
+    fi
     HEALTH=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${PORT}/health" 2>/dev/null)
     if [ "$HEALTH" = "200" ]; then
       WM_QUERY=$(python3 -c "import urllib.parse; print(urllib.parse.quote('compaction-recovery context-restoration'))" 2>/dev/null)
@@ -232,6 +245,109 @@ except Exception:
           echo "--- END WORKING MEMORY ---"
           echo ""
         fi
+      fi
+    fi
+  fi
+fi
+
+# SESSION BOOT SELF-KNOWLEDGE re-injection (spec: session-boot-self-knowledge.md).
+# A days-long session compacts; the boot block injected at session start only
+# survives if the compaction summary happens to carry it — willpower, not
+# structure. Re-fetching here makes the block durable across compaction AND
+# fresher than the original: a secret stored mid-session appears in the
+# post-compaction context. Same fail-open contract as the boot fetch: dark /
+# unreachable / version-skew -> silent skip, header-only Bearer.
+if [ -f "$INSTAR_DIR/config.json" ]; then
+  BOOT_SK_PORT=${PORT:-$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$INSTAR_DIR/config.json" | head -1 | grep -oE '[0-9]+' | head -1)}
+  BOOT_SK_TOKEN="${INSTAR_AUTH_TOKEN:-}"
+  if [ -z "$BOOT_SK_TOKEN" ]; then
+    BOOT_SK_TOKEN=$(python3 -c "import json; v=json.load(open('$INSTAR_DIR/config.json')).get('authToken',''); print(v if isinstance(v, str) else '')" 2>/dev/null)
+  fi
+  if [ -n "$BOOT_SK_PORT" ] && [ -n "$BOOT_SK_TOKEN" ]; then
+    BOOT_SK_RESPONSE=$(curl -sf --max-time 4 --connect-timeout 1 -H "Authorization: Bearer $BOOT_SK_TOKEN"       "http://localhost:${BOOT_SK_PORT}/self-knowledge/session-context" 2>/dev/null)
+    if [ -n "$BOOT_SK_RESPONSE" ]; then
+      BOOT_SK_BLOCK=$(echo "$BOOT_SK_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+      if [ -n "$BOOT_SK_BLOCK" ]; then
+        echo ""
+        echo "$BOOT_SK_BLOCK"
+        echo ""
+      fi
+    fi
+  fi
+fi
+
+# PLAYWRIGHT PROFILE REGISTRY re-injection (spec: playwright-profile-registry.md —
+# Compaction Parity twin of the session-start boot pointer). The compact "browser
+# profiles on this machine + the accounts each holds" pointer injected at session
+# start only survives a compaction if the summary happens to carry it. Re-fetching
+# here makes it durable across compaction. Same fail-open contract as the boot fetch:
+# dark (503) / unreachable / version-skew -> silent skip, header-only Bearer.
+if [ -f "$INSTAR_DIR/config.json" ]; then
+  BOOT_PW_PORT=${PORT:-$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$INSTAR_DIR/config.json" | head -1 | grep -oE '[0-9]+' | head -1)}
+  BOOT_PW_TOKEN="${INSTAR_AUTH_TOKEN:-}"
+  if [ -z "$BOOT_PW_TOKEN" ]; then
+    BOOT_PW_TOKEN=$(python3 -c "import json; v=json.load(open('$INSTAR_DIR/config.json')).get('authToken',''); print(v if isinstance(v, str) else '')" 2>/dev/null)
+  fi
+  if [ -n "$BOOT_PW_PORT" ] && [ -n "$BOOT_PW_TOKEN" ]; then
+    BOOT_PW_RESPONSE=$(curl -sf --max-time 4 --connect-timeout 1 -H "Authorization: Bearer $BOOT_PW_TOKEN"       "http://localhost:${BOOT_PW_PORT}/playwright-profiles/session-context" 2>/dev/null)
+    if [ -n "$BOOT_PW_RESPONSE" ]; then
+      BOOT_PW_BLOCK=$(echo "$BOOT_PW_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+      if [ -n "$BOOT_PW_BLOCK" ]; then
+        echo ""
+        echo "$BOOT_PW_BLOCK"
+        echo ""
+      fi
+    fi
+  fi
+fi
+
+# TOPIC OPERATOR re-injection (Know Your Principal #898, increment 2c — Compaction
+# Parity twin of the session-start block). The verified operator binding injected at
+# session start only survives a compaction if the summary happens to carry it —
+# willpower, not structure. Re-fetching here makes the agent re-learn WHO its
+# verified operator is after a context reset; losing that awareness post-compaction
+# is exactly the identity gap this feature closes. Same fail-open contract as the
+# boot fetch: no topic / unbound / store-503 / unreachable -> silent skip,
+# header-only Bearer.
+if [ -n "$INSTAR_TELEGRAM_TOPIC" ] && [ -f "$INSTAR_DIR/config.json" ]; then
+  TOPIC_OP_PORT=${PORT:-$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$INSTAR_DIR/config.json" | head -1 | grep -oE '[0-9]+' | head -1)}
+  TOPIC_OP_TOKEN="${INSTAR_AUTH_TOKEN:-}"
+  if [ -z "$TOPIC_OP_TOKEN" ]; then
+    TOPIC_OP_TOKEN=$(python3 -c "import json; v=json.load(open('$INSTAR_DIR/config.json')).get('authToken',''); print(v if isinstance(v, str) else '')" 2>/dev/null)
+  fi
+  if [ -n "$TOPIC_OP_PORT" ] && [ -n "$TOPIC_OP_TOKEN" ]; then
+    TOPIC_OP_RESPONSE=$(curl -sf --max-time 4 --connect-timeout 1 -H "Authorization: Bearer $TOPIC_OP_TOKEN" \
+      "http://localhost:${TOPIC_OP_PORT}/topic-operator/session-context?topicId=${INSTAR_TELEGRAM_TOPIC}" 2>/dev/null)
+    if [ -n "$TOPIC_OP_RESPONSE" ]; then
+      TOPIC_OP_BLOCK=$(echo "$TOPIC_OP_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+      if [ -n "$TOPIC_OP_BLOCK" ]; then
+        echo ""
+        echo "$TOPIC_OP_BLOCK"
+        echo ""
       fi
     fi
   fi

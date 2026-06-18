@@ -28,6 +28,9 @@ process.stdin.on('end', async () => {
       event: input.hook_event || (input.tool_name ? 'PostToolUse' : 'Unknown'),
       session_id: input.session_id || '',
       tool_name: input.tool_name || '',
+      // green-pr-automerge Layer 2: forward the session cwd so the server can
+      // resolve the ending session's branch (without it, Layer 2 ships inert).
+      cwd: input.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd() || '',
     });
 
     const url = new URL(serverUrl + '/hooks/events?instar_sid=' + instarSid);
