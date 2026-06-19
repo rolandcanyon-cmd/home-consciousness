@@ -1,8 +1,8 @@
 {
   "lastProcessedId": 0,
-  "lastRun": "2026-06-18T19:35:10-07:00",
+  "lastRun": "2026-06-19T03:01:15.308796-07:00",
   "messagesProcessed": 0,
   "commitmentsFound": 0,
   "status": "telegram_not_configured",
-  "note": "Telegram integration not enabled. No message sources available to scan for commitments. Job completed at 2026-06-18 19:35:10 PDT with no new commitments detected."
+  "note": "Telegram integration not enabled. No message sources available to scan for commitments. Job completed silently."
 }
