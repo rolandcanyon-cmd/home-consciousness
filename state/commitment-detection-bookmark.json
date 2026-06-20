@@ -1,15 +1,17 @@
 {
-  "lastProcessedId": "out-1781966609122",
+  "lastProcessedId": "out-1781964450731",
   "lastProcessedMessageId": 2535,
-  "lastRun": "2026-06-20T08:30:05Z",
+  "lastRun": "2026-06-20T09:50:05Z",
   "messagesProcessed": 2535,
   "juneMsgScanned": 67,
   "commitmentsFound": 0,
   "registeredCommitmentIds": [
-    "CMT-003",
-    "CMT-004",
-    "CMT-005"
+    "CMT-001",
+    "CMT-002",
+    "CMT-003"
   ],
+  "iMessagePollRow": 3009,
+  "potentialNewMessages": 474,
   "status": "complete_no_new_commitments",
-  "note": "Scanned all 2535 iMessage messages. Last 67 from June 20 reviewed—no new unregistered commitments detected. 3 commitments remain active from prior detection."
+  "note": "Scanned all 2535 iMessage messages. Last 67 from June 20 reviewed—no new unregistered commitments detected. 3 active commitments remain pending. iMessage poll shows 474 newer messages available (rows 2536-3009) for next full scan."
 }
