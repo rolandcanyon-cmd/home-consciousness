@@ -1,8 +1,15 @@
 {
-  "lastProcessedId": 0,
-  "lastRun": "2026-06-20T13:50:12Z",
-  "messagesProcessed": 0,
+  "lastProcessedId": "out-1781966609122",
+  "lastProcessedMessageId": 2535,
+  "lastRun": "2026-06-20T08:30:05Z",
+  "messagesProcessed": 2535,
+  "juneMsgScanned": 67,
   "commitmentsFound": 0,
-  "status": "telegram_not_configured",
-  "note": "Telegram integration not enabled. No message sources available to scan for commitments. Job completed silently."
+  "registeredCommitmentIds": [
+    "CMT-003",
+    "CMT-004",
+    "CMT-005"
+  ],
+  "status": "complete_no_new_commitments",
+  "note": "Scanned all 2535 iMessage messages. Last 67 from June 20 reviewed—no new unregistered commitments detected. 3 commitments remain active from prior detection."
 }
