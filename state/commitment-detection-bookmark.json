@@ -1,7 +1,7 @@
 {
   "lastProcessedId": "out-1782050753144",
   "lastProcessedMessageId": 2536,
-  "lastRun": "2026-06-21T12:25:05.000000Z",
+  "lastRun": "2026-06-21T20:01:12.902619Z",
   "messagesProcessed": 2536,
   "messageScannedToday": 2,
   "commitmentsFound": 0,
@@ -13,5 +13,5 @@
     "CMT-005"
   ],
   "status": "complete_no_new_commitments",
-  "note": "Check at 2026-06-21T12:25:05Z: No new messages available (Telegram integration not active or no new topics). 5 active pending actions tracked. No new commitments detected since last scan."
+  "note": "Scan at 2026-06-21T20:01:12.902619Z: No new user messages since last run. 0 commitments detected."
 }
