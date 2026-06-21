@@ -1,9 +1,9 @@
 {
-  "lastProcessedId": "out-1781964450731",
-  "lastProcessedMessageId": 2535,
-  "lastRun": "2026-06-20T17:30:00Z",
-  "messagesProcessed": 2535,
-  "juneMsgScanned": 67,
+  "lastProcessedId": "out-1782050753144",
+  "lastProcessedMessageId": 2536,
+  "lastRun": "2026-06-21T07:45:22Z",
+  "messagesProcessed": 2536,
+  "messageScannedToday": 1,
   "commitmentsFound": 0,
   "registeredCommitmentIds": [
     "CMT-001",
@@ -12,8 +12,6 @@
     "CMT-004",
     "CMT-005"
   ],
-  "iMessagePollRow": 3009,
-  "potentialNewMessages": 474,
   "status": "complete_no_new_commitments",
-  "note": "Check at 2026-06-20T17:30:00Z: No new messages available for scanning (JSONL import pipeline queued with 474 messages). iMessage file at 2535 lines (latest: 2026-06-20T14:43:29.122Z). 5 active commitments tracked (CMT-001 through CMT-005). All pending. No action required."
+  "note": "Check at 2026-06-21T07:45:22Z: No new user messages since last run (2026-06-20T17:30:00Z). Only new message is weather report from job (not a commitment). 5 active commitments tracked (CMT-001 through CMT-005). All pending. No action required."
 }

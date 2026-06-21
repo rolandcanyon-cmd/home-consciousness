@@ -7,6 +7,15 @@
 INSTAR_DIR="${CLAUDE_PROJECT_DIR:-.}/.instar"
 EVENT="${CLAUDE_HOOK_MATCHER:-startup}"
 
+# Machine-load assessment awareness (CMT-1703) — placed ABOVE the compact delegate
+# so it is emitted on EVERY event INCLUDING compact (this stdout flushes before the
+# 'exec' below replaces the process). This is what makes it survive compaction.
+echo "--- MACHINE LOAD ---"
+echo "To assess machine load, run .instar/scripts/load-assess.sh (--json to parse)."
+echo "NEVER judge load from 'uptime' 1-min load average — spike-prone AND on macOS inflated by"
+echo "Spotlight/mds disk I/O, so a high load average can coexist with a mostly-idle CPU."
+echo ""
+
 # On compaction, delegate to the dedicated recovery hook
 if [ "$EVENT" = "compact" ]; then
   if [ -x "$INSTAR_DIR/hooks/compaction-recovery.sh" ]; then
