@@ -1,10 +1,10 @@
 {
   "lease": {
     "holder": "m_78a08eb7ce0f573f254b583eb1177b8b",
-    "epoch": 2047,
-    "acquiredAt": "2026-06-21T00:00:22.127Z",
-    "expiresAt": "2026-06-21T00:01:22.127Z",
-    "nonce": 285,
-    "signature": "3K2KF0tEC8mwkLvI0zwjvTvQkDu5FTdRZNq6BAfqVmz713kPf7lWtNk8mQdZZBtMyW2AfML874eFNNIftF/DCA=="
+    "epoch": 2077,
+    "acquiredAt": "2026-06-21T01:00:22.320Z",
+    "expiresAt": "2026-06-21T01:01:22.320Z",
+    "nonce": 315,
+    "signature": "p4AhkmbXqE4dEkpmuoTiq9cJy8lVQVnRMn3cRK0/GlD0rtSpiSYh4phRNIxd6ekZ8aBdAPSLiNHGRYHhuNmVAA=="
   }
 }
