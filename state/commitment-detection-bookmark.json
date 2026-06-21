@@ -1,7 +1,7 @@
 {
   "lastProcessedId": "out-1782050753144",
   "lastProcessedMessageId": 2536,
-  "lastRun": "2026-06-21T20:01:12.902619Z",
+  "lastRun": "2026-06-21T22:40:49.472729+00:00Z",
   "messagesProcessed": 2536,
   "messageScannedToday": 2,
   "commitmentsFound": 0,
@@ -12,6 +12,6 @@
     "CMT-004",
     "CMT-005"
   ],
-  "status": "complete_no_new_commitments",
-  "note": "Scan at 2026-06-21T20:01:12.902619Z: No new user messages since last run. 0 commitments detected."
+  "status": "complete_no_new_messages",
+  "note": "Scan at 2026-06-21T22:40:49.472729+00:00Z: No new messages since last run. 0 commitments detected."
 }
