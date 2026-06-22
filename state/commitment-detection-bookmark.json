@@ -1,9 +1,9 @@
 {
   "lastProcessedId": "out-1782050753144",
   "lastProcessedMessageId": 2536,
-  "lastRun": "2026-06-21T22:40:49.472729+00:00Z",
+  "lastRun": "2026-06-21T16:40:05-07:00",
   "messagesProcessed": 2536,
-  "messageScannedToday": 2,
+  "messageScannedToday": 51,
   "commitmentsFound": 0,
   "registeredCommitmentIds": [
     "CMT-001",
@@ -13,5 +13,5 @@
     "CMT-005"
   ],
   "status": "complete_no_new_messages",
-  "note": "Scan at 2026-06-21T22:40:49.472729+00:00Z: No new messages since last run. 0 commitments detected."
+  "note": "Scan at 2026-06-21T16:40:05-07:00: Reviewed 51 recent iMessage records; no new unregistered commitments detected beyond prior bookmark."
 }
