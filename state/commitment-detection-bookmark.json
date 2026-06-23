@@ -1,17 +1,16 @@
 {
-  "lastProcessedId": "out-1720194276833",
-  "lastProcessedMessageId": 2543,
-  "lastRun": "2026-06-23T08:25:05-07:00",
-  "messagesProcessed": 2543,
-  "messageScannedToday": 58,
-  "commitmentsFound": 0,
-  "registeredCommitmentIds": [
-    "CMT-001",
-    "CMT-002",
-    "CMT-003",
-    "CMT-004",
-    "CMT-005"
+  "lastProcessedTimestamp": "2026-06-23T15:24:36.833Z",
+  "lastCheck": "2026-06-23T21:20:30.699148+00:00",
+  "status": "complete_no_new_messages",
+  "messageSourcesScanned": [
+    "imessage-messages.jsonl"
   ],
-  "status": "complete_no_new_commitments",
-  "note": "Scan at 2026-06-23T08:25:05-07:00: Scanned 7 new messages since last run; no new pending commitments detected. Latest message: 2026-06-23T15:24:36.833Z. Work on memory hygiene and evolution cleanup completed."
+  "messageSourcesUnavailable": [
+    "telegram-not-configured"
+  ],
+  "notes": "No new messages since last check. All previous commitments remain current.",
+  "newCommitmentsFound": 0,
+  "newActionsCreated": [],
+  "openCommitments": 5,
+  "scanIntervalMinutes": 120
 }
