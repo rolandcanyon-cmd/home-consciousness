@@ -1,6 +1,6 @@
 {
-  "usagePercent": 1,
-  "fiveHourPercent": 7,
+  "usagePercent": 2,
+  "fiveHourPercent": 10,
   "source": "anthropic-oauth",
-  "lastUpdated": "2026-06-24T00:54:30.238Z"
+  "lastUpdated": "2026-06-24T01:54:33.533Z"
 }
