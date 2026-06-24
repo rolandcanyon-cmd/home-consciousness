@@ -1,6 +1,6 @@
 {
   "lastProcessedTimestamp": "2026-06-23T15:24:36.833Z",
-  "lastCheck": "2026-06-23T22:45:28.980930Z",
+  "lastCheck": "2026-06-24T03:50:05.000Z",
   "status": "complete_no_new_messages",
   "messageSourcesScanned": [
     "imessage-messages.jsonl"
@@ -8,9 +8,9 @@
   "messageSourcesUnavailable": [
     "telegram-not-configured"
   ],
-  "notes": "No new messages since last check. All previous commitments remain current.",
+  "notes": "Scan completed 2026-06-24 03:50. No new messages since 2026-06-23 15:24. All commitments current.",
   "newCommitmentsFound": 0,
   "newActionsCreated": [],
-  "openCommitments": 5,
+  "openCommitments": 233,
   "scanIntervalMinutes": 120
 }
