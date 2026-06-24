@@ -41,6 +41,48 @@
       "sourceSession": "95922011-b3df-4e9e-9a7a-ddd38812aa82",
       "tags": [],
       "privacyScope": "shared-project"
+    },
+    {
+      "id": "17ee9ecc-5cf6-4dc6-8739-d49fcee65132",
+      "type": "tool",
+      "name": "evolution-proposal-evaluate job",
+      "content": "Evaluates pending evolution proposals with reality-checks: verifies MEMORY.md state (rejects cleanup if already <2000 words), filters duplicate proposals, detects and rejects stale suggestions. Now requires explicit rejection reasons and writes HANDOFF note with stats.",
+      "confidence": 0.7,
+      "createdAt": "2026-06-23T15:34:00.293Z",
+      "lastVerified": "2026-06-23T15:34:00.293Z",
+      "lastAccessed": "2026-06-23T15:34:00.293Z",
+      "source": "session:f8d850cd-b50b-4a1b-b071-800422d82342",
+      "sourceSession": "f8d850cd-b50b-4a1b-b071-800422d82342",
+      "tags": [],
+      "privacyScope": "shared-project"
+    },
+    {
+      "id": "6b0045f7-30cc-40ae-b9fe-9c18b8339c75",
+      "type": "pattern",
+      "name": "reality-check-before-approval pattern",
+      "content": "Before approving proposals, verify current state hasn't already solved the problem: check actual file sizes, look for duplicates in proposal queue, check if source (e.g., memory-hygiene) still applies. Prevents approval of proposals addressing already-resolved issues.",
+      "confidence": 0.7,
+      "createdAt": "2026-06-23T15:34:00.294Z",
+      "lastVerified": "2026-06-23T15:34:00.293Z",
+      "lastAccessed": "2026-06-23T15:34:00.294Z",
+      "source": "session:f8d850cd-b50b-4a1b-b071-800422d82342",
+      "sourceSession": "f8d850cd-b50b-4a1b-b071-800422d82342",
+      "tags": [],
+      "privacyScope": "shared-project"
+    },
+    {
+      "id": "daea890a-2777-4e0f-9df1-46fc04f9f7b9",
+      "type": "fact",
+      "name": "229 pending evolution actions",
+      "content": "229 evolution actions remain pending after clearing 35 stale proposals. Unclear if these are proposals awaiting review or already-approved implementation tasks.",
+      "confidence": 0.7,
+      "createdAt": "2026-06-23T15:34:00.294Z",
+      "lastVerified": "2026-06-23T15:34:00.293Z",
+      "lastAccessed": "2026-06-23T15:34:00.294Z",
+      "source": "session:f8d850cd-b50b-4a1b-b071-800422d82342",
+      "sourceSession": "f8d850cd-b50b-4a1b-b071-800422d82342",
+      "tags": [],
+      "privacyScope": "shared-project"
     }
   ],
   "edges": [
@@ -52,6 +94,15 @@
       "weight": 1,
       "context": "digest:e89881b9-5cd2-4760-8fb0-ef119a3e4da0",
       "createdAt": "2026-06-18T04:16:05.869Z"
+    },
+    {
+      "id": "2f7979ef-6199-4bf0-a5fe-d0ce4c0e5fce",
+      "fromId": "6b0045f7-30cc-40ae-b9fe-9c18b8339c75",
+      "toId": "17ee9ecc-5cf6-4dc6-8739-d49fcee65132",
+      "relation": "used_in",
+      "weight": 1,
+      "context": "digest:f8d850cd-b50b-4a1b-b071-800422d82342",
+      "createdAt": "2026-06-23T15:34:00.295Z"
     }
   ]
 }
