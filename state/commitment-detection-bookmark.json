@@ -1,16 +1,15 @@
 {
   "lastProcessedTimestamp": "2026-06-23T15:24:36.833Z",
-  "lastCheck": "2026-06-25T07:35:30.000Z",
+  "lastCheck": "2026-06-25T19:10:39.199816Z",
   "status": "complete_no_new_messages",
   "messageSourcesScanned": [
     "imessage-messages-api",
     "telegram-api"
   ],
   "messageSourcesUnavailable": [
-    "imessage-local-logging-not-configured",
     "telegram-no-active-topics"
   ],
-  "notes": "Scan completed 2026-06-25 07:35. No message sources actively logging. Last committed message from 2026-06-23. Telegram configured but no topics. 236 open evolution actions tracked.",
+  "notes": "Scan completed 2026-06-25 (ongoing check). No new messages since 2026-06-23. Telegram not configured with topics. iMessage logging active but no new entries.",
   "newCommitmentsFound": 0,
   "newActionsCreated": [],
   "openCommitments": 236,
