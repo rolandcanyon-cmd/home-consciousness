@@ -1,6 +1,6 @@
 {
   "lastProcessedTimestamp": "2026-06-23T15:24:36.833Z",
-  "lastCheck": "2026-06-25T19:10:39.199816Z",
+  "lastCheck": "2026-06-25T23:15:39.918945+00:00",
   "status": "complete_no_new_messages",
   "messageSourcesScanned": [
     "imessage-messages-api",
@@ -9,7 +9,7 @@
   "messageSourcesUnavailable": [
     "telegram-no-active-topics"
   ],
-  "notes": "Scan completed 2026-06-25 (ongoing check). No new messages since 2026-06-23. Telegram not configured with topics. iMessage logging active but no new entries.",
+  "notes": "Scan completed 2026-06-25 (ongoing check). No new messages since 2026-06-23. Telegram not configured. iMessage: no new entries.",
   "newCommitmentsFound": 0,
   "newActionsCreated": [],
   "openCommitments": 236,
