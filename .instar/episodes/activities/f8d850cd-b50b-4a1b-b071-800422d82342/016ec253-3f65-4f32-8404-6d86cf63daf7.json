@@ -1,0 +1,32 @@
+{
+  "id": "016ec253-3f65-4f32-8404-6d86cf63daf7",
+  "sessionId": "f8d850cd-b50b-4a1b-b071-800422d82342",
+  "sessionName": "im-b93de418",
+  "startedAt": "2026-06-23T15:33:45.528Z",
+  "endedAt": "2026-06-23T15:33:45.528Z",
+  "summary": "Cleared 35 stale evolution proposals from the backlog and hardened the evolution-proposal-evaluate job with reality-checks to prevent future pile-ups. The evaluate job now verifies MEMORY.md state, filters duplicates, and rejects stale suggestions before approving anything.",
+  "actions": [
+    "Cleared 35 stale evolution proposals",
+    "Enhanced evolution-proposal-evaluate job with reality-check logic",
+    "Added MEMORY.md size validation (reject if already under 2000 words)",
+    "Implemented duplicate proposal detection",
+    "Added stale proposal detection (reject if source problem already solved)",
+    "Tightened rejection reason requirement"
+  ],
+  "entities": [
+    "17ee9ecc-5cf6-4dc6-8739-d49fcee65132",
+    "6b0045f7-30cc-40ae-b9fe-9c18b8339c75",
+    "daea890a-2777-4e0f-9df1-46fc04f9f7b9"
+  ],
+  "learnings": [
+    "Proposal evaluation jobs need reality-checks to filter non-issues before approval (e.g., memory cleanup when file is already clean)",
+    "Duplicate and stale proposal accumulation can be prevented with pre-flight validation rather than post-approval cleanup"
+  ],
+  "significance": 6,
+  "themes": [
+    "agent-automation",
+    "backlog-cleanup",
+    "proposal-management"
+  ],
+  "boundarySignal": "session_end"
+}
