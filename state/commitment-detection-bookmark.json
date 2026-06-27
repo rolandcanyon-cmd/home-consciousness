@@ -1,6 +1,6 @@
 {
   "lastProcessedTimestamp": "2026-06-26T14:45:22.699Z",
-  "lastCheck": "2026-06-27T03:25:05-0700",
+  "lastCheck": "2026-06-27T04:55:00-0700",
   "status": "complete_no_new_messages",
   "messageSourcesScanned": [
     "imessage-messages-log",
@@ -11,7 +11,7 @@
   "messageSourcesUnavailable": [
     "telegram-not-configured"
   ],
-  "notes": "Routine check at 2026-06-27 03:25 PDT (120-min interval). No new messages since 2026-06-26 14:45. All currently open commitments (5 total) already tracked. All evolution actions (241 total) accounted for. Next scan in 120 minutes.",
+  "notes": "Routine check at 2026-06-27 04:55 PDT. No new messages since 2026-06-26 14:45 UTC. All currently open commitments (5 total) tracked and healthy. All evolution actions (241 total) accounted for. Next scan scheduled 2026-06-27 05:25 PDT.",
   "newCommitmentsFound": 0,
   "newActionsCreated": [],
   "openCommitments": 5,
