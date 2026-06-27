@@ -1,5 +1,5 @@
 {
-  "lastScanAt": "2026-06-27T14:32:34.323Z",
+  "lastScanAt": "2026-06-27T15:33:34.287Z",
   "sessions": {
     "e89881b9-5cd2-4760-8fb0-ef119a3e4da0": {
       "lastDigestedAt": "2026-06-18T04:15:50.084Z",
@@ -14,6 +14,11 @@
     "f8d850cd-b50b-4a1b-b071-800422d82342": {
       "lastDigestedAt": "2026-06-23T15:33:45.528Z",
       "lastActivityAt": "2026-06-23T15:33:45.528Z",
+      "digestCount": 1
+    },
+    "e886c0f9-72b5-4dd7-b891-89f63c16a0f2": {
+      "lastDigestedAt": "2026-06-27T15:33:34.305Z",
+      "lastActivityAt": "2026-06-27T15:33:34.305Z",
       "digestCount": 1
     }
   }

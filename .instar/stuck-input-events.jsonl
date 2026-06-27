@@ -45,3 +45,11 @@
 {"ts":"2026-06-23T15:25:03.280Z","session":"Roland-im-b93de418","promptText":"What about the 229 pending evolution actions?","attempt":1,"action":"Enter","outcome":"fired"}
 {"ts":"2026-06-23T15:25:13.357Z","session":"Roland-im-b93de418","promptText":"What about the 229 pending evolution actions?","attempt":2,"action":"C-m","outcome":"fired"}
 {"ts":"2026-06-23T15:25:23.410Z","session":"Roland-im-b93de418","promptText":"What about the 229 pending evolution actions?","attempt":3,"action":"Enter-sleep-Enter","outcome":"fired"}
+{"ts":"2026-06-27T15:27:08.852Z","session":"Roland-im-b93de418","promptText":"[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1782574004873-bt1dd9.txt — it contains your full session context, conversation history, and the user's latest message. You MUST read this","attempt":0,"action":"Enter","outcome":"fired"}
+{"ts":"2026-06-27T15:28:09.051Z","session":"Roland-im-b93de418","promptText":"done, is it clear now?","attempt":0,"action":"Enter","outcome":"fired"}
+{"ts":"2026-06-27T15:28:49.170Z","session":"Roland-im-b93de418","promptText":"auto-login after reboot to keep it alive?","attempt":0,"action":"Enter","outcome":"fired"}
+{"ts":"2026-06-27T15:28:59.204Z","session":"Roland-im-b93de418","promptText":"auto-login after reboot to keep it alive?","attempt":1,"action":"Enter","outcome":"fired"}
+{"ts":"2026-06-27T15:29:29.273Z","session":"Roland-im-b93de418","promptText":"remove it now","attempt":0,"action":"Enter","outcome":"fired"}
+{"ts":"2026-06-27T15:29:39.317Z","session":"Roland-im-b93de418","promptText":"remove it now","attempt":1,"action":"Enter","outcome":"fired"}
+{"ts":"2026-06-27T15:29:49.325Z","session":"Roland-im-b93de418","promptText":"remove it now","attempt":2,"action":"C-m","outcome":"fired"}
+{"ts":"2026-06-27T15:29:59.341Z","session":"Roland-im-b93de418","promptText":"remove it now","attempt":3,"action":"Enter-sleep-Enter","outcome":"fired"}
