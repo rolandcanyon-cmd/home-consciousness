@@ -1,17 +1,20 @@
 {
   "lastProcessedTimestamp": "2026-06-23T15:24:36.833Z",
-  "lastCheck": "2026-06-26T11:10:05-0700",
+  "lastCheck": "2026-06-26T18:40:00-0700",
   "status": "complete_no_new_messages",
   "messageSourcesScanned": [
-    "telegram-api"
+    "commitments-api",
+    "evolution-actions-api"
   ],
   "messageSourcesUnavailable": [
     "telegram-not-configured",
-    "imessage-no-recent-logs"
+    "imessage-logs-not-available",
+    "telegram-messages-log-file-not-found"
   ],
-  "notes": "Scan completed 2026-06-26 11:10 PDT. No new messages since 2026-06-23. Telegram not configured (empty topics). No centralized message logs found. 236+ open commitments remain unresolved.",
+  "notes": "Scan completed 2026-06-26 18:40 PDT. No new messages or commitments since 2026-06-23. All commitments predate the last processing timestamp. Routine check passed.",
   "newCommitmentsFound": 0,
   "newActionsCreated": [],
-  "openCommitments": 236,
+  "openCommitments": 5,
+  "openEvolutionActions": 236,
   "scanIntervalMinutes": 120
 }
