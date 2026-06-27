@@ -96,12 +96,12 @@ c.setdefault('updates', {})['autoApply'] = False
 json.dump(c, open('$AGENT_DIR/.instar/config.json', 'w'), indent=2)
 "
 
-# Daemon lives at SYSTEM level (/Library/LaunchDaemons/ai.instar.{AGENT_NAME}.plist),
-# NOT user gui level. `gui/$(id -u)/` kickstart silently no-ops on system daemons.
-# Requires sudo. The job runner must have NOPASSWD configured for this command
-# in /etc/sudoers.d/, or this step will hang waiting for a password.
+# Daemon runs as user-level LaunchAgent (gui/UID), NOT the system LaunchDaemon.
+# The system plist (/Library/LaunchDaemons/ai.instar.{AGENT_NAME}.plist) is a stale
+# duplicate that manages a separate process — kickstarting it does NOT restart the server.
+# Use gui/$(id -u)/ which requires no sudo.
 UPTIME_BEFORE=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
-sudo -n launchctl kickstart -k system/ai.instar.{AGENT_NAME} || { echo "❌ daemon restart failed — sudo NOPASSWD missing?"; exit 1; }
+launchctl kickstart -k gui/$(id -u)/ai.instar.{AGENT_NAME} || { echo "❌ daemon restart failed"; exit 1; }
 sleep 8
 UPTIME_AFTER=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
 if [ "$UPTIME_AFTER" -ge "$UPTIME_BEFORE" ]; then
