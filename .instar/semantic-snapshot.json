@@ -5,9 +5,9 @@
       "type": "fact",
       "name": "Duplicate instar launchd daemon",
       "content": "A duplicate plist at /Library/LaunchDaemons/ai.instar.Roland.plist was spawning duplicate instar-boot processes (PID 70063), while the correct user service is at ~/Library/LaunchAgents/ai.instar.Roland.plist. This caused multiple processes to compete for relay connection and prevented proper startup.",
-      "confidence": 0.7,
+      "confidence": 0.1,
       "createdAt": "2026-06-18T04:16:05.868Z",
-      "lastVerified": "2026-06-18T04:16:05.868Z",
+      "lastVerified": "2026-06-28T09:04:33.026Z",
       "lastAccessed": "2026-06-18T04:16:05.868Z",
       "source": "session:e89881b9-5cd2-4760-8fb0-ef119a3e4da0",
       "sourceSession": "e89881b9-5cd2-4760-8fb0-ef119a3e4da0",
@@ -75,12 +75,55 @@
       "type": "fact",
       "name": "229 pending evolution actions",
       "content": "229 evolution actions remain pending after clearing 35 stale proposals. Unclear if these are proposals awaiting review or already-approved implementation tasks.",
-      "confidence": 0.7,
+      "confidence": 0.1,
       "createdAt": "2026-06-23T15:34:00.294Z",
-      "lastVerified": "2026-06-23T15:34:00.293Z",
-      "lastAccessed": "2026-06-23T15:34:00.294Z",
+      "lastVerified": "2026-06-28T09:04:26.013Z",
+      "lastAccessed": "2026-06-28T09:03:25.337Z",
       "source": "session:f8d850cd-b50b-4a1b-b071-800422d82342",
       "sourceSession": "f8d850cd-b50b-4a1b-b071-800422d82342",
+      "tags": [],
+      "privacyScope": "shared-project"
+    },
+    {
+      "id": "2128d64d-653e-4f01-a547-4321f0e43fd7",
+      "type": "decision",
+      "name": "Approve Instar system daemon cleanup",
+      "content": "User requested removal of stale /Library/LaunchDaemons/ai.instar.Roland.plist respawning duplicate server every ~40s. Requires sudo: `launchctl bootout system /Library/LaunchDaemons/ai.instar.Roland.plist && sudo rm /Library/LaunchDaemons/ai.instar.Roland.plist`. Pending password input via permission bypass.",
+      "confidence": 0.7,
+      "createdAt": "2026-06-27T15:33:58.083Z",
+      "lastVerified": "2026-06-27T15:33:58.083Z",
+      "lastAccessed": "2026-06-27T15:33:58.083Z",
+      "source": "session:e886c0f9-72b5-4dd7-b891-89f63c16a0f2",
+      "sourceSession": "e886c0f9-72b5-4dd7-b891-89f63c16a0f2",
+      "tags": [],
+      "privacyScope": "shared-project"
+    },
+    {
+      "id": "56732b9e-9462-43c1-8269-fab3288d5a0a",
+      "type": "fact",
+      "name": "Evolution actions queue status",
+      "content": "As of 2026-06-28, 239 actions are pending out of 244 total. These are tracked self-improvement commitments accumulated since project start; the queue size is not necessarily a problem unless items are overdue.",
+      "confidence": 0.9,
+      "createdAt": "2026-06-28T09:03:44.072Z",
+      "lastVerified": "2026-06-28T09:03:44.072Z",
+      "lastAccessed": "2026-06-28T09:03:44.072Z",
+      "source": "overseer-maintenance",
+      "tags": [
+        "evolution",
+        "queue"
+      ],
+      "privacyScope": "shared-project"
+    },
+    {
+      "id": "867538b2-e38d-44a2-959d-8bcf1b7b942c",
+      "type": "fact",
+      "name": "Duplicate launchd daemon - tracked in Claude Code memory",
+      "content": "The duplicate /Library/LaunchDaemons/ai.instar.Roland.plist issue is documented as a known benign issue in Claude Code memory (known_duplicate_system_daemon.md). Needs user sudo to remove. The lesson (check all launchd dirs for conflicts) is preserved separately.",
+      "confidence": 0.9,
+      "createdAt": "2026-06-28T09:03:55.695Z",
+      "lastVerified": "2026-06-28T09:03:55.695Z",
+      "lastAccessed": "2026-06-28T09:03:55.695Z",
+      "source": "overseer-maintenance",
       "tags": [],
       "privacyScope": "shared-project"
     }
@@ -103,6 +146,22 @@
       "weight": 1,
       "context": "digest:f8d850cd-b50b-4a1b-b071-800422d82342",
       "createdAt": "2026-06-23T15:34:00.295Z"
+    },
+    {
+      "id": "6ad72bc4-75df-42fe-9893-1591a5f902db",
+      "fromId": "56732b9e-9462-43c1-8269-fab3288d5a0a",
+      "toId": "daea890a-2777-4e0f-9df1-46fc04f9f7b9",
+      "relation": "supersedes",
+      "weight": 1,
+      "createdAt": "2026-06-28T09:03:48.941Z"
+    },
+    {
+      "id": "5605a06e-0b97-47db-94ab-0f8159a32d37",
+      "fromId": "867538b2-e38d-44a2-959d-8bcf1b7b942c",
+      "toId": "5497761a-f9d2-40f8-966f-ca45a7318d5e",
+      "relation": "supersedes",
+      "weight": 1,
+      "createdAt": "2026-06-28T09:04:02.427Z"
     }
   ]
 }
