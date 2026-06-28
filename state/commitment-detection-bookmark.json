@@ -1,7 +1,7 @@
 {
-  "lastProcessedTimestamp": "2026-06-26T14:45:22.699Z",
-  "lastCheck": "2026-06-27T20:40:02-0700",
-  "status": "complete_no_new_messages",
+  "lastProcessedTimestamp": "2026-06-28T07:25:26Z",
+  "lastCheck": "2026-06-28T07:35:36.123998+00:00",
+  "status": "complete_no_new_sources",
   "messageSourcesScanned": [
     "commitments-api",
     "evolution-actions-api",
@@ -12,7 +12,7 @@
     "imessage-not-readable-at-path",
     "telegram-messages-log-not-found"
   ],
-  "notes": "Routine check at 2026-06-27 20:40 PDT. No new messages since 2026-06-26 14:45 UTC. All currently open commitments (5 total CMT-001 through CMT-005) tracked and healthy. Next scan scheduled.",
+  "notes": "Routine scan at 2026-06-28T07:35:36.123998+00:00. No new message sources available. Existing commitments remain tracked.",
   "newCommitmentsFound": 0,
   "newActionsCreated": [],
   "openCommitments": 5,
@@ -23,5 +23,6 @@
     "CMT-004",
     "CMT-005"
   ],
-  "scanIntervalMinutes": 120
+  "scanIntervalMinutes": 120,
+  "nextScanWindow": "2026-06-28T09:25:26Z"
 }
