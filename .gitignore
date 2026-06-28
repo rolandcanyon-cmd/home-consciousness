@@ -74,3 +74,4 @@ test_funkygibbon.db
 # Accidental files
 *T*:*:*.???Z
 .instar/cartographer/
+the-goodies-python/
