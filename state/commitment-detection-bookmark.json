@@ -1,19 +1,17 @@
 {
-  "lastProcessedTimestamp": "2026-06-28T18:25:01Z",
-  "lastCheck": "2026-06-28T18:25:01Z",
+  "lastProcessedTimestamp": "2026-06-29T03:55:26.585718Z",
+  "lastCheck": "2026-06-29T03:55:26.585718Z",
   "status": "complete_no_new_commitments",
   "messageSourcesScanned": [
-    "imessage-messages-jsonl",
-    "evolution-actions-api",
-    "git-log"
+    "imessage-messages-jsonl"
   ],
   "messageSourcesUnavailable": [
     "telegram-no-topics-yet"
   ],
-  "notes": "Routine scan at 2026-06-28T18:25:01Z. iMessage log checked; no new messages with commitment patterns since 2026-06-28T18:40:02Z. Evolution actions API confirmed (239 open, pre-existing). Next scheduled scan in ~120 minutes.",
+  "notes": "Routine scan at 2026-06-29T03:55:26.585718Z. iMessage log checked (last message: 2026-06-27T15:29:08Z \u2014 no new messages in last 32+ hours). Evolution actions API confirmed (239 open, pre-existing). Next scheduled scan in ~120 minutes.",
   "newCommitmentsFound": 0,
   "newActionsCreated": [],
   "openCommitments": 239,
   "scanIntervalMinutes": 120,
-  "nextScanWindow": "2026-06-28T20:25:01Z"
+  "nextScanWindow": null
 }
