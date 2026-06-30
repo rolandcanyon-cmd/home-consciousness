@@ -88,6 +88,21 @@ npm install better-sqlite3
 # Fix node symlink — npm install resets it to /opt/homebrew which lacks Full Disk Access
 ln -sf $HOME/homebrew/bin/node $AGENT_DIR/.instar/bin/node
 
+# Fix node-candidates.json — server re-evaluates this on restart and can re-pick /opt/homebrew
+# (Adrian's Homebrew) over ~/homebrew (Roland's), causing a TCC permission popup
+python3 -c "
+import json, os
+f = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/bin/node-candidates.json'
+d = json.load(open(f))
+correct = os.path.expanduser('~/homebrew/bin/node')
+if d.get('primary') != correct:
+    d['primary'] = correct
+    json.dump(d, open(f,'w'), indent=4)
+    print('Fixed node-candidates.json primary: was', repr(d.get('primary')), '-> now', repr(correct))
+else:
+    print('node-candidates.json primary already correct:', repr(correct))
+"
+
 # Fix autoApply — must be false since we manage updates via this rebase job
 python3 -c "
 import json
@@ -249,6 +264,14 @@ npm run build
 cd $AGENT_DIR/.instar/shadow-install
 npm install "@{{INSTAR_FORK_ORG}}/instar@file:../../../../../instar-dev"
 npm install better-sqlite3
+ln -sf $HOME/homebrew/bin/node $AGENT_DIR/.instar/bin/node
+python3 -c "
+import json, os
+f = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/bin/node-candidates.json'
+d = json.load(open(f))
+d['primary'] = os.path.expanduser('~/homebrew/bin/node')
+json.dump(d, open(f,'w'), indent=4)
+"
 launchctl kickstart -k gui/$(id -u)/ai.instar.{AGENT_NAME}
 sleep 5
 curl -s http://localhost:4040/health

@@ -12,7 +12,7 @@ const execPromise = util.promisify(exec);
 async function fetchWeather() {
   try {
     // Navigate to the Tempest station page
-    const navCmd = `claude mcp call playwright browser_navigate --url "https://tempestwx.com/station/125865/"`;
+    const navCmd = `claude mcp call playwright browser_navigate --url "https://tempestwx.com/station/YOUR_STATION_ID/"`;
     await execPromise(navCmd);
 
     // Wait a moment for the page to fully render
