@@ -1,5 +1,6 @@
 {
-  "usagePercent": 47,
-  "source": "claude-jsonl",
-  "lastUpdated": "2026-06-30T15:53:40.651Z"
+  "usagePercent": 71,
+  "fiveHourPercent": 10,
+  "source": "anthropic-oauth",
+  "lastUpdated": "2026-06-30T17:00:35.304Z"
 }
