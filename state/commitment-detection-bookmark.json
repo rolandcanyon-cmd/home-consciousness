@@ -1,14 +1,14 @@
 {
   "lastProcessedTimestamp": "2026-06-29T14:56:24.987Z",
-  "lastCheck": "2026-06-30T02:05:03Z",
-  "status": "complete_no_new_commitments",
+  "lastCheck": "2026-06-30T14:45:28.894661Z",
+  "status": "complete_no_new_messages",
   "messageSourcesScanned": [
     "imessage-messages.jsonl"
   ],
   "messageSourcesUnavailable": [
     "telegram-not-configured"
   ],
-  "notes": "Routine scan at 02:05 on 2026-06-30. No new messages since last sync report (14:56 on 2026-06-29). iMessage log ends at last-processed timestamp. Evolution actions API available. Next scan scheduled per cadence.",
+  "notes": "Routine scan at 2026-06-30T14:45:28 UTC. No new messages since last sync on 2026-06-29. iMessage log ends at last-processed timestamp. Next scan per 120-minute cadence.",
   "newCommitmentsFound": 0,
   "newActionsCreated": [],
   "openCommitments": 239,
