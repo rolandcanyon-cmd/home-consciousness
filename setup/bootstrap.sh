@@ -122,8 +122,29 @@ if [[ "$NO_KITTENKONG" == false ]]; then
     [[ "$_fg_status" == "200" ]] && FG_ALREADY_RUNNING=true
 fi
 
+# --- Load existing FunkyGibbon password from settings.json (so reruns don't re-prompt) ---
+# The kittenkong MCP needs this to authenticate with FunkyGibbon. The hash in
+# start_funkygibbon.sh is one-way; settings.json is the only place the cleartext
+# survives, so we preserve it across reruns.
+_existing_settings="${AGENT_DIR}/.claude/settings.json"
+if [[ -z "$FUNKYGIBBON_PASSWORD" && -f "$_existing_settings" ]]; then
+    _existing_fg_pw=$(python3 -c "
+import json, pathlib
+s = json.loads(pathlib.Path('${_existing_settings}').read_text())
+print(s.get('mcpServers', {}).get('kittenkong', {}).get('env', {}).get('FUNKYGIBBON_PASSWORD', ''))
+" 2>/dev/null || echo "")
+    [[ -n "$_existing_fg_pw" ]] && FUNKYGIBBON_PASSWORD="$_existing_fg_pw"
+fi
+
 # --- Prompts (only for values still missing) ---
-if [[ "$NO_KITTENKONG" == false && "$FG_ALREADY_RUNNING" == false && -z "$FUNKYGIBBON_PASSWORD" ]]; then
+# Prompt if password is missing AND we want kittenkong, regardless of whether FG
+# is already running — kittenkong needs the cleartext password even when FG was
+# set up by a prior bootstrap run.
+if [[ "$NO_KITTENKONG" == false && -z "$FUNKYGIBBON_PASSWORD" ]]; then
+    if [[ "$FG_ALREADY_RUNNING" == true ]]; then
+        echo "FunkyGibbon is already running but no password is stored in .claude/settings.json."
+        echo "Enter the FunkyGibbon admin password (set during the first bootstrap)."
+    fi
     read -rsp "FunkyGibbon password (Enter to skip kittenkong MCP): " FUNKYGIBBON_PASSWORD
     echo
     [[ -z "$FUNKYGIBBON_PASSWORD" ]] && NO_KITTENKONG=true
@@ -432,6 +453,64 @@ PLIST
     fi
 fi
 
+# --- KittenKong (TypeScript workspace install) ---
+# The kittenkong MCP server is a tsx script that runs from the typescript
+# workspace. It needs `tsx` and the workspace deps installed before Claude Code
+# can spawn it. settings.json points at an absolute path; this section ensures
+# that path actually exists.
+if [[ "$NO_KITTENKONG" == false ]]; then
+    TG_DIR="${AGENT_DIR}/the-goodies-typescript"
+    TG_TSX="${TG_DIR}/packages/kittenkong/node_modules/.bin/tsx"
+    KK_SRC="${TG_DIR}/packages/kittenkong/src/mcp-server.ts"
+    echo ""
+    echo "Setting up KittenKong (TypeScript workspace)..."
+    if [[ ! -f "${KK_SRC}" ]]; then
+        echo "  ✗ KittenKong source not found at ${KK_SRC}"
+        echo "    Submodule may be missing — try: git submodule update --init --recursive"
+    else
+        # Install if tsx is missing
+        if [[ -x "${TG_TSX}" ]]; then
+            echo "  ✓ TypeScript workspace already installed (tsx present)"
+        else
+            if command -v pnpm &>/dev/null; then
+                echo "  Installing TypeScript workspace with pnpm..."
+                (cd "${TG_DIR}" && pnpm install 2>&1 | tail -20 | sed 's/^/  | /') || true
+            elif command -v npm &>/dev/null; then
+                echo "  Installing TypeScript workspace with npm..."
+                (cd "${TG_DIR}" && npm install 2>&1 | tail -20 | sed 's/^/  | /') || true
+            else
+                echo "  ✗ Neither pnpm nor npm found — install with: brew install pnpm"
+            fi
+            if [[ -x "${TG_TSX}" ]]; then
+                echo "  ✓ TypeScript workspace installed"
+            else
+                echo "  ✗ tsx still missing at ${TG_TSX}"
+                echo "    KittenKong MCP will fail to load. Try: cd ${TG_DIR} && pnpm install"
+            fi
+        fi
+
+        # Build workspace packages — kittenkong imports @the-goodies/inbetweenies
+        # which is a workspace package; without `tsc` its dist/index.js doesn't exist
+        # and the MCP fails with MODULE_NOT_FOUND on first import.
+        TG_INB_DIST="${TG_DIR}/packages/inbetweenies/dist/index.js"
+        if [[ -f "${TG_INB_DIST}" ]]; then
+            echo "  ✓ TypeScript workspace already built (inbetweenies/dist present)"
+        elif [[ -x "${TG_TSX}" ]]; then
+            echo "  Building TypeScript workspace..."
+            if command -v pnpm &>/dev/null; then
+                (cd "${TG_DIR}" && pnpm -r run build 2>&1 | tail -10 | sed 's/^/  | /') || true
+            else
+                (cd "${TG_DIR}" && npm run build 2>&1 | tail -10 | sed 's/^/  | /') || true
+            fi
+            if [[ -f "${TG_INB_DIST}" ]]; then
+                echo "  ✓ TypeScript workspace built"
+            else
+                echo "  ✗ Build did not produce ${TG_INB_DIST}"
+            fi
+        fi
+    fi
+fi
+
 # --- NODE_EXTRA_CA_CERTS ---
 # Homebrew Node.js has a different CA bundle from Claude Code's bundled runtime.
 # Without this, Instar fails with UNABLE_TO_GET_ISSUER_CERT_LOCALLY when calling
@@ -715,6 +794,98 @@ else
     echo ""
     echo "=== Incomplete ==="
     echo "Fix the server issue above, then rerun this script."
+fi
+
+# --- Verification ---
+# Re-checks every component we depend on. Pure read-only checks, safe to run
+# any number of times. Drives the final pass/fail summary.
+echo ""
+echo "=== Verification ==="
+VERIFY_FAIL=0
+
+# FunkyGibbon HTTP health
+if [[ "$NO_KITTENKONG" == false ]]; then
+    _v_fg_http=$(curl -s -o /dev/null -w "%{http_code}" --max-time 3 "${FUNKYGIBBON_URL}/health" 2>/dev/null || echo "000")
+    if [[ "$_v_fg_http" == "200" ]]; then
+        echo "  ✓ FunkyGibbon /health 200 at ${FUNKYGIBBON_URL}"
+    else
+        echo "  ✗ FunkyGibbon /health returned ${_v_fg_http} (expected 200)"
+        VERIFY_FAIL=1
+    fi
+
+    # FunkyGibbon DB schema
+    _v_fg_db="${AGENT_DIR}/the-goodies-python/funkygibbon.db"
+    if [[ -f "$_v_fg_db" ]]; then
+        _v_tables=$(sqlite3 "$_v_fg_db" ".tables" 2>/dev/null || echo "")
+        if [[ "$_v_tables" == *"entities"* && "$_v_tables" == *"entity_relationships"* ]]; then
+            echo "  ✓ FunkyGibbon DB schema present (entities, entity_relationships)"
+        else
+            echo "  ✗ FunkyGibbon DB missing expected tables (got: ${_v_tables:-empty})"
+            VERIFY_FAIL=1
+        fi
+    else
+        echo "  ✗ FunkyGibbon DB file not found at ${_v_fg_db}"
+        VERIFY_FAIL=1
+    fi
+
+    # KittenKong: tsx binary, source file, settings.json wiring
+    _v_tsx="${AGENT_DIR}/the-goodies-typescript/packages/kittenkong/node_modules/.bin/tsx"
+    if [[ -x "$_v_tsx" ]]; then
+        echo "  ✓ KittenKong tsx binary present"
+    else
+        echo "  ✗ KittenKong tsx binary missing at ${_v_tsx}"
+        VERIFY_FAIL=1
+    fi
+    _v_kk_src="${AGENT_DIR}/the-goodies-typescript/packages/kittenkong/src/mcp-server.ts"
+    if [[ -f "$_v_kk_src" ]]; then
+        echo "  ✓ KittenKong MCP entrypoint present"
+    else
+        echo "  ✗ KittenKong MCP entrypoint missing at ${_v_kk_src}"
+        VERIFY_FAIL=1
+    fi
+    if grep -q '"kittenkong"' "${AGENT_DIR}/.claude/settings.json" 2>/dev/null; then
+        echo "  ✓ KittenKong MCP wired in .claude/settings.json"
+    else
+        echo "  ✗ KittenKong MCP missing from .claude/settings.json"
+        VERIFY_FAIL=1
+    fi
+    # KittenKong needs a non-empty FUNKYGIBBON_PASSWORD or it dies on first call
+    _v_kk_pw=$(python3 -c "
+import json
+s = json.load(open('${AGENT_DIR}/.claude/settings.json'))
+print(s.get('mcpServers', {}).get('kittenkong', {}).get('env', {}).get('FUNKYGIBBON_PASSWORD', ''))
+" 2>/dev/null || echo "")
+    if [[ -n "$_v_kk_pw" ]]; then
+        echo "  ✓ KittenKong has FunkyGibbon password configured"
+    else
+        echo "  ✗ KittenKong FUNKYGIBBON_PASSWORD is empty — MCP will fail to authenticate"
+        VERIFY_FAIL=1
+    fi
+    # Built artifact for the workspace dep
+    _v_inb_dist="${AGENT_DIR}/the-goodies-typescript/packages/inbetweenies/dist/index.js"
+    if [[ -f "$_v_inb_dist" ]]; then
+        echo "  ✓ inbetweenies workspace package built"
+    else
+        echo "  ✗ inbetweenies dist missing — KittenKong import will fail"
+        VERIFY_FAIL=1
+    fi
+fi
+
+# Agent server health
+_v_server=$(curl -s --max-time 2 http://localhost:4040/health 2>/dev/null \
+    | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))" 2>/dev/null || echo "")
+if [[ "$_v_server" == "ok" || "$_v_server" == "degraded" ]]; then
+    echo "  ✓ Agent server healthy at http://localhost:4040 (status: ${_v_server})"
+else
+    echo "  ✗ Agent server not responding"
+    VERIFY_FAIL=1
+fi
+
+if [[ "$VERIFY_FAIL" -eq 0 ]]; then
+    echo "  ✓ All verification checks passed"
+else
+    echo ""
+    echo "  ✗ Some checks failed — review output above. Bootstrap is safe to rerun."
 fi
 
 # Show the FDA reminder only on a fresh install (watcher wasn't already loaded).
