@@ -1,0 +1,13 @@
+{
+  "lastProcessedTimestamp": "2026-06-29T14:56:26.767Z",
+  "lastCheck": "2026-06-30T06:35:01Z",
+  "status": "complete",
+  "messageSourcesScanned": [
+    "iMessage (.instar/agents/Roland/.instar/imessage-messages.jsonl)"
+  ],
+  "messageSourcesUnavailable": [],
+  "notes": "Routine scan. No new messages since last bookmark. No new commitments to process.",
+  "messagesScanned": 0,
+  "newCommitmentsFound": 0,
+  "newActionsCreated": []
+}
