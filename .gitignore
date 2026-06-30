@@ -76,3 +76,21 @@ test_funkygibbon.db
 *T*:*:*.???Z
 .instar/cartographer/
 the-goodies-python/
+
+# Live identity files — contain PII and house-specific data, not for public repos
+# Templates live in setup/*.md.template
+.claude/identity/USER.md
+.claude/identity/MEMORY.md
+.claude/identity/AGENT.md
+
+# Runtime state at root level
+state/
+
+# Runtime instar state files that slip through
+.instar/quota-state.json
+.instar/lease-local.json
+.instar/local/
+.instar/semantic-snapshot.json
+.instar/semantic.jsonl
+.instar/stuck-input-events.jsonl
+.instar/episodes/

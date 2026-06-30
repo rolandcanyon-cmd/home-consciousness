@@ -11,7 +11,7 @@ Fetch current weather and forecast from Tempest station, plus indoor and pool te
 
 ## Steps
 
-1. **Navigate to the Tempest station page**: https://tempestwx.com/station/125865/
+1. **Navigate to the Tempest station page**: https://tempestwx.com/station/YOUR_STATION_ID/
 2. **Extract current outdoor weather data** from Tempest using browser_snapshot:
    - Current temperature (e.g., "56°")
    - Feels like temperature (e.g., "Feels Like 56°")
