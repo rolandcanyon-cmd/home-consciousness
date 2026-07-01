@@ -283,7 +283,18 @@ Report the failure via iMessage.
 **Always send a heartbeat at the end of every run**, even when nothing changed. Use:
 
 ```bash
-PHONE=$(python3 -c "import json; d=json.load(open('$AGENT_DIR/.instar/config.json')); print(d.get('imessage',{}).get('userPhone',''))")
+PHONE=$(python3 -c "
+import json
+d = json.load(open('$AGENT_DIR/.instar/config.json'))
+phone = d.get('imessage', {}).get('userPhone', '')
+if not phone:
+    for m in d.get('messaging', []):
+        if m.get('type') == 'imessage':
+            contacts = m.get('config', {}).get('authorizedContacts', [])
+            phone = next((c for c in contacts if not c.startswith('+') or c.startswith('+1')), contacts[0] if contacts else '')
+            break
+print(phone)
+")
 cat <<MSG | $AGENT_DIR/.claude/scripts/imessage-reply.sh "$PHONE"
 MESSAGE TEXT HERE
 MSG
