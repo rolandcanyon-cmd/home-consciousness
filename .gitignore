@@ -94,3 +94,7 @@ state/
 .instar/semantic.jsonl
 .instar/stuck-input-events.jsonl
 .instar/episodes/
+
+# Runtime job state files
+commitment-detection-bookmark.json
+*-bookmark.json
