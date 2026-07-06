@@ -353,4 +353,36 @@ except Exception:
   fi
 fi
 
+# WORKING-SET ARTIFACT grounding twin (Compaction Parity — intelligent-working-set-lazy-sync
+# Layer-3). Mirrors the session-start injection so after a compaction the agent is RE-grounded
+# on the interactive artifacts it recorded for this conversation. ADVISORY only (a path is
+# untrusted data). Fail-open: no topic / 503 (feature dark) / no ready artifacts / unreachable -> skip.
+if [ -n "$INSTAR_TELEGRAM_TOPIC" ] && [ -f "$INSTAR_DIR/config.json" ]; then
+  WS_ART_PORT=${PORT:-$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$INSTAR_DIR/config.json" | head -1 | grep -oE '[0-9]+' | head -1)}
+  WS_ART_TOKEN="${INSTAR_AUTH_TOKEN:-}"
+  if [ -z "$WS_ART_TOKEN" ]; then
+    WS_ART_TOKEN=$(python3 -c "import json; v=json.load(open('$INSTAR_DIR/config.json')).get('authToken',''); print(v if isinstance(v, str) else '')" 2>/dev/null)
+  fi
+  if [ -n "$WS_ART_PORT" ] && [ -n "$WS_ART_TOKEN" ]; then
+    WS_ART_RESPONSE=$(curl -sf --max-time 4 --connect-timeout 1 -H "Authorization: Bearer $WS_ART_TOKEN" \
+      "http://localhost:${WS_ART_PORT}/coherence/working-set/session-context?topic=${INSTAR_TELEGRAM_TOPIC}" 2>/dev/null)
+    if [ -n "$WS_ART_RESPONSE" ]; then
+      WS_ART_BLOCK=$(echo "$WS_ART_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+      if [ -n "$WS_ART_BLOCK" ]; then
+        echo ""
+        echo "$WS_ART_BLOCK"
+        echo ""
+      fi
+    fi
+  fi
+fi
+
 echo "=== END IDENTITY RECOVERY ==="

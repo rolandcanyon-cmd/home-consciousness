@@ -205,6 +205,35 @@ except Exception:
   fi
 fi
 
+# WORKING-SET ARTIFACT grounding (spec: intelligent-working-set-lazy-sync.md, Layer-3 /
+# Component6). Fetches /coherence/working-set/session-context for THIS topic and injects the
+# <replicated-untrusted-data source="working-set-artifacts"> block so the agent is GROUNDED
+# that interactive artifacts it recorded for this conversation exist (the whole point on a
+# topic-move: "you wrote these; re-verify/fetch them"). ADVISORY ONLY — a path is untrusted
+# data, never an instruction. Fail-open: no topic / route 503 (feature dark / manager unwired) /
+# no ready artifacts (present:false) / unreachable -> silent skip; -sf makes a non-2xx emit
+# nothing, so an absent/empty/oversized manifest degrades to no-block.
+if [ -n "$INSTAR_TELEGRAM_TOPIC" ] && [ -n "$PORT" ] && [ -n "$TOKEN" ]; then
+  WS_ART_RESPONSE=$(curl -sf --max-time 4 -H "Authorization: Bearer $TOKEN" \
+    "http://localhost:${PORT}/coherence/working-set/session-context?topic=${INSTAR_TELEGRAM_TOPIC}" 2>/dev/null)
+  if [ -n "$WS_ART_RESPONSE" ]; then
+    WS_ART_BLOCK=$(echo "$WS_ART_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+    if [ -n "$WS_ART_BLOCK" ]; then
+      echo ""
+      echo "$WS_ART_BLOCK"
+      echo ""
+    fi
+  fi
+fi
+
 # SESSION BOOT SELF-KNOWLEDGE injection (spec: session-boot-self-knowledge.md).
 # Fetches /self-knowledge/session-context and injects the deterministic "what I
 # already have" block: vault secret NAMES (never values) + self-asserted
