@@ -11,7 +11,10 @@ Fetch current weather and forecast from Tempest station, plus indoor and pool te
 
 ## Steps
 
-1. **Navigate to the Tempest station page**: https://tempestwx.com/station/125865/
+1. **Look up the Tempest station URL from FunkyGibbon** (source of truth — never hardcode it):
+   - If the `kittenkong` MCP tools are available, call `search_entities` with query "tempest" and read `station_url` from the matching device's content.
+   - Otherwise, query the API directly: `curl -s -X POST http://localhost:8000/api/v1/graph/search -H "Authorization: Bearer $FUNKYGIBBON_TOKEN" -H 'Content-Type: application/json' -d '{"query":"tempest weather station"}'` (the entity is named "Tempest Weather Station"; `FUNKYGIBBON_TOKEN` is set in the `kittenkong` MCP server's env in `.claude/settings.json` — reuse that value, don't hardcode a second copy).
+   - Navigate to the `station_url` from that entity's content (currently https://tempestwx.com/station/125865/, but always resolve it live — the station can change).
 2. **Extract current outdoor weather data** from Tempest using browser_snapshot:
    - Current temperature (e.g., "56°")
    - Feels like temperature (e.g., "Feels Like 56°")
