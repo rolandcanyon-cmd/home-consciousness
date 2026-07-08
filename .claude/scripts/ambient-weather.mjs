@@ -18,12 +18,17 @@
  *
  * Field notes (verified live 2026-07-08):
  *   tempinf / humidityin / feelsLikein  — INDOOR (console unit)
- *   temp1f  / humidity1  / feelsLike1   — remote sensor 1 (an AIR sensor: it
- *       reports humidity + dew point, so it is NOT a pool water probe)
+ *   temp1f  / humidity1  / feelsLike1   — remote sensor 1 = THE POOL (operator-
+ *       confirmed). Ambient's custom sensor LABELS (what the dashboard shows as
+ *       "Pool") are not returned by the API, so the mapping lives in SENSOR_LABELS
+ *       below. There is no temp2f / dedicated pool field.
  *   pm25 / pm25_24h                     — PM2.5 air quality device
  *   batt* / battout                     — 1 = OK, 0 = LOW
- *   There is no temp2f; the old skill's "Pool widget (2)" does not exist in the
- *   API response. If a pool probe is added later it will appear as its own field.
+ *
+ * SUSPECT_DEVICES: the operator reported the PM2.5 station emits bad data
+ * (2026-07-08: pm25 135, 24h avg 157 — implausible). Its readings are still
+ * returned, but marked `suspect: true` and NEVER used to raise an air-quality
+ * alarm. Remove it from the set once the sensor is repaired/validated.
  */
 
 import * as path from 'node:path';
@@ -86,25 +91,40 @@ try {
   process.exit(1);
 }
 
+// Ambient does not expose the dashboard's custom sensor names via the API, so the
+// numbered-slot → real-world mapping is recorded here. Operator-confirmed.
+const SENSOR_LABELS = { temp1f: 'poolTempF', humidity1: 'poolHumidity' };
+
+// Devices whose readings are known-untrustworthy. Values are still surfaced (never
+// silently dropped) but marked suspect and excluded from alarms.
+const SUSPECT_DEVICES = new Map([
+  ['Roland Canyon PM2.5', 'operator reports this station emits bad data (2026-07-08)'],
+]);
+
 const out = { fetchedAt: new Date().toISOString(), devices: [], lowBatteries: [] };
 
 for (const d of devices) {
   const ld = d?.lastData ?? {};
-  const dev = {
-    name: d?.info?.name ?? '(unnamed)',
-    lastReading: ld.date ?? null,
-    readings: {},
-  };
+  const name = d?.info?.name ?? '(unnamed)';
+  const suspectReason = SUSPECT_DEVICES.get(name);
+  const dev = { name, lastReading: ld.date ?? null, readings: {} };
+  if (suspectReason) {
+    dev.suspect = true;
+    dev.suspectReason = suspectReason;
+  }
+
   if (ld.tempinf != null) dev.readings.indoorTempF = ld.tempinf;
   if (ld.humidityin != null) dev.readings.indoorHumidity = ld.humidityin;
   if (ld.feelsLikein != null) dev.readings.indoorFeelsLikeF = ld.feelsLikein;
-  if (ld.temp1f != null) dev.readings.sensor1TempF = ld.temp1f;
-  if (ld.humidity1 != null) dev.readings.sensor1Humidity = ld.humidity1;
+  if (ld.temp1f != null) dev.readings[SENSOR_LABELS.temp1f] = ld.temp1f;
+  if (ld.humidity1 != null) dev.readings[SENSOR_LABELS.humidity1] = ld.humidity1;
   if (ld.pm25 != null) dev.readings.pm25 = ld.pm25;
   if (ld.pm25_24h != null) dev.readings.pm25_24hAvg = ld.pm25_24h;
 
   for (const [k, v] of Object.entries(ld)) {
-    if (/^batt/.test(k) && v === 0) out.lowBatteries.push(`${dev.name}:${k}`);
+    if (/^batt/.test(k) && v === 0) {
+      out.lowBatteries.push(`${name}:${k}${suspectReason ? ' (suspect device)' : ''}`);
+    }
   }
   out.devices.push(dev);
 }
@@ -119,8 +139,19 @@ function pm25Category(v) {
   if (v <= 250.4) return 'Very Unhealthy';
   return 'Hazardous';
 }
-const pm = out.devices.flatMap((d) => (d.readings.pm25 != null ? [d.readings.pm25] : []))[0];
-if (pm != null) out.pm25Category = pm25Category(pm);
+// Only a TRUSTED device may set pm25Category — the field consumers alarm on.
+// A suspect station's value is still reported (as pm25Suspect) so the fault stays
+// visible, but it can never trigger an air-quality warning.
+const pmDevice = out.devices.find((d) => d.readings.pm25 != null);
+if (pmDevice) {
+  const pm = pmDevice.readings.pm25;
+  if (pmDevice.suspect) {
+    out.pm25Suspect = { value: pm, reason: pmDevice.suspectReason };
+    out.pm25Category = null;
+  } else {
+    out.pm25Category = pm25Category(pm);
+  }
+}
 
 if (process.argv.includes('--json')) {
   process.stdout.write(JSON.stringify(out, null, 2) + '\n');
@@ -128,8 +159,12 @@ if (process.argv.includes('--json')) {
 }
 
 for (const d of out.devices) {
-  console.log(`${d.name}  (last reading ${d.lastReading ?? 'n/a'})`);
+  console.log(`${d.name}${d.suspect ? '  [SUSPECT — readings not trusted]' : ''}  (last reading ${d.lastReading ?? 'n/a'})`);
   for (const [k, v] of Object.entries(d.readings)) console.log(`   ${k}: ${v}`);
 }
-if (out.pm25Category) console.log(`\nPM2.5 air quality: ${pm} µg/m³ — ${out.pm25Category}`);
+if (out.pm25Category) {
+  console.log(`\nPM2.5 air quality: ${pmDevice.readings.pm25} µg/m³ — ${out.pm25Category}`);
+} else if (out.pm25Suspect) {
+  console.log(`\nPM2.5: ${out.pm25Suspect.value} µg/m³ — NOT REPORTED as air quality (${out.pm25Suspect.reason})`);
+}
 console.log(out.lowBatteries.length ? `\n⚠️  LOW batteries: ${out.lowBatteries.join(', ')}` : '\nAll batteries OK');
