@@ -98,3 +98,6 @@ state/
 # Runtime job state files
 commitment-detection-bookmark.json
 *-bookmark.json
+.instar/local/server-instance.lock
+.instar/local/*.lock
+.instar/state/*.lock
