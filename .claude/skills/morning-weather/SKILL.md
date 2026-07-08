@@ -43,8 +43,8 @@ Fetch current weather and forecast from Tempest station, plus indoor temperature
 6. **Battery status**: mention ONLY if `lowBatteries[]` is non-empty. Do not say "all batteries OK" in the message.
 
    ⚠️ **Pool temperature is NOT currently available.** The API returns no `temp2f`; the old "Pool widget (2)" does not exist in the response. Sensor 1 reports humidity and dew point, so it is an AIR sensor, not a water probe — do NOT label it "Pool". Omit the pool line until a real pool probe is confirmed.
-8. **Format a friendly morning message** with the weather data
-9. **Send via iMessage** to $USER_PHONE using: `imsg send --to "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" --text "MESSAGE"`
+7. **Format a friendly morning message** with the weather data
+8. **Send via iMessage** to $USER_PHONE using: `imsg send --to "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" --text "MESSAGE"`
 
 ## Output Format
 
