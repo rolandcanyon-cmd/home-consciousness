@@ -7,7 +7,7 @@ metadata:
 
 # Morning Weather Report
 
-Fetch current weather and forecast from Tempest station, plus indoor temperature, air quality and battery status from the Ambient Weather REST API. Send a formatted morning greeting via iMessage.
+Fetch current weather and forecast from Tempest station, plus indoor temperature, pool temperature and battery status from the Ambient Weather REST API. Send a formatted morning greeting via iMessage.
 
 ## Steps
 
