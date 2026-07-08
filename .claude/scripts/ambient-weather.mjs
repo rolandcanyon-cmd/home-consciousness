@@ -92,8 +92,22 @@ try {
 }
 
 // Ambient does not expose the dashboard's custom sensor names via the API, so the
-// numbered-slot → real-world mapping is recorded here. Operator-confirmed.
-const SENSOR_LABELS = { temp1f: 'poolTempF', humidity1: 'poolHumidity' };
+// numbered-slot → real-world mapping is recorded here. Operator-confirmed 2026-07-08:
+//
+//   slot 1 (temp1f) = OUTDOOR air
+//   slot 2 (temp2f) = THE POOL   ← matches the dashboard's "Pool" widget labelled 2
+//
+// The pool sensor is currently OFFLINE, so slot 2 is absent from lastData. Never
+// report slot 1 as the pool: that would emit a fabricated pool temperature (69°F
+// outdoor air) every morning. When slot 2 is missing we say so explicitly.
+const SENSOR_LABELS = {
+  temp1f: 'outdoorTempF',
+  humidity1: 'outdoorHumidity',
+  feelsLike1: 'outdoorFeelsLikeF',
+  dewPoint1: 'outdoorDewPointF',
+  temp2f: 'poolTempF',
+  humidity2: 'poolHumidity',
+};
 
 // Devices whose readings are known-untrustworthy. Values are still surfaced (never
 // silently dropped) but marked suspect and excluded from alarms.
@@ -116,8 +130,9 @@ for (const d of devices) {
   if (ld.tempinf != null) dev.readings.indoorTempF = ld.tempinf;
   if (ld.humidityin != null) dev.readings.indoorHumidity = ld.humidityin;
   if (ld.feelsLikein != null) dev.readings.indoorFeelsLikeF = ld.feelsLikein;
-  if (ld.temp1f != null) dev.readings[SENSOR_LABELS.temp1f] = ld.temp1f;
-  if (ld.humidity1 != null) dev.readings[SENSOR_LABELS.humidity1] = ld.humidity1;
+  for (const [apiField, label] of Object.entries(SENSOR_LABELS)) {
+    if (ld[apiField] != null) dev.readings[label] = ld[apiField];
+  }
   if (ld.pm25 != null) dev.readings.pm25 = ld.pm25;
   if (ld.pm25_24h != null) dev.readings.pm25_24hAvg = ld.pm25_24h;
 
@@ -139,6 +154,13 @@ function pm25Category(v) {
   if (v <= 250.4) return 'Very Unhealthy';
   return 'Hazardous';
 }
+// The pool sensor (slot 2) drops out of lastData entirely when it is offline. Make
+// that an EXPLICIT fact rather than a silently-absent field, so a consumer says
+// "pool sensor offline" instead of quietly omitting the pool — or worse, reaching
+// for the outdoor sensor to fill the gap.
+out.poolTempF = out.devices.flatMap((d) => (d.readings.poolTempF != null ? [d.readings.poolTempF] : []))[0] ?? null;
+out.poolSensorOffline = out.poolTempF == null;
+
 // Only a TRUSTED device may set pm25Category — the field consumers alarm on.
 // A suspect station's value is still reported (as pm25Suspect) so the fault stays
 // visible, but it can never trigger an air-quality warning.
@@ -162,6 +184,11 @@ for (const d of out.devices) {
   console.log(`${d.name}${d.suspect ? '  [SUSPECT — readings not trusted]' : ''}  (last reading ${d.lastReading ?? 'n/a'})`);
   for (const [k, v] of Object.entries(d.readings)) console.log(`   ${k}: ${v}`);
 }
+console.log(
+  out.poolSensorOffline
+    ? '\n🏊 Pool: sensor OFFLINE — no reading (do NOT substitute the outdoor sensor)'
+    : `\n🏊 Pool: ${out.poolTempF}°F`,
+);
 if (out.pm25Category) {
   console.log(`\nPM2.5 air quality: ${pmDevice.readings.pm25} µg/m³ — ${out.pm25Category}`);
 } else if (out.pm25Suspect) {

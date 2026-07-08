@@ -7,7 +7,7 @@ metadata:
 
 # Morning Weather Report
 
-Fetch current weather and forecast from Tempest station, plus indoor temperature, pool temperature and battery status from the Ambient Weather REST API. Send a formatted morning greeting via iMessage.
+Fetch current weather and forecast from Tempest station, plus indoor/outdoor temperature, pool temperature and battery status from the Ambient Weather REST API. Send a formatted morning greeting via iMessage.
 
 ## Steps
 
@@ -32,19 +32,27 @@ Fetch current weather and forecast from Tempest station, plus indoor temperature
    ```
    The script reads `ambient_api_key` / `ambient_app_key` from the encrypted vault, retries the API's ~1-req/sec rate limit, and never prints credentials. It returns:
    - `devices[].readings.indoorTempF`, `.indoorHumidity`, `.indoorFeelsLikeF` — indoor console
-   - `devices[].readings.poolTempF`, `.poolHumidity` — the pool sensor (API calls this slot `temp1f`; Ambient does not return the dashboard's custom label, so the mapping lives in the script)
+   - `devices[].readings.outdoorTempF`, `.outdoorHumidity`, `.outdoorFeelsLikeF` — **outdoor air** (API slot `temp1f`)
+   - `devices[].readings.poolTempF` — **the pool** (API slot `temp2f`)
+   - top-level `poolTempF` and `poolSensorOffline` — see step 5
    - `lowBatteries[]` — only non-empty when a battery is actually LOW
-   - `pm25Category` — air-quality alarm field. **Currently always `null`**, see step 5.
+   - `pm25Category` — air-quality alarm field. **Currently always `null`**, see step 6.
+
+   Ambient does not return the dashboard's custom sensor labels, so the slot→name mapping lives in `SENSOR_LABELS` in the script.
 
    **NEVER** navigate to ambientweather.net/dashboard with Playwright. That path is permanently broken: the isolated browser profile has no saved login, and the macOS Passwords app is unreadable by any CLI. See `[[known-macos-passwords-app-unreadable]]`.
 
-5. **Air quality: do NOT report it.** The "Roland Canyon PM2.5" station is emitting bad data (operator-confirmed 2026-07-08 — it reads ~135 µg/m³ with a 24h average of ~157, which is implausible). The script marks that device `suspect: true`, leaves `pm25Category` null, and exposes the raw value as `pm25Suspect` so the fault stays visible rather than hidden.
+5. **Pool: the sensor is currently OFFLINE.** When `poolSensorOffline` is true there is no pool reading. Say so plainly ("pool sensor offline") or omit the line — but **never substitute the outdoor sensor.** Slot 1 is outdoor air (69°F today); reporting it as the pool would be a fabricated reading. When the sensor comes back, `poolTempF` populates and the line works automatically.
+
+6. **Air quality: do NOT report it.** The "Roland Canyon PM2.5" station is emitting bad data (operator-confirmed 2026-07-08 — ~135 µg/m³, 24h average ~157, implausible). The script marks that device `suspect: true`, leaves `pm25Category` null, and exposes the raw value as `pm25Suspect` so the fault stays visible rather than hidden.
 
    Report air quality **only** when `pm25Category` is non-null and not "Good". Once the sensor is repaired, remove that station from `SUSPECT_DEVICES` in the script and this becomes automatic.
 
-6. **Battery status**: mention ONLY if `lowBatteries[]` is non-empty. Do not say "all batteries OK" in the message. Entries tagged `(suspect device)` come from the faulty PM2.5 station — don't alarm on those.
-7. **Format a friendly morning message** with the weather data
-8. **Send via iMessage** to $USER_PHONE using: `imsg send --to "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" --text "MESSAGE"`
+7. **Battery status**: mention ONLY if `lowBatteries[]` is non-empty. Do not say "all batteries OK" in the message. Entries tagged `(suspect device)` come from the faulty PM2.5 station — don't alarm on those.
+
+   Note: the Ambient station also reports **outdoor** temp/humidity, so it can cross-check or stand in for Tempest if the Tempest page fails to load.
+8. **Format a friendly morning message** with the weather data
+9. **Send via iMessage** to $USER_PHONE using: `imsg send --to "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" --text "MESSAGE"`
 
 ## Output Format
 
@@ -59,7 +67,7 @@ Today's Forecast:
 High [High]° / Low [Low]°
 [Precipitation]% chance of rain
 
-🏊 Pool: [poolTempF]°
+[🏊 Pool: [poolTempF]°   ← ONLY when poolSensorOffline is false. NEVER use outdoorTempF here.]
 
 [😷 Air quality: PM2.5 [pm25] — [pm25Category]   ← ONLY when pm25Category is non-null and not "Good"]
 
@@ -68,7 +76,7 @@ High [High]° / Low [Low]°
 Good morning!
 ```
 
-Lines in `[brackets]` are conditional — omit the whole line when the condition isn't met. The air-quality line is currently **never** emitted, because the PM2.5 station is faulty and `pm25Category` is null (step 5).
+Lines in `[brackets]` are conditional — omit the whole line when the condition isn't met. Right now BOTH the pool line and the air-quality line are suppressed: the pool sensor is offline and the PM2.5 station is faulty. Never fill either gap with another sensor's reading.
 
 ## Notes
 
@@ -80,4 +88,4 @@ Lines in `[brackets]` are conditional — omit the whole line when the condition
 - If the Ambient script fails, send the report anyway with the Tempest data and say plainly which readings are missing — do not silently drop them
 - Data sources:
   - Tempest (browser): outdoor weather, forecast, wind, conditions
-  - Ambient Weather (REST API): indoor temp/humidity, pool temp, low-battery alerts. (PM2.5 station is faulty — air quality suppressed, see step 5.)
+  - Ambient Weather (REST API): indoor temp/humidity, OUTDOOR temp/humidity (slot 1), pool temp (slot 2, currently OFFLINE), low-battery alerts. (PM2.5 station is faulty — air quality suppressed.)
