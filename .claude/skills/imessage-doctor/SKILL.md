@@ -55,6 +55,35 @@ done
 tail -5 "$AGENT/.instar/logs/attachments-watcher.log"
 ```
 
+## Root cause #2 — STALE DUPLICATE `IMDPersistenceAgent` deadlocks the message store (2026-07-08)
+
+**Symptom:** Messages.app is open and signed in, the conversation shows then *clears*, and `chat.db` is **completely frozen** — the `-wal` is byte-for-byte identical (same size, same mtime) for tens of minutes. No new rows, not even for messages you SEND. Hardlinks are perfect, Roland's adapter is connected. It looks like iMessage is signed out; it isn't.
+
+**Cause:** a macOS **logout/login leaves orphaned `imagent` + `IMDPersistenceAgent` processes behind**. A stale `IMDPersistenceAgent` opens `chat.db` and holds it without writing, so the live agent can never persist. The WAL freeze timestamp matches the stale agent's start time *exactly* — that's the tell.
+
+**Diagnose:**
+```bash
+# duplicate daemons with DIFFERENT start times = the bug
+ps -o pid,lstart,comm -p $(pgrep -f "imagent|IMDPersistenceAgent" | tr '\n' ',' | sed 's/,$//')
+# who holds the frozen WAL?
+lsof ~/Library/Messages/chat.db-wal | grep IMDPers
+# WAL frozen? (same size+mtime across minutes = no writes at all)
+stat -f "%Sm %z" -t "%H:%M:%S" ~/Library/Messages/chat.db-wal
+```
+Compare the WAL's frozen mtime against the stale agent's `lstart`. If they match, that agent is the deadlock.
+
+**Fix:**
+```bash
+osascript -e 'tell application "Messages" to quit'; sleep 2
+pkill -9 -f "IMDPersistenceAgent"; pkill -9 -f "IMCore.framework/imagent"
+sleep 5; open -a Messages
+# verify: WAL size starts changing within ~20s, and new rows appear
+```
+
+**Important:** a **logout/login does NOT clear these orphans** (they can even survive `kill -9` from the new session — orphans from the logged-out session persist). Only a **real Mac reboot** guarantees a clean single set. Always check `sysctl -n kern.boottime` — a user saying "I restarted" often means they restarted Messages or logged out/in, not the machine.
+
+**NOT Instar:** verified by fully unloading the Roland server and removing every hardlink — the DB stayed frozen. Roland's read-write handle on chat.db is not the blocker.
+
 ## Fixes
 
 ### Fix A — relink now (immediate, needs an FDA shell)
@@ -102,5 +131,12 @@ sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" \
 - **`database disk image is malformed`** errors → transient WAL corruption; usually clears on the next adapter reconnect. Only act if it persists across restarts.
 - **Sending** happens via `imessage-reply.sh → imsg send` from the Claude session (AppleScript perms don't propagate through LaunchAgent), not through the daemon.
 
+## Triage order (do this first)
+
+1. **Is the Roland server even up?** `curl -s localhost:4040/health`. If it crash-loops with `[single-instance] lock held by FOREIGN host`, a stale `.instar/local/server-instance.lock` is the cause (it used to be git-tracked; now gitignored). Clear it if its pid is dead, restart.
+2. **Is `chat.db` FROZEN?** Compare `stat` on `chat.db-wal` twice, 30s apart. Frozen (identical size+mtime) + no new rows ⇒ **Root cause #2** (stale `IMDPersistenceAgent`) — Messages isn't writing at all; nothing to do with hardlinks.
+3. **Is `chat.db` moving but Roland sees stale data?** ⇒ the **-wal hardlink is stale** (Root cause #1) ⇒ Fix A / the Go watcher.
+4. Watcher log says `operation not permitted` ⇒ re-grant Full Disk Access (Fix C).
+
 ## One-line summary
-iMessage stopped after a reboot ⇒ the chat.db **-wal hardlink went stale** ⇒ run Fix A (or let the robust Go watcher self-heal) ⇒ if the watcher log says `operation not permitted`, re-grant Full Disk Access (Fix C).
+iMessage silent ⇒ first check the server is up, then check whether `chat.db` is **frozen** (⇒ stale `IMDPersistenceAgent`, kill the daemons — root cause #2) or **moving but unseen** (⇒ stale `-wal` hardlink, Fix A / Go watcher — root cause #1).
