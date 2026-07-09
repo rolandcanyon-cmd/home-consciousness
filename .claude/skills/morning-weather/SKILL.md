@@ -42,7 +42,7 @@ Fetch current weather and forecast from Tempest station, plus indoor/outdoor tem
 
    **NEVER** navigate to ambientweather.net/dashboard with Playwright. That path is permanently broken: the isolated browser profile has no saved login, and the macOS Passwords app is unreadable by any CLI. See `[[known-macos-passwords-app-unreadable]]`.
 
-5. **Pool: the sensor is currently OFFLINE.** When `poolSensorOffline` is true there is no pool reading. Say so plainly ("pool sensor offline") or omit the line — but **never substitute the outdoor sensor.** Slot 1 is outdoor air (69°F today); reporting it as the pool would be a fabricated reading. When the sensor comes back, `poolTempF` populates and the line works automatically.
+5. **Pool: report it only when `poolSensorOffline` is false.** When the sensor's battery dies, slot 2 vanishes from the API entirely and `poolSensorOffline` goes true — then say so plainly ("pool sensor offline") or omit the line. **Never substitute the outdoor sensor.** Slot 1 is outdoor air; reporting it as the pool would be a fabricated reading. (Sanity check: the pool probe reports temperature only. If a temp reading carries humidity, it is NOT the pool.)
 
 6. **Air quality: do NOT report it.** The "Roland Canyon PM2.5" station is emitting bad data (operator-confirmed 2026-07-08 — ~135 µg/m³, 24h average ~157, implausible). The script marks that device `suspect: true`, leaves `pm25Category` null, and exposes the raw value as `pm25Suspect` so the fault stays visible rather than hidden.
 
@@ -76,7 +76,7 @@ High [High]° / Low [Low]°
 Good morning!
 ```
 
-Lines in `[brackets]` are conditional — omit the whole line when the condition isn't met. Right now BOTH the pool line and the air-quality line are suppressed: the pool sensor is offline and the PM2.5 station is faulty. Never fill either gap with another sensor's reading.
+Lines in `[brackets]` are conditional — omit the whole line when the condition isn't met. The air-quality line is currently always suppressed (faulty PM2.5 station). The pool line appears whenever `poolSensorOffline` is false. Never fill either gap with another sensor's reading.
 
 ## Notes
 
@@ -88,4 +88,4 @@ Lines in `[brackets]` are conditional — omit the whole line when the condition
 - If the Ambient script fails, send the report anyway with the Tempest data and say plainly which readings are missing — do not silently drop them
 - Data sources:
   - Tempest (browser): outdoor weather, forecast, wind, conditions
-  - Ambient Weather (REST API): indoor temp/humidity, OUTDOOR temp/humidity (slot 1), pool temp (slot 2, currently OFFLINE), low-battery alerts. (PM2.5 station is faulty — air quality suppressed.)
+  - Ambient Weather (REST API): indoor temp/humidity, OUTDOOR temp/humidity (slot 1), pool temp (slot 2 — absent when its battery dies), low-battery alerts. (PM2.5 station is faulty — air quality suppressed.)
