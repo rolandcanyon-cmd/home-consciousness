@@ -112,7 +112,10 @@ const SENSOR_LABELS = {
 // Devices whose readings are known-untrustworthy. Values are still surfaced (never
 // silently dropped) but marked suspect and excluded from alarms.
 const SUSPECT_DEVICES = new Map([
-  ['Roland Canyon PM2.5', 'operator reports this station emits bad data (2026-07-08)'],
+  [
+    'Roland Canyon PM2.5',
+    'faulty: reads ~11x the regional reference. 2026-07-08 evening it read 914 then 75 ug/m3 after the operator cleaned the fan/intake, while Open-Meteo for these coords reported 6.6 (24h range 4.2-6.6, AQI 30 Good). Cleaning helped but the laser module has lost calibration. Re-validate against a reference before removing.',
+  ],
 ]);
 
 const out = { fetchedAt: new Date().toISOString(), devices: [], lowBatteries: [] };
