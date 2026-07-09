@@ -130,6 +130,8 @@ for (const d of devices) {
   const name = d?.info?.name ?? '(unnamed)';
   const suspectReason = SUSPECT_DEVICES.get(name);
   const dev = { name, lastReading: ld.date ?? null, readings: {} };
+  const c = d?.info?.coords?.coords;
+  if (c?.lat != null && c?.lon != null) dev.coords = { lat: c.lat, lon: c.lon };
   if (suspectReason) {
     dev.suspect = true;
     dev.suspectReason = suspectReason;
@@ -152,6 +154,33 @@ for (const d of devices) {
   out.devices.push(dev);
 }
 
+// --- Independent drift check -------------------------------------------------
+// A particle sensor does not fail loudly: it drifts and keeps reporting confident
+// nonsense (the 2026-07-08 Ambient PM2.5 read 914 while the real air was 6.6).
+// Nothing on the device knows. So before ANY pm2.5 value is allowed to raise an
+// alarm, compare it against a regional reference for the station's own coords.
+//
+// Fails OPEN: if the reference is unreachable we do not block the reading, we just
+// record that it could not be corroborated. A missing check must never masquerade
+// as a passed check.
+const DRIFT_RATIO_THRESHOLD = 3; // sensor >3x the reference ⇒ treat as drifted
+
+async function fetchReferencePm25(lat, lon) {
+  if (lat == null || lon == null) return null;
+  const url =
+    `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}` +
+    `&current=pm2_5,us_aqi&timezone=UTC`;
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) return null;
+    const j = await res.json();
+    const v = j?.current?.pm2_5;
+    return typeof v === 'number' ? { pm25: v, usAqi: j?.current?.us_aqi ?? null } : null;
+  } catch {
+    return null; // fail open
+  }
+}
+
 // PM2.5 → EPA AQI category (breakpoints, µg/m³)
 function pm25Category(v) {
   if (v == null) return null;
@@ -169,17 +198,39 @@ function pm25Category(v) {
 out.poolTempF = out.devices.flatMap((d) => (d.readings.poolTempF != null ? [d.readings.poolTempF] : []))[0] ?? null;
 out.poolSensorOffline = out.poolTempF == null;
 
-// Only a TRUSTED device may set pm25Category — the field consumers alarm on.
-// A suspect station's value is still reported (as pm25Suspect) so the fault stays
-// visible, but it can never trigger an air-quality warning.
+// Only a TRUSTED, CORROBORATED device may set pm25Category — the field consumers
+// alarm on. A suspect or drifted station's value is still reported (as pm25Suspect)
+// so the fault stays visible, but it can never trigger an air-quality warning.
 const pmDevice = out.devices.find((d) => d.readings.pm25 != null);
 if (pmDevice) {
   const pm = pmDevice.readings.pm25;
+
   if (pmDevice.suspect) {
     out.pm25Suspect = { value: pm, reason: pmDevice.suspectReason };
     out.pm25Category = null;
   } else {
-    out.pm25Category = pm25Category(pm);
+    // Not on the manual suspect list — corroborate against a regional reference
+    // before trusting it. This catches silent drift on ANY sensor, present or future.
+    const ref = await fetchReferencePm25(pmDevice.coords?.lat, pmDevice.coords?.lon);
+    if (!ref) {
+      out.pm25Reference = null;
+      out.pm25ReferenceUnavailable = true;
+      out.pm25Category = pm25Category(pm); // fail open: never let a missing check block a good sensor
+    } else {
+      out.pm25Reference = ref;
+      const ratio = ref.pm25 > 0 ? pm / ref.pm25 : null;
+      out.pm25DriftRatio = ratio == null ? null : Number(ratio.toFixed(1));
+      if (ratio != null && ratio > DRIFT_RATIO_THRESHOLD && pm > 20) {
+        out.pm25DriftSuspected = true;
+        out.pm25Suspect = {
+          value: pm,
+          reason: `reads ${ratio.toFixed(1)}x the regional reference (${ref.pm25} µg/m³) — sensor drift suspected`,
+        };
+        out.pm25Category = null;
+      } else {
+        out.pm25Category = pm25Category(pm);
+      }
+    }
   }
 }
 
@@ -198,7 +249,8 @@ console.log(
     : `\n🏊 Pool: ${out.poolTempF}°F`,
 );
 if (out.pm25Category) {
-  console.log(`\nPM2.5 air quality: ${pmDevice.readings.pm25} µg/m³ — ${out.pm25Category}`);
+  const ref = out.pm25Reference ? ` (reference ${out.pm25Reference.pm25} µg/m³ — corroborated)` : ' (reference unavailable — uncorroborated)';
+  console.log(`\nPM2.5 air quality: ${pmDevice.readings.pm25} µg/m³ — ${out.pm25Category}${ref}`);
 } else if (out.pm25Suspect) {
   console.log(`\nPM2.5: ${out.pm25Suspect.value} µg/m³ — NOT REPORTED as air quality (${out.pm25Suspect.reason})`);
 }
