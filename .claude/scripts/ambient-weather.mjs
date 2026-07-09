@@ -16,19 +16,24 @@
  *
  * Exit codes: 0 ok · 1 auth/network/vault failure
  *
- * Field notes (verified live 2026-07-08):
+ * Field notes (verified live 2026-07-08, operator-confirmed):
  *   tempinf / humidityin / feelsLikein  — INDOOR (console unit)
- *   temp1f  / humidity1  / feelsLike1   — remote sensor 1 = THE POOL (operator-
- *       confirmed). Ambient's custom sensor LABELS (what the dashboard shows as
- *       "Pool") are not returned by the API, so the mapping lives in SENSOR_LABELS
- *       below. There is no temp2f / dedicated pool field.
+ *   temp1f  / humidity1  / feelsLike1   — slot 1 = OUTDOOR air
+ *   temp2f                              — slot 2 = THE POOL (water probe: temperature
+ *       only, no humidity). Absent from lastData entirely when its battery dies.
  *   pm25 / pm25_24h                     — PM2.5 air quality device
  *   batt* / battout                     — 1 = OK, 0 = LOW
  *
- * SUSPECT_DEVICES: the operator reported the PM2.5 station emits bad data
- * (2026-07-08: pm25 135, 24h avg 157 — implausible). Its readings are still
- * returned, but marked `suspect: true` and NEVER used to raise an air-quality
- * alarm. Remove it from the set once the sensor is repaired/validated.
+ * Ambient's custom sensor LABELS (what the dashboard shows as "Pool") are NOT
+ * returned by the API, so the slot→name mapping lives in SENSOR_LABELS below.
+ * NEVER report slot 1 as the pool to fill a gap — that emits outdoor air as a
+ * fabricated pool temperature. Sanity check: a temp reading carrying humidity is
+ * an AIR sensor, never the pool.
+ *
+ * SUSPECT_DEVICES: devices whose readings are not trustworthy. Their values are
+ * still surfaced (as `pm25Suspect`) so the fault stays visible, but they can never
+ * populate the alarm field (`pm25Category`). Remove an entry only after validating
+ * against an independent reference — see the recorded evidence in the map.
  */
 
 import * as path from 'node:path';
@@ -97,9 +102,9 @@ try {
 //   slot 1 (temp1f) = OUTDOOR air
 //   slot 2 (temp2f) = THE POOL   ← matches the dashboard's "Pool" widget labelled 2
 //
-// The pool sensor is currently OFFLINE, so slot 2 is absent from lastData. Never
-// report slot 1 as the pool: that would emit a fabricated pool temperature (69°F
-// outdoor air) every morning. When slot 2 is missing we say so explicitly.
+// When the pool probe's battery dies, slot 2 vanishes from lastData entirely. Never
+// report slot 1 as the pool to fill that gap: it would emit outdoor air as a
+// fabricated pool temperature. When slot 2 is missing we say so explicitly.
 const SENSOR_LABELS = {
   temp1f: 'outdoorTempF',
   humidity1: 'outdoorHumidity',
