@@ -101,3 +101,6 @@ commitment-detection-bookmark.json
 .instar/local/server-instance.lock
 .instar/local/*.lock
 .instar/state/*.lock
+
+# Judgment-call provenance rows (machine-local decision context — never commit)
+state/judgment-provenance/
