@@ -182,13 +182,14 @@ const DRIFT_RATIO_THRESHOLD = 3; // sensor >3x the reference ⇒ treat as drifte
 // regional reference (11.4 µg/m³) closely, i.e. trusted, not drifted.
 //
 // Latency quirk (observed 2026-07-13): the FIRST request after the device has been
-// idle takes ~8.5s to answer (it builds the JSON on demand); back-to-back requests
-// answer in well under 100ms. A short timeout here would misreport a slow-but-alive
-// sensor as unreachable, so this uses a generous 15s ceiling.
+// idle usually takes ~8.5s to answer (it builds the JSON on demand), but has been seen
+// to exceed even a 15s ceiling once (a real morning-job run timed out on attempt 1,
+// then answered normally on immediate retry). So this retries once on any failure
+// before giving up — a device that's merely slow to wake shouldn't read as unreachable.
 const PURPLEAIR_HOST = '10.0.0.140';
 const CHANNEL_DISAGREEMENT_RATIO = 2; // A vs B beyond this ⇒ one laser channel is failing
 
-async function fetchPurpleAirLocal() {
+async function fetchPurpleAirLocalOnce() {
   try {
     const res = await fetch(`http://${PURPLEAIR_HOST}/json`, { signal: AbortSignal.timeout(15000) });
     if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
@@ -212,6 +213,12 @@ async function fetchPurpleAirLocal() {
   } catch (e) {
     return { ok: false, error: scrub(e.message ?? e.name ?? 'request failed').slice(0, 160) };
   }
+}
+
+async function fetchPurpleAirLocal() {
+  const first = await fetchPurpleAirLocalOnce();
+  if (first.ok) return first;
+  return fetchPurpleAirLocalOnce();
 }
 
 async function fetchReferencePm25(lat, lon) {
