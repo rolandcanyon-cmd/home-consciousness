@@ -1,0 +1,13 @@
+{
+  "lastWeeklyLevel": "warning",
+  "lastFiveHourLevel": null,
+  "notifications": [
+    {
+      "type": "weekly",
+      "level": "warning",
+      "percentUsed": 75,
+      "timestamp": "2026-07-14T13:03:35.684Z"
+    }
+  ],
+  "lastNotifiedAt": "2026-07-14T13:03:35.684Z"
+}
