@@ -30,10 +30,16 @@
  * fabricated pool temperature. Sanity check: a temp reading carrying humidity is
  * an AIR sensor, never the pool.
  *
- * SUSPECT_DEVICES: devices whose readings are not trustworthy. Their values are
- * still surfaced (as `pm25Suspect`) so the fault stays visible, but they can never
- * populate the alarm field (`pm25Category`). Remove an entry only after validating
- * against an independent reference — see the recorded evidence in the map.
+ * SUSPECT_DEVICES: devices whose readings are not trustworthy. Their raw values are
+ * still surfaced (labelled suspect) for historical visibility, but they never feed
+ * `pm25Category` — see PM2.5 SOURCE below.
+ *
+ * PM2.5 SOURCE (CMT-009, 2026-07-13): the "Roland Canyon PM2.5" Ambient station
+ * drifted/failed (read 914 µg/m³ against a real ~6.6) and was dropped as an
+ * air-quality source entirely. It is replaced by a PurpleAir Flex, read directly
+ * off its own LAN JSON endpoint (no cloud dependency — see fetchPurpleAirLocal
+ * below), with its dual laser channels (A/B) cross-checked against each other
+ * before the regional-reference drift check is applied.
  */
 
 import * as path from 'node:path';
@@ -165,6 +171,49 @@ for (const d of devices) {
 // as a passed check.
 const DRIFT_RATIO_THRESHOLD = 3; // sensor >3x the reference ⇒ treat as drifted
 
+// --- PurpleAir Flex — the PM2.5 source (CMT-009) -----------------------------
+// Read locally (http://<ip>/json), no API key, no cloud round-trip. Discovered via
+// UniFi (`python3 .claude/scripts/unifi_probe.py find purple`) as "PurpleAir-88c4"
+// (mac f0:24:f9:c6:88:c4) on the "Pool House Kitchen" AP. The IP is DHCP-assigned —
+// re-run that lookup if this host stops answering.
+//
+// Verified live 2026-07-13: channel A (pm2_5_atm) 8.79 vs channel B (pm2_5_atm_b)
+// 8.40 µg/m³ — agree within ~5%, no failing laser module. Both track the Open-Meteo
+// regional reference (11.4 µg/m³) closely, i.e. trusted, not drifted.
+//
+// Latency quirk (observed 2026-07-13): the FIRST request after the device has been
+// idle takes ~8.5s to answer (it builds the JSON on demand); back-to-back requests
+// answer in well under 100ms. A short timeout here would misreport a slow-but-alive
+// sensor as unreachable, so this uses a generous 15s ceiling.
+const PURPLEAIR_HOST = '10.0.0.140';
+const CHANNEL_DISAGREEMENT_RATIO = 2; // A vs B beyond this ⇒ one laser channel is failing
+
+async function fetchPurpleAirLocal() {
+  try {
+    const res = await fetch(`http://${PURPLEAIR_HOST}/json`, { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
+    const j = await res.json();
+    const a = j.pm2_5_atm;
+    const b = j.pm2_5_atm_b;
+    if (typeof a !== 'number' || typeof b !== 'number') {
+      return { ok: false, error: 'response missing pm2_5_atm/pm2_5_atm_b fields' };
+    }
+    const lo = Math.min(a, b);
+    const hi = Math.max(a, b);
+    const channelsDisagree = lo > 0 ? hi / lo > CHANNEL_DISAGREEMENT_RATIO : hi > 5;
+    return {
+      ok: true,
+      channelA: a,
+      channelB: b,
+      pm25: Number(((a + b) / 2).toFixed(1)),
+      channelsDisagree,
+      coords: j.lat != null && j.lon != null ? { lat: j.lat, lon: j.lon } : null,
+    };
+  } catch (e) {
+    return { ok: false, error: scrub(e.message ?? e.name ?? 'request failed').slice(0, 160) };
+  }
+}
+
 async function fetchReferencePm25(lat, lon) {
   if (lat == null || lon == null) return null;
   const url =
@@ -198,37 +247,49 @@ function pm25Category(v) {
 out.poolTempF = out.devices.flatMap((d) => (d.readings.poolTempF != null ? [d.readings.poolTempF] : []))[0] ?? null;
 out.poolSensorOffline = out.poolTempF == null;
 
-// Only a TRUSTED, CORROBORATED device may set pm25Category — the field consumers
-// alarm on. A suspect or drifted station's value is still reported (as pm25Suspect)
+// Only a TRUSTED, CORROBORATED reading may set pm25Category — the field consumers
+// alarm on. A suspect or drifted sensor's value is still reported (as pm25Suspect)
 // so the fault stays visible, but it can never trigger an air-quality warning.
-const pmDevice = out.devices.find((d) => d.readings.pm25 != null);
-if (pmDevice) {
-  const pm = pmDevice.readings.pm25;
+//
+// PM2.5 source is the PurpleAir Flex (CMT-009), not the Ambient station — see the
+// header comment. The Ambient "Roland Canyon PM2.5" device's raw value is still
+// visible in `devices[].readings.pm25` (flagged suspect) purely for history; it
+// never reaches pm25Category.
+const pa = await fetchPurpleAirLocal();
+if (!pa.ok) {
+  out.pm25Unavailable = pa.error;
+} else {
+  out.pm25 = pa.pm25;
+  out.pm25ChannelA = pa.channelA;
+  out.pm25ChannelB = pa.channelB;
 
-  if (pmDevice.suspect) {
-    out.pm25Suspect = { value: pm, reason: pmDevice.suspectReason };
+  if (pa.channelsDisagree) {
+    out.pm25Suspect = {
+      value: pa.pm25,
+      reason: `PurpleAir Flex laser channels disagree (A=${pa.channelA} B=${pa.channelB} µg/m³) — one channel may be failing`,
+    };
     out.pm25Category = null;
   } else {
-    // Not on the manual suspect list — corroborate against a regional reference
-    // before trusting it. This catches silent drift on ANY sensor, present or future.
-    const ref = await fetchReferencePm25(pmDevice.coords?.lat, pmDevice.coords?.lon);
+    // Corroborate against a regional reference before trusting it. This catches
+    // silent drift on ANY sensor, present or future — not just a manually flagged one.
+    const ref = await fetchReferencePm25(pa.coords?.lat, pa.coords?.lon);
     if (!ref) {
       out.pm25Reference = null;
       out.pm25ReferenceUnavailable = true;
-      out.pm25Category = pm25Category(pm); // fail open: never let a missing check block a good sensor
+      out.pm25Category = pm25Category(pa.pm25); // fail open: never let a missing check block a good sensor
     } else {
       out.pm25Reference = ref;
-      const ratio = ref.pm25 > 0 ? pm / ref.pm25 : null;
+      const ratio = ref.pm25 > 0 ? pa.pm25 / ref.pm25 : null;
       out.pm25DriftRatio = ratio == null ? null : Number(ratio.toFixed(1));
-      if (ratio != null && ratio > DRIFT_RATIO_THRESHOLD && pm > 20) {
+      if (ratio != null && ratio > DRIFT_RATIO_THRESHOLD && pa.pm25 > 20) {
         out.pm25DriftSuspected = true;
         out.pm25Suspect = {
-          value: pm,
+          value: pa.pm25,
           reason: `reads ${ratio.toFixed(1)}x the regional reference (${ref.pm25} µg/m³) — sensor drift suspected`,
         };
         out.pm25Category = null;
       } else {
-        out.pm25Category = pm25Category(pm);
+        out.pm25Category = pm25Category(pa.pm25);
       }
     }
   }
@@ -250,8 +311,10 @@ console.log(
 );
 if (out.pm25Category) {
   const ref = out.pm25Reference ? ` (reference ${out.pm25Reference.pm25} µg/m³ — corroborated)` : ' (reference unavailable — uncorroborated)';
-  console.log(`\nPM2.5 air quality: ${pmDevice.readings.pm25} µg/m³ — ${out.pm25Category}${ref}`);
+  console.log(`\nPM2.5 air quality (PurpleAir Flex): ${out.pm25} µg/m³ — ${out.pm25Category}${ref}`);
 } else if (out.pm25Suspect) {
   console.log(`\nPM2.5: ${out.pm25Suspect.value} µg/m³ — NOT REPORTED as air quality (${out.pm25Suspect.reason})`);
+} else if (out.pm25Unavailable) {
+  console.log(`\nPM2.5: PurpleAir Flex unreachable (${out.pm25Unavailable})`);
 }
 console.log(out.lowBatteries.length ? `\n⚠️  LOW batteries: ${out.lowBatteries.join(', ')}` : '\nAll batteries OK');

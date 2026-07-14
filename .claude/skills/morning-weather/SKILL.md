@@ -36,7 +36,7 @@ Fetch current weather and forecast from Tempest station, plus indoor/outdoor tem
    - `devices[].readings.poolTempF` — **the pool** (API slot `temp2f`)
    - top-level `poolTempF` and `poolSensorOffline` — see step 5
    - `lowBatteries[]` — only non-empty when a battery is actually LOW
-   - `pm25Category` — air-quality alarm field. **Currently always `null`**, see step 6.
+   - `pm25Category` — air-quality alarm field, sourced from the PurpleAir Flex (not the Ambient station), see step 6.
 
    Ambient does not return the dashboard's custom sensor labels, so the slot→name mapping lives in `SENSOR_LABELS` in the script.
 
@@ -44,9 +44,9 @@ Fetch current weather and forecast from Tempest station, plus indoor/outdoor tem
 
 5. **Pool: report it only when `poolSensorOffline` is false.** When the sensor's battery dies, slot 2 vanishes from the API entirely and `poolSensorOffline` goes true — then say so plainly ("pool sensor offline") or omit the line. **Never substitute the outdoor sensor.** Slot 1 is outdoor air; reporting it as the pool would be a fabricated reading. (Sanity check: the pool probe reports temperature only. If a temp reading carries humidity, it is NOT the pool.)
 
-6. **Air quality: do NOT report it.** The "Roland Canyon PM2.5" station is emitting bad data (operator-confirmed 2026-07-08 — ~135 µg/m³, 24h average ~157, implausible). The script marks that device `suspect: true`, leaves `pm25Category` null, and exposes the raw value as `pm25Suspect` so the fault stays visible rather than hidden.
+6. **Air quality: report it now.** The old "Roland Canyon PM2.5" Ambient station was drifted/faulty (operator-confirmed 2026-07-08) and was dropped as an air-quality source entirely (CMT-009, 2026-07-13). It has been replaced by a PurpleAir Flex, read directly off its own LAN JSON endpoint — no cloud dependency. `ambient-weather.mjs` cross-checks its two laser channels (A/B) against each other, then corroborates against a regional reference (Open-Meteo) before setting `pm25Category`.
 
-   Report air quality **only** when `pm25Category` is non-null and not "Good". Once the sensor is repaired, remove that station from `SUSPECT_DEVICES` in the script and this becomes automatic.
+   Report air quality **only** when `pm25Category` is non-null and not "Good" (this convention is unchanged — the source moved, the reporting rule didn't). If `pm25Suspect` is present instead (channel disagreement or drift detected), or `pm25Unavailable` is present (PurpleAir Flex unreachable), do NOT report an air-quality line — the fault is visible in the JSON but stays out of the user-facing message.
 
 7. **Battery status**: mention ONLY if `lowBatteries[]` is non-empty. Do not say "all batteries OK" in the message. Entries tagged `(suspect device)` come from the faulty PM2.5 station — don't alarm on those.
 
@@ -76,7 +76,7 @@ High [High]° / Low [Low]°
 Good morning!
 ```
 
-Lines in `[brackets]` are conditional — omit the whole line when the condition isn't met. The air-quality line is currently always suppressed (faulty PM2.5 station). The pool line appears whenever `poolSensorOffline` is false. Never fill either gap with another sensor's reading.
+Lines in `[brackets]` are conditional — omit the whole line when the condition isn't met. The air-quality line now appears whenever `pm25Category` is non-null and not "Good" (PurpleAir Flex is the trusted source as of 2026-07-13). The pool line appears whenever `poolSensorOffline` is false. Never fill either gap with another sensor's reading.
 
 ## Notes
 
@@ -88,4 +88,5 @@ Lines in `[brackets]` are conditional — omit the whole line when the condition
 - If the Ambient script fails, send the report anyway with the Tempest data and say plainly which readings are missing — do not silently drop them
 - Data sources:
   - Tempest (browser): outdoor weather, forecast, wind, conditions
-  - Ambient Weather (REST API): indoor temp/humidity, OUTDOOR temp/humidity (slot 1), pool temp (slot 2 — absent when its battery dies), low-battery alerts. (PM2.5 station is faulty — air quality suppressed.)
+  - Ambient Weather (REST API): indoor temp/humidity, OUTDOOR temp/humidity (slot 1), pool temp (slot 2 — absent when its battery dies), low-battery alerts.
+  - PurpleAir Flex (local LAN JSON, read inside `ambient-weather.mjs`): PM2.5 air quality — replaced the faulty Ambient PM2.5 station (CMT-009, 2026-07-13).
