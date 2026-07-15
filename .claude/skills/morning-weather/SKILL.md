@@ -44,9 +44,9 @@ Fetch current weather and forecast from Tempest station, plus indoor/outdoor tem
 
 5. **Pool: report it only when `poolSensorOffline` is false.** When the sensor's battery dies, slot 2 vanishes from the API entirely and `poolSensorOffline` goes true — then say so plainly ("pool sensor offline") or omit the line. **Never substitute the outdoor sensor.** Slot 1 is outdoor air; reporting it as the pool would be a fabricated reading. (Sanity check: the pool probe reports temperature only. If a temp reading carries humidity, it is NOT the pool.)
 
-6. **Air quality: report it now.** The old "Roland Canyon PM2.5" Ambient station was drifted/faulty (operator-confirmed 2026-07-08) and was dropped as an air-quality source entirely (CMT-009, 2026-07-13). It has been replaced by a PurpleAir Flex, read directly off its own LAN JSON endpoint — no cloud dependency. `ambient-weather.mjs` cross-checks its two laser channels (A/B) against each other, then corroborates against a regional reference (Open-Meteo) before setting `pm25Category`.
+6. **Air quality: report it every day, not just when it's bad.** The old "Roland Canyon PM2.5" Ambient station was drifted/faulty (operator-confirmed 2026-07-08) and was dropped as an air-quality source entirely (CMT-009, 2026-07-13). It has been replaced by a PurpleAir Flex, read directly off its own LAN JSON endpoint — no cloud dependency. `ambient-weather.mjs` cross-checks its two laser channels (A/B) against each other, then corroborates against a regional reference (Open-Meteo) before setting `pm25Category`.
 
-   Report air quality **only** when `pm25Category` is non-null and not "Good" (this convention is unchanged — the source moved, the reporting rule didn't). If `pm25Suspect` is present instead (channel disagreement or drift detected), or `pm25Unavailable` is present (PurpleAir Flex unreachable), do NOT report an air-quality line — the fault is visible in the JSON but stays out of the user-facing message.
+   **Report air quality whenever `pm25Category` is non-null** — Good included (as of 2026-07-15, operator asked to see it as a standing line, not just when it's bad). If `pm25Suspect` is present instead (channel disagreement or drift detected), or `pm25Unavailable` is present (PurpleAir Flex unreachable), do NOT report an air-quality line — the fault is visible in the JSON but stays out of the user-facing message.
 
 7. **Battery status**: mention ONLY if `lowBatteries[]` is non-empty. Do not say "all batteries OK" in the message. Entries tagged `(suspect device)` come from the faulty PM2.5 station — don't alarm on those.
 
@@ -69,14 +69,16 @@ High [High]° / Low [Low]°
 
 [🏊 Pool: [poolTempF]°   ← ONLY when poolSensorOffline is false. NEVER use outdoorTempF here.]
 
-[😷 Air quality: PM2.5 [pm25] — [pm25Category]   ← ONLY when pm25Category is non-null and not "Good"]
+😷 Air quality: PM2.5 [pm25] — [pm25Category]   ← ALWAYS when pm25Category is non-null (Good included, as of 2026-07-15); omit only on pm25Suspect/pm25Unavailable
 
 [⚠️ Low battery: [lowBatteries]   ← ONLY when lowBatteries is non-empty]
 
 Good morning!
 ```
 
-Lines in `[brackets]` are conditional — omit the whole line when the condition isn't met. The air-quality line now appears whenever `pm25Category` is non-null and not "Good" (PurpleAir Flex is the trusted source as of 2026-07-13). The pool line appears whenever `poolSensorOffline` is false. Never fill either gap with another sensor's reading.
+Lines in `[brackets]` are conditional — omit the whole line when the condition isn't met. The air-quality line now appears every day whenever `pm25Category` is non-null, including "Good" (operator request 2026-07-15; PurpleAir Flex is the trusted source as of 2026-07-13). The pool line appears whenever `poolSensorOffline` is false. Never fill either gap with another sensor's reading.
+
+If `indoorTempF` is missing from the Ambient reading, say so plainly (e.g. "70% humidity (temp reading unavailable this cycle)") rather than fabricating or silently dropping the line — this has been happening since 2026-07-12 (indoor humidity keeps reporting, indoor temp does not); see `[[known-ambient-indoor-temp-sensor-dropout]]`.
 
 ## Notes
 
