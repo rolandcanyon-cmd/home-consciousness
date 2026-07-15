@@ -1,0 +1,1 @@
+{"id":"68cee4f5ae69","t":"2026-07-15T10:16:29.777Z","emittedBy":{"subsystem":"threadline","instance":"Roland"},"kind":"thread-opened","subject":"Relay message","counterparty":{"type":"agent","name":"1589f8b6129955678c9a0ba71b1ae2b2","trustTier":"untrusted"},"provenance":"subsystem-asserted","dedupKey":"threadline:thread-opened:neighbor-call-20260715-070a9b57"}
