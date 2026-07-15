@@ -168,7 +168,7 @@ git push fork main --force-with-lease --no-verify
 ```
 
 ### 10. Monitor fork CI after push
-After pushing, wait for GitHub Actions to complete on the fork. Check both the `CI` workflow and the `Publish to npm` workflow:
+After pushing, wait for GitHub Actions to complete on the fork (checks whichever workflows actually run — as of 2026-07-13 that's `CI`, `Docs Coverage Weekly Audit`, and `worktree-trailer-sig-check`; the rest are disabled, see "Our customizations" below):
 
 ```bash
 # Wait up to 15 minutes for CI runs triggered by the push to complete
@@ -211,28 +211,7 @@ for r in runs:
         print(result.stdout[-3000:] if len(result.stdout) > 3000 else result.stdout)
 " 2>&1
       
-      # Attempt to fix the specific known failure: RELEASE_TOKEN → github.token fallback
-      # Check if it's the Publish to npm workflow failing on token
-      PUBLISH_FAIL=$(echo "$RUNS" | python3 -c "import json,sys; runs=json.load(sys.stdin); print('yes' if any(r['name']=='Publish to npm' and r['conclusion']=='failure' for r in runs) else 'no')")
-      
-      if [ "$PUBLISH_FAIL" = "yes" ]; then
-        echo "Publish to npm failed — checking if publish.yml has the github.token fallback..."
-        if grep -q 'RELEASE_TOKEN || github.token' .github/workflows/publish.yml; then
-          echo "Fallback already in place. Check NPM_TOKEN secret and re-run."
-          # Re-trigger the failed publish run
-          PUBLISH_RUN_ID=$(echo "$RUNS" | python3 -c "import json,sys; runs=json.load(sys.stdin); r=[x for x in runs if x['name']=='Publish to npm'][0]; print(r['databaseId'])")
-          gh run rerun "$PUBLISH_RUN_ID" --repo "$FORK_REPO" --failed 2>&1 && echo "Re-triggered Publish to npm run"
-        else
-          echo "Applying github.token fallback to publish.yml..."
-          sed -i 's/token: \${{ secrets.RELEASE_TOKEN }}/token: ${{ secrets.RELEASE_TOKEN || github.token }}/' .github/workflows/publish.yml
-          git add .github/workflows/publish.yml
-          git commit -m "fix(ci): fall back to github.token when RELEASE_TOKEN secret is unset [skip ci]"
-          git push fork main --force-with-lease --no-verify
-          echo "Fix pushed — CI will re-run automatically"
-        fi
-      fi
-      
-      # Report the CI failure regardless
+      # Report the CI failure
       FAIL_SUMMARY=$(echo "$RUNS" | python3 -c "import json,sys; runs=json.load(sys.stdin); print(', '.join(f\"{r['name']}\" for r in runs if r['conclusion'] not in ('success','skipped','')))")
       # (report handled in Reporting section below)
       CI_STATUS="failed: $FAIL_SUMMARY"
