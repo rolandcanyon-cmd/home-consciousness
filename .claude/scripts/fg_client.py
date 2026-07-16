@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """
-fg_client.py — Synchronous FunkyGibbon client backed by blowing-off.
+fg_client.py — Synchronous FunkyGibbon client using the server's REST API
+directly (http://<server>/api/v1/graph/...).
 
 This is the canonical Python client for FunkyGibbon. All Python scripts that
 talk to FunkyGibbon should import FGClient from here.
 
-Architecture:
-  - blowing-off maintains a local SQLite cache at .instar/state/blowingoff.db
-  - Reads come from the local cache (fast, offline-capable)
-  - Writes go to local cache then sync to FunkyGibbon server
-  - One shared database per machine — do not instantiate multiple clients
+Architecture note (2026-07-15 rewrite): this used to be a wrapper around the
+blowing-off library's `BlowingOffClient.graph_operations`, which is a fully
+local, offline JSON-file-backed graph (`LocalGraphOperations` /
+`LocalGraphStorage`, default dir `~/.blowing-off/graph` or a db_path-derived
+sibling). That local graph has NO working push-to-server sync — writes and
+even reads only ever touched the local JSON cache, never the real FunkyGibbon
+database, even though calls appeared to succeed. This was discovered when a
+/room-edit session's device/room updates silently never reached the real
+house data. The direct REST API (verified against the live server db) is the
+only confirmed-working write path, so this client now uses it exclusively.
 
 Usage:
     from fg_client import FGClient
@@ -19,25 +25,18 @@ Usage:
 """
 from __future__ import annotations
 
-import asyncio
 import json
 import os
-import sys
-import uuid
 from typing import Any, Dict, List, Optional
 
-# Ensure blowing-off and inbetweenies are importable from the submodule
 _SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 _PROJECT_DIR = os.environ.get(
     "CLAUDE_PROJECT_DIR",
     os.path.dirname(os.path.dirname(_SCRIPTS_DIR)),
 )
-_GOODIES_DIR = os.path.join(_PROJECT_DIR, "the-goodies-python")
-if os.path.isdir(_GOODIES_DIR) and _GOODIES_DIR not in sys.path:
-    sys.path.insert(0, _GOODIES_DIR)
 
-DB_PATH = os.path.join(_PROJECT_DIR, ".instar", "state", "blowingoff.db")
 SERVER_URL = os.environ.get("FUNKYGIBBON_URL", "http://localhost:8000")
+API_BASE = f"{SERVER_URL}/api/v1/graph"
 ADMIN_PASSWORD = os.environ.get("FUNKYGIBBON_ADMIN_PASSWORD", "admin")
 
 
@@ -47,32 +46,34 @@ class FGError(Exception):
 
 class FGClient:
     """
-    Synchronous wrapper around blowing-off for FunkyGibbon access.
-
-    Use a single instance per script — it holds an open async event loop
-    and a connected blowing-off client.
+    Synchronous REST client for FunkyGibbon's /api/v1/graph endpoints.
     """
 
-    def __init__(self, db_path: str = DB_PATH, server_url: str = SERVER_URL):
-        self._db_path = db_path
-        self._server_url = server_url
-        self._loop = asyncio.new_event_loop()
-        self._client = None
-        self._ops = None
-        self._run(self._connect())
-
-    # ── Internal async helpers ─────────────────────────────────────────────
-
-    def _run(self, coro):
-        return self._loop.run_until_complete(coro)
-
-    async def _connect(self):
+    def __init__(self, server_url: str = SERVER_URL, user_id: str = "agent"):
         import httpx
-        from blowingoff.client import BlowingOffClient
 
-        os.makedirs(os.path.dirname(self._db_path), exist_ok=True)
+        self._server_url = server_url
+        self._api_base = f"{server_url}/api/v1/graph"
+        self._user_id = user_id
+        self._token = self._get_token()
+        self._http = httpx.Client(
+            headers={
+                "Authorization": f"Bearer {self._token}",
+                "Content-Type": "application/json",
+            },
+            timeout=15.0,
+        )
 
-        # Get admin token
+    # ── Auth ────────────────────────────────────────────────────────────────
+
+    def _get_token(self) -> str:
+        import httpx
+
+        # Try password login first (works when FUNKYGIBBON_ADMIN_PASSWORD
+        # matches the server's real admin password); fall back to a cached
+        # long-lived client token (written by funkygibbon/setup_auth.py) if
+        # password auth fails. This survives shells where the
+        # interactively-set admin password isn't exported.
         try:
             resp = httpx.post(
                 f"{self._server_url}/api/v1/auth/admin/login",
@@ -80,46 +81,36 @@ class FGClient:
                 timeout=10.0,
             )
             resp.raise_for_status()
-            token = resp.json()["access_token"]
-        except Exception as e:
-            raise FGError(f"FunkyGibbon auth failed: {e}") from e
+            return resp.json()["access_token"]
+        except Exception as primary_err:
+            cached_cfg_path = os.environ.get(
+                "FUNKYGIBBON_CLIENT_CONFIG",
+                os.path.expanduser("~/the-goodies/.blowingoff.json"),
+            )
+            if os.path.isfile(cached_cfg_path):
+                try:
+                    with open(cached_cfg_path) as f:
+                        cached = json.load(f)
+                    token = cached.get("auth_token")
+                    if token:
+                        return token
+                except Exception:
+                    pass
+            raise FGError(f"FunkyGibbon auth failed: {primary_err}") from primary_err
 
-        self._client = BlowingOffClient(db_path=self._db_path)
-        await self._client.connect(server_url=self._server_url, auth_token=token)
-        self._ops = self._client.graph_operations
+    # ── Internal helpers ────────────────────────────────────────────────────
 
-        # Initial sync to pull current server state
-        try:
-            await self._client.sync()
-        except Exception:
-            pass  # Offline start is fine — local cache still usable
-
-    def _sync(self):
-        """Push local changes to FunkyGibbon server."""
-        try:
-            self._run(self._client.sync())
-        except Exception:
-            pass  # Best-effort; don't fail writes over a transient sync error
-
-    # ── Entity extraction helpers ──────────────────────────────────────────
-
-    @staticmethod
-    def _entity_to_dict(e: Any) -> Dict[str, Any]:
-        """Convert a blowing-off Entity (or ToolResult) to a plain dict."""
-        if e is None:
+    def _req(self, method: str, path: str, **kwargs) -> Dict[str, Any]:
+        resp = self._http.request(method, f"{self._api_base}{path}", **kwargs)
+        if resp.status_code == 404:
             return {}
-        if hasattr(e, "success"):           # ToolResult
-            if not e.success:
-                raise FGError(e.error or "FunkyGibbon operation failed")
-            inner = e.result
-            if isinstance(inner, dict) and "entity" in inner:
-                return inner["entity"]
-            return inner or {}
-        if hasattr(e, "to_dict"):            # Entity model
-            return e.to_dict()
-        if isinstance(e, dict):
-            return e
-        return vars(e)
+        try:
+            resp.raise_for_status()
+        except Exception as e:
+            raise FGError(f"{method} {path} failed ({resp.status_code}): {resp.text[:300]}") from e
+        if not resp.content:
+            return {}
+        return resp.json()
 
     # ── Public API ────────────────────────────────────────────────────────
 
@@ -131,36 +122,51 @@ class FGClient:
         source_type: str = "manual",
         user_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        result = self._run(
-            self._ops.create_entity_tool(
-                entity_type=entity_type,
-                name=name,
-                content=content or {},
-                user_id=user_id or "agent",
-            )
-        )
-        entity = self._entity_to_dict(result)
-        self._sync()
-        return entity
+        body = self._req("POST", "/entities", json={
+            "entity_type": entity_type,
+            "name": name,
+            "content": content or {},
+            "source_type": source_type,
+            "user_id": user_id or self._user_id,
+        })
+        return body.get("entity", {})
 
     def get_entity(self, entity_id: str) -> Dict[str, Any]:
-        e = self._run(self._ops.get_entity(entity_id))
-        return self._entity_to_dict(e)
+        body = self._req("GET", f"/entities/{entity_id}", params={"include_relationships": "false"})
+        return body.get("entity", {})
 
     def update_entity(
         self,
         entity_id: str,
         content: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        user_id: Optional[str] = None,
         **_kwargs,
     ) -> Dict[str, Any]:
-        changes = content or {}
-        e = self._run(self._ops.update_entity(entity_id, changes, user_id="agent"))
-        self._sync()
-        return self._entity_to_dict(e)
+        payload: Dict[str, Any] = {"user_id": user_id or self._user_id}
+        if content is not None:
+            payload["content"] = content
+        if name is not None:
+            payload["name"] = name
+        body = self._req("PUT", f"/entities/{entity_id}", json=payload)
+        return body.get("entity", {})
 
-    def list_entities(self, entity_type: str) -> List[Dict[str, Any]]:
-        entities = self._run(self._ops.get_entities_by_type(entity_type))
-        return [self._entity_to_dict(e) for e in (entities or [])]
+    def list_entities(self, entity_type: str, limit: int = 500) -> List[Dict[str, Any]]:
+        """Fetch all entities of a type, paginating past the server's 100-per-page cap."""
+        out: List[Dict[str, Any]] = []
+        offset = 0
+        page_size = 100
+        while len(out) < limit:
+            body = self._req("GET", "/entities", params={
+                "entity_type": entity_type, "limit": page_size, "offset": offset,
+            })
+            page = body.get("entities", [])
+            out.extend(page)
+            total = body.get("total", len(out))
+            offset += page_size
+            if len(page) < page_size or offset >= total:
+                break
+        return out[:limit]
 
     def find_entity_by_name(
         self,
@@ -186,44 +192,80 @@ class FGClient:
         entity_type: Optional[str] = None,
         limit: int = 20,
     ) -> List[Dict[str, Any]]:
-        from inbetweenies.models import EntityType as ET
-        entity_types = None
+        payload: Dict[str, Any] = {"query": query, "limit": min(limit, 100)}
         if entity_type:
-            try:
-                entity_types = [ET(entity_type)]
-            except ValueError:
-                entity_types = None
-        results = self._run(
-            self._ops.search_entities(
-                query=query,
-                entity_types=entity_types,
-                limit=limit,
-            )
-        )
-        out = []
-        for r in results or []:
-            if hasattr(r, "entity"):
-                out.append(self._entity_to_dict(r.entity))
-            else:
-                out.append(self._entity_to_dict(r))
-        return out
+            payload["entity_types"] = [entity_type]
+        body = self._req("POST", "/search", json=payload)
+        return [r.get("entity", {}) for r in body.get("results", [])]
 
     def create_relationship(
         self,
         from_id: str,
         to_id: str,
         relationship_type: str,
+        user_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        result = self._run(
-            self._ops.create_relationship_tool(
-                from_entity_id=from_id,
-                to_entity_id=to_id,
-                relationship_type=relationship_type,
-                user_id="agent",
-            )
-        )
-        self._sync()
-        return self._entity_to_dict(result)
+        body = self._req("POST", "/relationships", json={
+            "source_id": from_id,
+            "target_id": to_id,
+            "relationship_type": relationship_type,
+            "properties": {},
+            "user_id": user_id or self._user_id,
+        })
+        return body.get("relationship", {})
+
+    def list_relationships(
+        self,
+        from_id: Optional[str] = None,
+        to_id: Optional[str] = None,
+        rel_type: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """List relationship edges matching the given filters.
+
+        Note: the underlying graph has no delete-relationship primitive (it's
+        an append-only/versioned store — see delete_entity below), so this is
+        for inspection only, not a precursor to removal.
+        """
+        params: Dict[str, Any] = {}
+        if from_id:
+            params["from_entity_id"] = from_id
+        if to_id:
+            params["to_entity_id"] = to_id
+        if rel_type:
+            params["relationship_type"] = rel_type
+        body = self._req("GET", "/relationships", params=params)
+        return body.get("relationships", [])
+
+    def upsert_alias(self, entity_id: str, alias: str) -> Dict[str, Any]:
+        """Add an alias to a device/room's content.aliases list (idempotent)."""
+        ent = self.get_entity(entity_id)
+        aliases = list((ent.get("content") or {}).get("aliases") or [])
+        if alias not in aliases:
+            aliases.append(alias)
+            return self.update_entity(entity_id, content={"aliases": aliases})
+        return ent
+
+    def remove_alias(self, entity_id: str, alias: str) -> Dict[str, Any]:
+        ent = self.get_entity(entity_id)
+        aliases = list((ent.get("content") or {}).get("aliases") or [])
+        if alias in aliases:
+            aliases.remove(alias)
+            return self.update_entity(entity_id, content={"aliases": aliases})
+        return ent
+
+    def set_status(self, entity_id: str, status: str, reason: Optional[str] = None) -> Dict[str, Any]:
+        content = {"status": status}
+        if reason:
+            content["status_reason"] = reason
+        return self.update_entity(entity_id, content=content)
+
+    def delete_entity(self, entity_id: str, reason: Optional[str] = None) -> Dict[str, Any]:
+        """Soft-tombstone only — this graph has no hard-delete API (no DELETE
+        route on /entities or /relationships; append-only, versioned by
+        design). 'Deleting' means marking the entity retired/duplicate while
+        preserving its history, matching the existing convention already used
+        elsewhere in this graph (status: 'decommissioned')."""
+        return self.set_status(entity_id, "duplicate", reason or "marked duplicate/retired")
 
     def upload_blob(
         self,
@@ -233,7 +275,7 @@ class FGClient:
         mime_type: str = "application/octet-stream",
         description: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Store a binary blob linked to a parent entity."""
+        """Store a binary blob (as a base64-encoded note entity) linked to a parent entity."""
         import base64
         b64 = base64.b64encode(data).decode("ascii")
         blob_entity = self.create_entity(
@@ -248,10 +290,7 @@ class FGClient:
         )
         blob_id = blob_entity.get("id", "")
         if blob_id and parent_entity_id:
-            try:
-                self.create_relationship(parent_entity_id, blob_id, "has_blob")
-            except Exception:
-                pass
+            self.create_relationship(parent_entity_id, blob_id, "has_blob")
         return blob_entity
 
     def get_home(self) -> Optional[Dict[str, Any]]:
@@ -259,9 +298,7 @@ class FGClient:
         return homes[0] if homes else None
 
     def close(self):
-        """Disconnect and cleanup."""
         try:
-            self._run(self._client.disconnect())
+            self._http.close()
         except Exception:
             pass
-        self._loop.close()

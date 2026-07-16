@@ -31,7 +31,7 @@ from typing import Any, Dict, List, Optional
 
 PROJECT_DIR = os.environ.get(
     "CLAUDE_PROJECT_DIR",
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
 )
 sys.path.insert(0, os.path.join(PROJECT_DIR, ".claude", "scripts"))
 
@@ -219,12 +219,13 @@ def _apply_update(fg: FGClient, diff: Dict[str, Any], created: Dict[str, str]) -
         new_room_id = _resolve_entity_ref(diff.get("new_room_id"), created)
         if not new_room_id:
             raise FunkyGibbonError("move_to_room missing new_room_id")
-        # Find existing located_in relationships and delete them
-        for rel in fg.list_relationships(from_id=eid, rel_type="located_in"):
-            fg.delete_relationship(rel["id"])
+        # NOTE: this graph has no relationship-delete primitive (append-only,
+        # versioned by design — no DELETE route exists on /relationships).
+        # A prior located_in edge to the old room is NOT removed; it remains
+        # in the graph as stale history alongside the new, current one below.
         fg.create_relationship(eid, new_room_id, "located_in")
     elif action == "delete_entity":
-        fg.delete_entity(eid)
+        fg.delete_entity(eid, diff.get("reason"))
     elif action == "update_device":
         patch = diff.get("patch") or {}
         # Fetch current, merge content_merges, add/remove aliases, then PATCH
