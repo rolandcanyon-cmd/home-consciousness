@@ -1,12 +1,14 @@
 {
-  "lastProcessedTimestamp": "2026-06-29T14:56:26.767Z",
-  "lastCheck": "2026-06-30T06:35:01Z",
+  "lastProcessedTimestamp": "2026-07-20T17:51:11.779Z",
+  "lastCheck": "2026-07-21T04:45:21.433021+00:00",
   "status": "complete",
   "messageSourcesScanned": [
-    "iMessage (.instar/agents/Roland/.instar/imessage-messages.jsonl)"
+    "iMessage (.instar/imessage-messages.jsonl)"
   ],
-  "messageSourcesUnavailable": [],
-  "notes": "Routine scan. No new messages since last bookmark. No new commitments to process.",
+  "messageSourcesUnavailable": [
+    "Telegram (empty)"
+  ],
+  "notes": "No new messages since last check. All recent messages have been processed.",
   "messagesScanned": 0,
   "newCommitmentsFound": 0,
   "newActionsCreated": []
