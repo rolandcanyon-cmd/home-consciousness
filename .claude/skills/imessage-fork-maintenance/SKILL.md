@@ -298,10 +298,13 @@ Instar daily sync — pulled [N] upstream commit(s): [one-line summary of change
 
 ## Our customizations (for reference)
 
-As of 2026-06-18, we have **2 commits** above upstream (JKHeadley/instar):
+As of 2026-07-21, we have **5 commits** above upstream (JKHeadley/instar):
 
-- **`7e6c384a` fix(ci): fall back to github.token when RELEASE_TOKEN secret is unset** — keeps fork CI green when RELEASE_TOKEN secret is absent. Candidate for upstream PR.
-- **`5deaede3` chore(fork): add side-effects review artifact for v1.3.619 CI fix [skip ci]** — maintenance artifact, not functional.
+- **`a3c46f385` fix(ci): fall back to github.token when RELEASE_TOKEN secret is unset** — keeps fork CI green when RELEASE_TOKEN secret is absent. Candidate for upstream PR.
+- **`3f388413b` chore(fork): add side-effects review artifact for v1.3.619 CI fix [skip ci]** — maintenance artifact, not functional.
+- **`a0929d88f` feat(imessage): self-heal chat.db/WAL/SHM hardlinks in FDA watcher** — macOS recreates chat.db-wal with a new inode on every reboot, orphaning the private hardlink the no-FDA daemon reads Messages through; this re-links it automatically. Candidate for upstream PR.
+- **`c00bf680f` fix(ci): truncate docs-coverage issue body to GitHub's 65536-char limit** — weekly docs-coverage tracking issue was failing with "Body is too long" as the doc tree grew. Candidate for upstream PR.
+- **`7ea921220` docs(upgrades): add release-note fragment for docs-coverage truncation fix** — release-note fragment for the commit above, not functional.
 
 Previously maintained custom commits (now merged upstream):
 - **Immediate ack**: sends "..." before session spawn
