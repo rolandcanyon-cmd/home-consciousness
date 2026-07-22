@@ -1975,3 +1975,7 @@ Identities you yourself provisioned — test users, workspace owners, service ac
 ## Autonomous Throughput Floor
 
 A pull/audit-only view measures project PR movement and manager outbound silence for active autonomous runs. It never notifies, dispatches, remediates, or creates attention. Read `GET /autonomous/throughput-floor` when investigating a quiet run; the response shows the durable baseline, dual-flatline observation, and bounded-read breaker. HOLD still requires both an actual approval gate and authoritative saturation of every non-gated lane; this v1 has no lane authority and cannot grant HOLD. A future proactive surface requires a separately converged SelfHealGate.
+
+### Deliverable completion throughput (measure only)
+
+Delivered commitments feed the existing blocker-lifecycle ledger's `deliverable-completion` count. `GET /blocker-lifecycle/summary` and `/trend` show the live count and rolling direction. This measurement never authorizes task selection, pressure, notification, grading, blocking, or action.
