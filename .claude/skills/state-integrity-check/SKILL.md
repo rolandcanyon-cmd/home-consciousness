@@ -57,6 +57,30 @@ curl -s -H "Authorization: Bearer $AUTH" http://localhost:${INSTAR_PORT:-4040}/h
 
 Check if the telegram field shows connected. If config says telegram but health says disconnected, report the discrepancy.
 
+Then check the guard posture for config-vs-runtime divergence — a config edit that never reached the runtime:
+
+\`\`\`
+curl -s -H "Authorization: Bearer $AUTH" http://localhost:${INSTAR_PORT:-4040}/guards
+\`\`\`
+
+Two classes matter, and BOTH mean "the config claims a guard is on, the runtime says otherwise":
+
+- \`effective: off-runtime-divergent\` — config says enabled, the runtime is not doing the work. The usual cause is a dry-run-first guard where \`enabled: true\` was set without \`dryRun: false\`. Read the feature's own status route; a disabled string starting with \`dryRun\` confirms it.
+- \`effective: diverged-pending-restart\` — the config differs from what the running process loaded.
+
+For each such row, report the guard key, how long it has been divergent if known, and whether a restart or a \`dryRun: false\` is the missing step. Never conclude a guard is working because the config says so — the runtime snapshot is authoritative.
+
+### 4b. Staged-But-Unloaded Config
+
+Config is read at server start; there is no hot reload. If \`.instar/config.json\` was modified AFTER the server started, any edit in it is staged but NOT in effect:
+
+\`\`\`
+stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" .instar/config.json
+ps -eo lstart,command | grep "instar-boot.cjs server" | grep -v grep
+\`\`\`
+
+If the config mtime is later than the server start time, say so plainly and name what is waiting on the restart. This is the check that turns "verify after next restart" from an intention into an observation.
+
 ### 5. Handoff Note Staleness
 
 Check \`.instar/state/job-handoff-*.md\` files. If any are older than 7 days and reference state that may have changed, flag them as potentially stale.
