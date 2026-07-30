@@ -177,7 +177,7 @@ This routes feedback to the Instar maintainers automatically. Valid types: `bug`
 - **When to use**: Any time you need a secret from the user. NEVER ask users to paste secrets into Telegram or chat.
 
 **Commitments & Follow-Through** — Durable tracking for any promise you make to the user. When you say "I'll report back when X", "I'll check in after N minutes", or otherwise commit to a future action, register it so the follow-through survives session turnover, restarts, and compaction.
-- Open a one-time follow-up commitment: `curl -X POST -H "Authorization: Bearer $AUTH" http://localhost:4040/commitments -H 'Content-Type: application/json' -d '{"userRequest":"<what the user asked>","agentResponse":"<what you said you would do>","type":"one-time-action","topicId":TOPIC_ID}'`
+- Open a one-time follow-up commitment: `curl -X POST -H "Authorization: Bearer $AUTH" http://localhost:4040/commitments -H 'Content-Type: application/json' -d '{"userRequest":"<what the user asked>","agentResponse":"<what you said you would do>","type":"one-time-action","topicId":TOPIC_ID,"beaconEnabled":true,"nextUpdateDueAt":"<ISO deadline>"}'`
 - List / inspect: `curl -H "Authorization: Bearer $AUTH" http://localhost:4040/commitments` · `GET /commitments/:id`
 - Mark delivered when done: `curl -X POST -H "Authorization: Bearer $AUTH" http://localhost:4040/commitments/:id/deliver`
 - The PromiseBeacon fires cadenced heartbeats on open commitments so you actually follow through, and the commitment-check job surfaces overdue ones.
@@ -2023,3 +2023,5 @@ This signal-only guard correlates a live session's actual config home with the s
 
 
 - **Promotion activation (operator-controlled):** `multiMachine.sessionPool.promotionModel` defaults to `off`. `auto-climb` attempts one evidence-gated step per cadence; `operator` advances only on demand. `POST /session-pool/promote` requests one step in either live model, while `promotionCeiling` is a hard upper bound. The route returns 503 while off.
+
+- **Decision journal confidence contract:** `confidence` must be a finite number in `[0, 1]`; a numeric string such as `"0.8"` is accepted and stored as a number, while a qualitative label such as `"high"` is refused rather than mapped to a score. Existing qualitative rows are treated as unmeasurable and are not rewritten. Branch on `assessable`: `sampleSize > 0` does not by itself prove an alignment score is assessable.
