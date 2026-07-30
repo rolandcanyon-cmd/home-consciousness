@@ -25,11 +25,39 @@ AUTH=$(python3 -c "import json; print(json.load(open('.instar/config.json')).get
 curl -s -H "Authorization: Bearer $AUTH" http://localhost:${INSTAR_PORT:-4040}/jobs
 \`\`\`
 
-For each enabled job, check:
-- Has it run at all? (lastRun should exist)
-- Is it overdue? (If lastRun is more than 3x the schedule interval ago, it's stuck)
-- Is it failing repeatedly? (consecutiveFailures > 0 is notable, > 2 is critical)
-- Is the lastError informative? (If it says "Session killed" repeatedly, something is wrong)
+**READ THE RIGHT FIELDS.** The top-level \`lastRun\`, \`nextScheduled\`, \`lastError\` and
+\`consecutiveFailures\` on each job object are ALWAYS null — verified 2026-07-30, 0 of 53 jobs
+populate them. The real values live under \`.state.*\`. A check written against the top-level
+fields silently sees null for every job and reports "healthy" forever. Read
+\`.state.lastRun\`, \`.state.nextScheduled\`, \`.state.lastResult\`, \`.state.consecutiveFailures\`.
+
+**SPLIT GATED FROM UNGATED FIRST.** Read \`.instar/jobs.json\` and note which jobs have a \`gate\`.
+A gate skip advances NEITHER \`.state.lastRun\` NOR \`.state.nextScheduled\` — so on a GATED job both
+fields are expected to be stale and neither one is evidence of a stall. Verified 2026-07-30: all
+5 jobs whose \`nextScheduled\` was in the past (git-sync, coherence-audit, evolution-proposal-evaluate,
+evolution-proposal-implement, initiative-digest-review) were gated and healthy. Applying the
+staleness rules below to a gated job manufactures 5 false positives.
+
+For each enabled UNGATED job, check:
+- Has it run at all? (\`.state.lastRun\` should exist; only \`.state.firstSeenAt\` and no lastRun,
+  more than 3 cadence intervals old, means it has NEVER run)
+- Is it overdue? (If \`.state.lastRun\` is more than 3x the schedule interval ago, it's stuck)
+- **Is its slot wedged?** (If \`.state.nextScheduled\` is in the PAST on an UNGATED job, the
+  scheduler stopped advancing its slot — the silent cron-slot-miss class, e.g.
+  imessage-fork-maintenance on 07-29. It produces NO log records and NO retry exhaustion, so
+  scheduler-health-notify cannot see it. CRITICAL — a server restart clears it.)
+- Is it failing repeatedly? (\`.state.consecutiveFailures\` > 0 is notable, > 2 is critical)
+- Is \`.state.lastError\` informative? (If it says "Session killed" repeatedly, something is wrong)
+
+For a GATED job, the only useful check is whether the gate is stuck ALWAYS-skip — cross-reference
+the skip ledger in step 2 rather than the timestamps.
+
+Beware two more false positives: a monthly/weekly/every-N-days schedule is not overdue at 26h, and
+a job that ran late after a restart is recovered, not broken. Compare against the job's OWN cadence.
+
+**Daily-cadence jobs are the highest-loss class.** The scheduler's retry ladder is minutes long,
+so a daily job shed at its slot (quota, memory pressure) loses the entire 24h — the next attempt
+is tomorrow. Flag any daily job whose last run is >26h old as WARNING even if nothing errored.
 
 ### 2. Skip Ledger Trends
 
