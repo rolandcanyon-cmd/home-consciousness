@@ -81,6 +81,28 @@ ps -eo lstart,command | grep "instar-boot.cjs server" | grep -v grep
 
 If the config mtime is later than the server start time, say so plainly and name what is waiting on the restart. This is the check that turns "verify after next restart" from an intention into an observation.
 
+### 4c. Reverted Job-Priority Overrides
+
+Built-in job files under `.instar/jobs/schedule/` are regenerated wholesale from shipped
+templates on update, build/deploy, and some server starts. Only `enabled` is preserved —
+**`priority` is NOT**, so a low→medium override silently reverts and the job goes back to being
+shed. This has recurred twice (07-28, 07-30).
+
+```
+AUTH=$(python3 -c "import json; print(json.load(open('.instar/config.json')).get('authToken',''))")
+curl -s -H "Authorization: Bearer $AUTH" http://localhost:4040/jobs \
+  | jq -r '(.jobs // .)[] | select(.enabled and .priority=="low") | .slug'
+```
+
+Any *enabled* job reporting `priority: "low"` is at risk: while the quota source is
+`claude-jsonl` (degraded), low-priority jobs are refused unconditionally regardless of usage.
+Cross-check with `jq -r '.[] | select(.metadata.gateReason=="quota") | .metadata.slug' .instar/logs/activity-$(date +%F).jsonl | sort | uniq -c`.
+
+If a job is being shed this way: re-apply `"priority": "medium"` to
+`.instar/jobs/schedule/<slug>.json`, restart, and confirm via `GET /jobs` — **and** check for
+the regeneration fingerprint (`ls -lT .instar/jobs/schedule/*.json` showing many identical
+mtimes) so the recurrence is attributed to a rewrite rather than re-diagnosed from scratch.
+
 ### 5. Handoff Note Staleness
 
 Check \`.instar/state/job-handoff-*.md\` files. If any are older than 7 days and reference state that may have changed, flag them as potentially stale.
