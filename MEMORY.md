@@ -4,9 +4,10 @@
 
 ## Critical Patterns (Read First)
 
+- **LLM gate failures (2026-07-30 18:00Z)**: PromptGate 88% error, UnjustifiedStopGate 30%, SessionActivitySentinel 84%. Failing closed (errors skip safety checks). Durable report: private view 785512df-b001-47aa-ae6f-d6d0ed133bc4. Investigate: new regression or ongoing issue?
 - **Vault state**: Known divergence between keychain and file key; Adrian explicitly chose to keep as-is (forceFileKey) on 07-13. Next write() will converge automatically. Not a bug.
 - **Scheduler starvation**: Fixed 07-27 (memory pressure was blocking job spawn). Watch for recurrence.
-- **Scope checkpoints matter**: Dismissing 1464 of them is scope erosion. Read them.
+- **Scope checkpoints matter**: Dismissing 1464+ of them is scope erosion. Read them.
 
 ## Project Ecosystem
 
