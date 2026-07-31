@@ -98,8 +98,20 @@ Any *enabled* job reporting `priority: "low"` is at risk: while the quota source
 `claude-jsonl` (degraded), low-priority jobs are refused unconditionally regardless of usage.
 Cross-check with `jq -r '.[] | select(.metadata.gateReason=="quota") | .metadata.slug' .instar/logs/activity-$(date +%F).jsonl | sort | uniq -c`.
 
-If a job is being shed this way: re-apply `"priority": "medium"` to
-`.instar/jobs/schedule/<slug>.json`, restart, and confirm via `GET /jobs`.
+**An enabled+low hit is not automatically a defect.** Separate the two cases before remediating:
+
+- **Low *and* being shed** → a real regression. Re-apply `"priority": "medium"` to
+  `.instar/jobs/schedule/<slug>.json`, restart, confirm via `GET /jobs`.
+- **Low but running on schedule** (`state.lastRun` current for its cron, no `gateReason=="quota"`
+  entries) → at-risk, not broken. Record it; do not remediate. As of 07-31 `feedback-retry` and
+  `instar-state-snapshot` are permanently in this bucket — flagging them every run is a false
+  positive.
+
+Note that a low-priority job may have **no schedule file at all** — the `low` then comes from the
+shipped built-in definition, not from a reverted override. Confirm with
+`ls .instar/jobs/schedule/<slug>.json` before concluding a regeneration reverted anything. If such
+a job does need pinning, the override file must be **created**, and it will then carry its own
+distinct mtime like any other override.
 
 **Always run the regeneration-fingerprint check — not only when a job is being shed.** The
 revert is caused by an EVENT (a wholesale rewrite), so a quiet window proves nothing: the
