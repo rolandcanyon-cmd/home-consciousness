@@ -111,6 +111,29 @@ c.setdefault('updates', {})['autoApply'] = False
 json.dump(c, open('$AGENT_DIR/.instar/config.json', 'w'), indent=2)
 "
 
+# Fix job priorities — regeneration preserves `enabled` but NOT `priority`, reverting these
+# four to `low`. The quota gate is in degraded mode (source claude-jsonl), which refuses ALL
+# low-priority jobs unconditionally regardless of actual usage — so a reverted priority means
+# these four are silently shed until the next deploy. Confirmed reverted 07-30 and 07-31.
+python3 -c "
+import json, os
+d = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/jobs/schedule'
+for slug in ['insight-harvest', 'overseer-development', 'relationship-maintenance', 'rope-health-digest']:
+    f = d + '/' + slug + '.json'
+    if not os.path.exists(f):
+        print('  (no schedule file for ' + slug + ' — skipped)'); continue
+    j = json.load(open(f))
+    if j.get('priority') == 'low':
+        j['priority'] = 'medium'
+        json.dump(j, open(f, 'w'), indent=2)
+        print('  re-applied priority medium: ' + slug)
+# warn about any OTHER enabled+low override that would also be shed
+for f in sorted(x for x in os.listdir(d) if x.endswith('.json')):
+    j = json.load(open(d + '/' + f))
+    if j.get('enabled') and j.get('priority') == 'low':
+        print('  ⚠ enabled+low (will be shed in degraded quota mode): ' + f)
+"
+
 # Daemon runs as user-level LaunchAgent (gui/UID), NOT the system LaunchDaemon.
 # The system plist (/Library/LaunchDaemons/ai.instar.{AGENT_NAME}.plist) is a stale
 # duplicate that manages a separate process — kickstarting it does NOT restart the server.
