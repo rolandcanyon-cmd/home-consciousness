@@ -2025,3 +2025,7 @@ This signal-only guard correlates a live session's actual config home with the s
 - **Promotion activation (operator-controlled):** `multiMachine.sessionPool.promotionModel` defaults to `off`. `auto-climb` attempts one evidence-gated step per cadence; `operator` advances only on demand. `POST /session-pool/promote` requests one step in either live model, while `promotionCeiling` is a hard upper bound. The route returns 503 while off.
 
 - **Decision journal confidence contract:** `confidence` must be a finite number in `[0, 1]`; a numeric string such as `"0.8"` is accepted and stored as a number, while a qualitative label such as `"high"` is refused rather than mapped to a score. Existing qualitative rows are treated as unmeasurable and are not rewritten. Branch on `assessable`: `sampleSize > 0` does not by itself prove an alignment score is assessable.
+
+#### Promise-beacon topic aggregation
+
+Multiple open promises in one conversation now produce ONE count+list summary per topic cadence, never one message per promise. The topic cadence follows the shortest effective cadence among the open promises; only promises with qualifying news receive a progress line, while quiet siblings are listed as open without a false progress claim. Roll back to legacy per-promise delivery with `promiseBeacon.aggregateByTopic: false`.
