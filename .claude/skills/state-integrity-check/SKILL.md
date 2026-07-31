@@ -99,9 +99,25 @@ Any *enabled* job reporting `priority: "low"` is at risk: while the quota source
 Cross-check with `jq -r '.[] | select(.metadata.gateReason=="quota") | .metadata.slug' .instar/logs/activity-$(date +%F).jsonl | sort | uniq -c`.
 
 If a job is being shed this way: re-apply `"priority": "medium"` to
-`.instar/jobs/schedule/<slug>.json`, restart, and confirm via `GET /jobs` — **and** check for
-the regeneration fingerprint (`ls -lT .instar/jobs/schedule/*.json` showing many identical
-mtimes) so the recurrence is attributed to a rewrite rather than re-diagnosed from scratch.
+`.instar/jobs/schedule/<slug>.json`, restart, and confirm via `GET /jobs`.
+
+**Always run the regeneration-fingerprint check — not only when a job is being shed.** The
+revert is caused by an EVENT (a wholesale rewrite), so a quiet window proves nothing: the
+previous application of this fix survived 28 hours before a regeneration reverted it. Check the
+event directly:
+
+```
+ls -lT .instar/jobs/schedule/*.json | awk '{print $6,$7,$8,$9}' | sort | uniq -c | sort -rn
+```
+
+Overridden files should sit on a LATER, distinct mtime than the bulk regeneration group. If they
+have collapsed into the shared group mtime, a rewrite ran and every `priority` override needs
+re-applying now — before any skip appears in the logs.
+
+**Reporting rule:** state the behavioral result and the durability question SEPARATELY. "No
+quota sheds in N hours" closes the behavior half only; durability is closed by the mtime
+evidence above, never by elapsed time. Reporting a quiet window as if the regression were
+resolved is a false all-clear.
 
 ### 5. Handoff Note Staleness
 
