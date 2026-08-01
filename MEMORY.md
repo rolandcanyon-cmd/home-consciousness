@@ -4,7 +4,7 @@
 
 ## Critical Patterns (Read First)
 
-- **LLM gate failures REGRESSION (2026-07-31 02:05Z)**: UnjustifiedStopGate WORSENED 30%→100% error (175 consecutive failures); failing closed (safety gate non-functional). PromptGate 88%, SessionActivitySentinel 84% still failing. Previous report: private view 785512df-b001-47aa-ae6f-d6d0ed133bc4. URGENT: systemic LLM issue or local config? This is progression, not new.
+- **LLM gate failures REGRESSION (WORSENING 2026-07-31 20:00Z)**: UnjustifiedStopGate error rate progression: 30% (2026-07-30 18:00Z) → 82.6% (2026-07-31 20:00Z). Gates fail closed (skip checks on error → messages send without safety validation). PromptGate 88%, SessionActivitySentinel 84% also failing. Private view: 785512df-b001-47aa-ae6f-d6d0ed133bc4. CRITICAL: Is this post-CMT-006 (tone-gate carve-out) regression or separate LLM/config issue? Escalate before tone-gate ships if related.
 - **Vault state**: Known divergence between keychain and file key; Adrian explicitly chose to keep as-is (forceFileKey) on 07-13. Next write() will converge automatically. Not a bug.
 - **Scheduler starvation**: Fixed 07-27 (memory pressure was blocking job spawn). Watch for recurrence.
 - **Scope checkpoints matter**: Dismissing 1521+ of them is scope erosion. STOP DISMISSING THEM. Read context, confirm scope, understand what I'm reporting before acting. The health-check gate failure was a known regression I missed by skipping MEMORY. This costs Adrian's trust and my effectiveness.
