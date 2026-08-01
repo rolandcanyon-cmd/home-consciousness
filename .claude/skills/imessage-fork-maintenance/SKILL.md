@@ -111,29 +111,6 @@ c.setdefault('updates', {})['autoApply'] = False
 json.dump(c, open('$AGENT_DIR/.instar/config.json', 'w'), indent=2)
 "
 
-# Fix job priorities — regeneration preserves `enabled` but NOT `priority`, reverting these
-# four to `low`. The quota gate is in degraded mode (source claude-jsonl), which refuses ALL
-# low-priority jobs unconditionally regardless of actual usage — so a reverted priority means
-# these four are silently shed until the next deploy. Confirmed reverted 07-30 and 07-31.
-python3 -c "
-import json, os
-d = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/jobs/schedule'
-for slug in ['insight-harvest', 'overseer-development', 'relationship-maintenance', 'rope-health-digest']:
-    f = d + '/' + slug + '.json'
-    if not os.path.exists(f):
-        print('  (no schedule file for ' + slug + ' — skipped)'); continue
-    j = json.load(open(f))
-    if j.get('priority') == 'low':
-        j['priority'] = 'medium'
-        json.dump(j, open(f, 'w'), indent=2)
-        print('  re-applied priority medium: ' + slug)
-# warn about any OTHER enabled+low override that would also be shed
-for f in sorted(x for x in os.listdir(d) if x.endswith('.json')):
-    j = json.load(open(d + '/' + f))
-    if j.get('enabled') and j.get('priority') == 'low':
-        print('  ⚠ enabled+low (will be shed in degraded quota mode): ' + f)
-"
-
 # Daemon runs as user-level LaunchAgent (gui/UID), NOT the system LaunchDaemon.
 # The system plist (/Library/LaunchDaemons/ai.instar.{AGENT_NAME}.plist) is a stale
 # duplicate that manages a separate process — kickstarting it does NOT restart the server.
@@ -147,6 +124,57 @@ if [ "$UPTIME_AFTER" -ge "$UPTIME_BEFORE" ]; then
   exit 1
 fi
 echo "✅ daemon restarted (uptime reset from ${UPTIME_BEFORE}ms to ${UPTIME_AFTER}ms)"
+
+# Fix job priorities — MUST run AFTER the restart, then restart AGAIN.
+# The installer regenerates jobs/schedule/*.json AT SERVER BOOT (mtimes land ~1s before
+# scheduler_start), preserving `enabled` but NOT `priority` — so these four revert to `low`.
+# A repair written BEFORE the kickstart is wiped by the very boot it precedes (confirmed
+# 07-31: repaired 15:02Z, still shed 15:00–19:51Z because the loader read the regenerated
+# files). The quota gate in degraded mode (source claude-jsonl) refuses ALL low-priority
+# jobs unconditionally, so a reverted priority means these four are silently shed all day.
+# Job definitions load at server start — no hot reload — hence the second restart.
+REPAIRED=$(python3 -c "
+import json, os
+d = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/jobs/schedule'
+n = 0
+for slug in ['insight-harvest', 'overseer-development', 'relationship-maintenance', 'rope-health-digest']:
+    f = d + '/' + slug + '.json'
+    if not os.path.exists(f): continue
+    j = json.load(open(f))
+    if j.get('priority') == 'low':
+        j['priority'] = 'medium'
+        json.dump(j, open(f, 'w'), indent=2)
+        n += 1
+print(n)
+")
+echo "priority repairs applied: $REPAIRED"
+# warn about any OTHER enabled+low override that would also be shed
+python3 -c "
+import json, os
+d = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/jobs/schedule'
+for f in sorted(x for x in os.listdir(d) if x.endswith('.json')):
+    j = json.load(open(d + '/' + f))
+    if j.get('enabled') and j.get('priority') == 'low':
+        print('  ⚠ enabled+low (will be shed in degraded quota mode): ' + f)
+"
+if [ "$REPAIRED" -gt 0 ]; then
+  UPTIME_BEFORE2=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
+  launchctl kickstart -k gui/$(id -u)/ai.instar.{AGENT_NAME} || { echo "❌ second daemon restart failed"; exit 1; }
+  sleep 8
+  UPTIME_AFTER2=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
+  if [ "$UPTIME_AFTER2" -ge "$UPTIME_BEFORE2" ]; then
+    echo "❌ second restart did not take (priorities NOT loaded — jobs will be shed today)"
+    exit 1
+  fi
+  # boot regeneration wipes priority again — so confirm the LOADED definitions, not the files
+  AUTH=$(python3 -c "import json; print(json.load(open('$AGENT_DIR/.instar/config.json')).get('authToken',''))")
+  curl -s -H "Authorization: Bearer $AUTH" http://localhost:4040/jobs | python3 -c "
+import json,sys
+jobs = json.load(sys.stdin).get('jobs', [])
+bad = [j['slug'] for j in jobs if j.get('slug') in ('insight-harvest','overseer-development','relationship-maintenance','rope-health-digest') and j.get('priority') != 'medium']
+print('❌ loaded priority still wrong: ' + ', '.join(bad) if bad else '✅ loaded priorities confirmed medium')
+"
+fi
 ```
 
 ### 8. Verify

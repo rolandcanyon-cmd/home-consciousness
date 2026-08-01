@@ -59,6 +59,23 @@ a job that ran late after a restart is recovered, not broken. Compare against th
 so a daily job shed at its slot (quota, memory pressure) loses the entire 24h — the next attempt
 is tomorrow. Flag any daily job whose last run is >26h old as WARNING even if nothing errored.
 
+**Before attributing any shed to quota, read the quota SOURCE** — it is the discriminator, and the
+skip event does not record it:
+
+\`\`\`
+curl -s -H "Authorization: Bearer \$AUTH" http://localhost:\${INSTAR_PORT:-4040}/quota
+\`\`\`
+
+- \`source: "anthropic-oauth"\` → authoritative; \`priority: low\` jobs run. The stale job has some
+  other cause — keep looking, do not report it as a quota shed.
+- \`source: "claude-jsonl"\`, or a missing \`source\`/\`fiveHourPercent\` field → degraded; **every**
+  low-priority job is refused regardless of usage. That alone explains a cluster of stale
+  low-priority dailies.
+
+Never reason from \`usagePercent\` — it does not gate low-priority jobs (verified 08-01: 48% used,
+authoritative source, zero sheds). The state flips within a day, so a shed seen yesterday is not
+evidence about today (LRN-008).
+
 ### 2. Skip Ledger Trends
 
 \`\`\`

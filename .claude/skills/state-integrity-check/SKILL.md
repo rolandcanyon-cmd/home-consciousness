@@ -94,9 +94,27 @@ curl -s -H "Authorization: Bearer $AUTH" http://localhost:4040/jobs \
   | jq -r '(.jobs // .)[] | select(.enabled and .priority=="low") | .slug'
 ```
 
-Any *enabled* job reporting `priority: "low"` is at risk: while the quota source is
-`claude-jsonl` (degraded), low-priority jobs are refused unconditionally regardless of usage.
-Cross-check with `jq -r '.[] | select(.metadata.gateReason=="quota") | .metadata.slug' .instar/logs/activity-$(date +%F).jsonl | sort | uniq -c`.
+Any *enabled* job reporting `priority: "low"` is at risk, but whether it is *currently* being
+refused depends on the quota SOURCE — read it before concluding anything:
+
+```
+curl -s -H "Authorization: Bearer $AUTH" http://localhost:4040/quota
+```
+
+- `source: "anthropic-oauth"` → **authoritative**. Low-priority jobs run normally. A shed here has
+  some other cause — do not blame quota.
+- `source: "claude-jsonl"`, **or a missing `source` / `fiveHourPercent` field** → **degraded**, and
+  *every* `priority: low` job is refused unconditionally.
+
+**Never reason from `usagePercent`.** It does not gate low-priority jobs. Verified 08-01:
+`usagePercent: 48` with an authoritative source and zero sheds, one day after four jobs shed
+repeatedly. **This state flips within a day** — a shed observed one afternoon says nothing about
+now, so never generalise from a single sample (LRN-008).
+
+Cross-check the historical side with `jq -r '.[] | select(.metadata.gateReason=="quota") | .metadata.slug' .instar/logs/activity-$(date +%F).jsonl | sort | uniq -c`.
+Note the skip event records only `{slug, reason, priority, gateReason}` — it does **not** snapshot
+the source or usage, so a past shed cannot be attributed post-hoc. Only the live read above
+distinguishes degraded-source from any other cause.
 
 **An enabled+low hit is not automatically a defect.** Separate the two cases before remediating:
 
