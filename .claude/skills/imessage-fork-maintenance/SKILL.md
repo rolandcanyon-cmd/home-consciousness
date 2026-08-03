@@ -115,15 +115,60 @@ json.dump(c, open('$AGENT_DIR/.instar/config.json', 'w'), indent=2)
 # The system plist (/Library/LaunchDaemons/ai.instar.{AGENT_NAME}.plist) is a stale
 # duplicate that manages a separate process — kickstarting it does NOT restart the server.
 # Use gui/$(id -u)/ which requires no sudo.
-UPTIME_BEFORE=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
-launchctl kickstart -k gui/$(id -u)/ai.instar.{AGENT_NAME} || { echo "❌ daemon restart failed"; exit 1; }
-sleep 8
-UPTIME_AFTER=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
-if [ "$UPTIME_AFTER" -ge "$UPTIME_BEFORE" ]; then
-  echo "❌ daemon did not actually restart (uptime didn't reset)"
-  exit 1
-fi
-echo "✅ daemon restarted (uptime reset from ${UPTIME_BEFORE}ms to ${UPTIME_AFTER}ms)"
+#
+# RESTART DISCIPLINE — never `sleep N` and assume the restart landed.
+# `kickstart -k` does NOT wait for the old process to release port 4040, its wake
+# socket, or its instance lock. The plist is KeepAlive=true + ThrottleInterval=10, so
+# every instance that dies on a collision is relaunched by launchd ~10s later. A fixed
+# `sleep 8` returns while the server is still mid-shutdown, and the SECOND kickstart
+# below then lands inside that window and compounds it. Measured on 2026-08-02: 8
+# distinct server pids in 4.5 minutes, only 2 of which shut down gracefully — a
+# ~4.5 min window where the agent is unreliable (wake socket degraded via EADDRINUSE,
+# Threadline relay DISPLACED). The count was escalating: 07-31=1, 08-01=5, 08-02=10.
+#
+# So: wait for the server to be CONTINUOUSLY up, not for a wall-clock guess.
+# uptime >= 20s can only be true if launchd has not relaunched in the last 20s, which
+# is exactly the "storm has settled" condition. Target: 1-2 starts per deploy.
+health_uptime() {
+  curl -s --max-time 3 http://localhost:4040/health \
+    | python3 -c "import json,sys; print(int(json.load(sys.stdin).get('uptime',0)))" 2>/dev/null || echo ""
+}
+
+# restart_daemon <label-for-logging>
+# Restarts, confirms the restart actually happened, then blocks until the new process
+# has been up continuously for 20s. Returns non-zero if it never settles.
+restart_daemon() {
+  local WHAT="$1" BEFORE U
+  BEFORE=$(health_uptime); [ -n "$BEFORE" ] || BEFORE=0
+  launchctl kickstart -k gui/$(id -u)/ai.instar.{AGENT_NAME} || { echo "❌ $WHAT: kickstart failed"; return 1; }
+
+  # Phase 1 — confirm the restart actually took (uptime reset below what we saw).
+  local DEADLINE=$((SECONDS + 60)) RESET=0
+  while [ $SECONDS -lt $DEADLINE ]; do
+    U=$(health_uptime)
+    if [ -n "$U" ] && [ "$U" -lt "$BEFORE" ]; then RESET=1; break; fi
+    sleep 2
+  done
+  if [ "$RESET" -ne 1 ]; then
+    echo "❌ $WHAT: daemon did not actually restart (uptime never reset from ${BEFORE}ms)"
+    return 1
+  fi
+
+  # Phase 2 — block until it has stayed up 20s. Any relaunch resets uptime and we keep waiting.
+  DEADLINE=$((SECONDS + 180))
+  while [ $SECONDS -lt $DEADLINE ]; do
+    U=$(health_uptime)
+    if [ -n "$U" ] && [ "$U" -ge 20000 ]; then
+      echo "✅ $WHAT: daemon restarted and stable (uptime ${U}ms)"
+      return 0
+    fi
+    sleep 3
+  done
+  echo "❌ $WHAT: server never stayed up 20s within 180s — restart storm, investigate before trusting this deploy"
+  return 1
+}
+
+restart_daemon "first restart" || exit 1
 
 # Fix job priorities — MUST run AFTER the restart, then restart AGAIN.
 # The installer regenerates jobs/schedule/*.json AT SERVER BOOT (mtimes land ~1s before
@@ -148,6 +193,43 @@ for slug in ['insight-harvest', 'overseer-development', 'relationship-maintenanc
 print(n)
 ")
 echo "priority repairs applied: $REPAIRED"
+
+# Re-assert built-in job BODY overrides — same regeneration class as the priorities above.
+# .instar/jobs/instar/*.md is regenerated from the shipped template on EVERY update, so any
+# edit there is silently reverted by this very deploy. Confirmed 2026-08-02: health-check's
+# manifest carries origin=instar, so the executing body is jobs/instar/health-check.md and
+# the jobs/user/health-check.md copy is a SHADOW that never runs — a fix applied there on
+# 08-02 had never once executed. Do NOT switch the manifest to origin=user: the user copy
+# declares toolAllowlist [Read], which would strip health-check of curl/df.
+# Idempotent: keyed on the pointer marker, so a re-run is a no-op.
+REPAIRED_MD=$(python3 -c "
+import os
+f = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/jobs/instar/health-check.md'
+marker = 'known-false-signals.md'
+if not os.path.exists(f):
+    print(0); raise SystemExit
+s = open(f).read()
+if marker in s:
+    print(0); raise SystemExit
+old = 'If the health response includes a degradationSummary array, relay those narrative strings directly.'
+add = ('\n\nREADING /health CORRECTLY — \`status\` and the \`degradations\` count are dead signals here. '
+       '\`status\` has read \"degraded\" continuously since 2026-07-13 because of an accepted SecretStore '
+       'dual-key divergence Adrian deliberately chose to leave as-is. That one accepted issue fills the whole '
+       'array, and the count is not even stable (26 on 07-31, 18 on 08-02) while still reducing to exactly 1 '
+       'distinct string. So ignore \`status\` and \`degradations\`. Instead reduce \`degradationSummary\` to its '
+       'DISTINCT entries and drop any mentioning SecretStore / dualKeyRead / master key divergence. If nothing '
+       'distinct remains, health is fine — stay silent. A server that does not respond at all, or genuinely low '
+       'disk, is still worth reporting normally.\n\nBEFORE reporting anything as an issue, read '
+       '\`.instar/context/known-false-signals.md\` and check your finding against it. It lists verified readings '
+       'that look like problems and are not. If your finding matches an entry there, it is NOT a finding — stay '
+       'silent. If you discover a NEW false signal, add it to that file.')
+s = s.replace(old, '').rstrip() + add + '\n'
+open(f, 'w').write(s)
+print(1)
+")
+echo "built-in job body repairs applied: $REPAIRED_MD"
+REPAIRED=$((REPAIRED + REPAIRED_MD))
+
 # warn about any OTHER enabled+low override that would also be shed
 python3 -c "
 import json, os
@@ -158,14 +240,14 @@ for f in sorted(x for x in os.listdir(d) if x.endswith('.json')):
         print('  ⚠ enabled+low (will be shed in degraded quota mode): ' + f)
 "
 if [ "$REPAIRED" -gt 0 ]; then
-  UPTIME_BEFORE2=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
-  launchctl kickstart -k gui/$(id -u)/ai.instar.{AGENT_NAME} || { echo "❌ second daemon restart failed"; exit 1; }
-  sleep 8
-  UPTIME_AFTER2=$(curl -s http://localhost:4040/health | python3 -c "import json,sys; print(json.load(sys.stdin).get('uptime',0))")
-  if [ "$UPTIME_AFTER2" -ge "$UPTIME_BEFORE2" ]; then
-    echo "❌ second restart did not take (priorities NOT loaded — jobs will be shed today)"
+  # This is the restart that used to compound the storm: the old `sleep 8` above
+  # returned mid-shutdown, so this kickstart landed on a server that had not finished
+  # releasing its port/socket/lock. restart_daemon only returns once the previous
+  # instance has been stably up for 20s, so this now fires against a settled server.
+  restart_daemon "second restart (priority reload)" || {
+    echo "❌ priorities NOT loaded — jobs will be shed today"
     exit 1
-  fi
+  }
   # boot regeneration wipes priority again — so confirm the LOADED definitions, not the files
   AUTH=$(python3 -c "import json; print(json.load(open('$AGENT_DIR/.instar/config.json')).get('authToken',''))")
   curl -s -H "Authorization: Bearer $AUTH" http://localhost:4040/jobs | python3 -c "
@@ -303,7 +385,12 @@ d['primary'] = os.path.expanduser('~/homebrew/bin/node')
 json.dump(d, open(f,'w'), indent=4)
 "
 launchctl kickstart -k gui/$(id -u)/ai.instar.{AGENT_NAME}
-sleep 5
+# Poll for readiness rather than a blind sleep — a fixed sleep can sample the server
+# mid-boot and make a SUCCESSFUL rollback look like a failed one.
+for i in $(seq 1 40); do
+  if curl -s --max-time 3 http://localhost:4040/health >/dev/null 2>&1; then break; fi
+  sleep 3
+done
 curl -s http://localhost:4040/health
 ```
 Report the failure via iMessage.
