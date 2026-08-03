@@ -1,0 +1,20 @@
+{
+  "slug": "failure-analyzer",
+  "origin": "instar",
+  "schedule": "0 9 * * 3",
+  "priority": "medium",
+  "expectedDurationMinutes": 2,
+  "enabled": false,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "haiku",
+  "tags": [
+    "cat:learning",
+    "failure-learning",
+    "audit"
+  ],
+  "unrestrictedTools": true,
+  "mcpAccess": "none"
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "health-check",
+  "origin": "instar",
+  "schedule": "*/5 * * * *",
+  "priority": "critical",
+  "expectedDurationMinutes": 1,
+  "enabled": true,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "haiku",
+  "tags": [
+    "cat:guardian"
+  ],
+  "unrestrictedTools": true,
+  "mcpAccess": "none"
+}

@@ -1,0 +1,21 @@
+{
+  "slug": "rope-health-digest",
+  "origin": "instar",
+  "schedule": "0 9 * * *",
+  "priority": "medium",
+  "expectedDurationMinutes": 2,
+  "enabled": true,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "haiku",
+  "tags": [
+    "cat:monitoring",
+    "role:worker",
+    "exec:prompt"
+  ],
+  "unrestrictedTools": true,
+  "gate": "curl -sf http://localhost:${INSTAR_PORT:-4040}/health >/dev/null 2>&1",
+  "mcpAccess": "none"
+}

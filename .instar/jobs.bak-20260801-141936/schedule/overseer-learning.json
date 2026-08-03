@@ -1,0 +1,18 @@
+{
+  "slug": "overseer-learning",
+  "origin": "instar",
+  "schedule": "0 3 */2 * *",
+  "priority": "medium",
+  "expectedDurationMinutes": 5,
+  "enabled": true,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "sonnet",
+  "tags": [
+    "cat:overseer",
+    "role:supervisor"
+  ],
+  "unrestrictedTools": true
+}

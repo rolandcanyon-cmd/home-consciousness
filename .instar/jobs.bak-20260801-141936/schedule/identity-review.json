@@ -1,0 +1,21 @@
+{
+  "slug": "identity-review",
+  "origin": "instar",
+  "schedule": "0 3 * * *",
+  "priority": "medium",
+  "expectedDurationMinutes": 5,
+  "enabled": true,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "opus",
+  "tags": [
+    "cat:identity",
+    "role:worker",
+    "exec:prompt"
+  ],
+  "unrestrictedTools": true,
+  "gate": "curl -sf http://localhost:${INSTAR_PORT:-4040}/health >/dev/null 2>&1 && test -f .instar/soul.md",
+  "mcpAccess": "none"
+}

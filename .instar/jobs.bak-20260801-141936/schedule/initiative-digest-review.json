@@ -1,0 +1,20 @@
+{
+  "slug": "initiative-digest-review",
+  "origin": "instar",
+  "schedule": "0 11 * * 1,4",
+  "priority": "medium",
+  "expectedDurationMinutes": 3,
+  "enabled": true,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "sonnet",
+  "tags": [
+    "cat:learning",
+    "initiative",
+    "rollout"
+  ],
+  "unrestrictedTools": true,
+  "mcpAccess": "none"
+}

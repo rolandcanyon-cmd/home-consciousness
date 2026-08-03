@@ -1,0 +1,20 @@
+{
+  "slug": "benchmark-divergence-analysis",
+  "origin": "instar",
+  "schedule": "45 3 * * *",
+  "priority": "low",
+  "expectedDurationMinutes": 2,
+  "enabled": false,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "tags": [
+    "cat:observability",
+    "benchmark-divergence",
+    "role:worker"
+  ],
+  "unrestrictedTools": true,
+  "gate": "curl -sf http://localhost:${INSTAR_PORT:-4040}/health >/dev/null 2>&1",
+  "mcpAccess": "none"
+}

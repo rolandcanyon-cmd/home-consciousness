@@ -1,0 +1,20 @@
+{
+  "slug": "docs-coverage-audit",
+  "origin": "instar",
+  "schedule": "0 10 * * 1",
+  "priority": "medium",
+  "expectedDurationMinutes": 5,
+  "enabled": false,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "haiku",
+  "tags": [
+    "cat:learning",
+    "audit",
+    "instar-dev-only"
+  ],
+  "unrestrictedTools": true,
+  "mcpAccess": "none"
+}

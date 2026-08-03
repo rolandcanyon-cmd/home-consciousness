@@ -1,0 +1,19 @@
+{
+  "slug": "mentor-onboarding",
+  "origin": "instar",
+  "schedule": "*/15 * * * *",
+  "priority": "low",
+  "expectedDurationMinutes": 1,
+  "enabled": false,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "haiku",
+  "tags": [
+    "cat:learning",
+    "mentor",
+    "framework-integration"
+  ],
+  "unrestrictedTools": true
+}

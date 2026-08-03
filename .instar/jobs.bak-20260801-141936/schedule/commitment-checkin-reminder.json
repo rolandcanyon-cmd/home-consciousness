@@ -1,0 +1,20 @@
+{
+  "slug": "commitment-checkin-reminder",
+  "origin": "instar",
+  "schedule": "*/5 * * * *",
+  "priority": "medium",
+  "expectedDurationMinutes": 1,
+  "enabled": false,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "tags": [
+    "cat:commitments",
+    "check-in-reminder",
+    "role:worker"
+  ],
+  "unrestrictedTools": true,
+  "gate": "curl -sf http://localhost:${INSTAR_PORT:-4040}/health >/dev/null 2>&1",
+  "mcpAccess": "none"
+}

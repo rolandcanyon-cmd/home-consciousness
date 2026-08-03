@@ -1,0 +1,22 @@
+{
+  "slug": "commitment-detection",
+  "origin": "instar",
+  "schedule": "*/5 * * * *",
+  "priority": "high",
+  "expectedDurationMinutes": 1,
+  "enabled": false,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "haiku",
+  "tags": [
+    "cat:evolution",
+    "role:worker",
+    "exec:prompt",
+    "pair:evolution-overdue-check"
+  ],
+  "unrestrictedTools": true,
+  "gate": "curl -sf http://localhost:${INSTAR_PORT:-4040}/health >/dev/null 2>&1",
+  "mcpAccess": "none"
+}

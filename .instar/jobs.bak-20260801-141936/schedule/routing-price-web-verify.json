@@ -1,0 +1,22 @@
+{
+  "slug": "routing-price-web-verify",
+  "origin": "instar",
+  "schedule": "0 6 * * 2",
+  "priority": "low",
+  "expectedDurationMinutes": 5,
+  "enabled": false,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "haiku",
+  "tags": [
+    "cat:maintenance",
+    "role:worker",
+    "exec:prompt"
+  ],
+  "unrestrictedTools": false,
+  "gate": "curl -sf http://localhost:${INSTAR_PORT:-4040}/health >/dev/null 2>&1",
+  "mcpAccess": "none",
+  "perMachineIndependent": true
+}

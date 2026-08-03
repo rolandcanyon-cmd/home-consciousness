@@ -1,0 +1,20 @@
+{
+  "slug": "correction-class-review-backstop",
+  "origin": "instar",
+  "schedule": "17 8 * * *",
+  "priority": "medium",
+  "expectedDurationMinutes": 2,
+  "enabled": true,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "haiku",
+  "tags": [
+    "cat:learning",
+    "correction-class-review",
+    "close-the-loop"
+  ],
+  "unrestrictedTools": true,
+  "mcpAccess": "none"
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "reflection-trigger",
+  "origin": "instar",
+  "schedule": "0 */4 * * *",
+  "priority": "medium",
+  "expectedDurationMinutes": 5,
+  "enabled": true,
+  "execute": {
+    "type": "agentmd"
+  },
+  "manifestVersion": 1,
+  "model": "opus",
+  "tags": [
+    "cat:learning"
+  ],
+  "unrestrictedTools": true,
+  "mcpAccess": "none"
+}
