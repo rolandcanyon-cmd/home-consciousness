@@ -72,8 +72,12 @@ Schedules in job definitions are evaluated in machine-local time (currently PDT,
 
 ## 6. Editing a job's `.md` usually changes NOTHING — every file in `.instar/jobs/user/` is dead
 
-Audited 2026-08-03: **all 21 `.md` files under `.instar/jobs/user/` never execute.** That is the
+Audited 2026-08-03: **all 20 `.md` files under `.instar/jobs/user/` never execute.** That is the
 directory you would naturally edit to customise a job, and it is entirely inert.
+
+Each of those files now opens with an inline `⛔ DEAD FILE` banner naming its real prompt source,
+so the warning is visible in the editor at the moment of the edit (EVO-059). `tcc-permission-check.md`
+was deleted — no such job exists anywhere.
 
 A job's real prompt comes from one of three places — check which before editing:
 
@@ -94,6 +98,36 @@ This cost real time twice: a health-check fix applied to `user/health-check.md` 
 **Verify, never assume:** after any job edit, read the loaded prompt back from
 `GET /jobs` (`execute.value`, falling back to `body`) *after a restart* and confirm your text is
 actually in it. Job definitions load at server start — there is no hot reload.
+
+---
+
+## 7. Every outbound channel here reads healthy while its WRITE is broken
+
+The paths by which I surface something to Adrian are degraded, and each degrades *without
+erroring at the point of use*. Reading the surface tells you nothing:
+
+- **Attention queue — WRITE-DEAD.** `POST /attention` returns `503 {"error":"Telegram not
+  configured"}`; the handler gates on Telegram before storage, and this agent runs
+  whatsapp (logged out) + imessage. So **`GET /attention` returning 0 items means nothing can
+  be *written*, not that nothing needed attention.** Every built-in guard that escalates this
+  way — guard-posture tripwire, sentinel escalations, resume-queue give-ups, burn detection,
+  duplicate reconciler, scope-accretion holds, machine-coherence, load-bearing gaps — is a
+  silent no-op here. Filed `fb-bbe74c6b-96c`.
+- **Feedback ring — 99% flood.** The store holds 1000 entries, which looks full and healthy;
+  ~993 are the same `[DEGRADATION] SecretStore.dualKeyRead` report, leaving ~8 distinct titles.
+  At ~814/day the ring recycles about daily, so anything real filed there is destroyed within
+  ~24h. Filed `fb-af466c05-2b1`.
+- **Tunnel — INTERMITTENT, not dead.** A `url` field is often populated even when the link is
+  unreachable, and it genuinely does work in stretches. Do not tell Adrian remote links are
+  impossible; **re-read `GET /tunnel` at the moment you need one.** Filed `fb-955877a3-429`.
+
+**The rule:** when something needs Adrian, send iMessage — the only channel verified to work.
+Never `POST /attention` and assume it landed. And if an escalation *write* fails, that failure
+**outranks** whatever was being escalated; report the broken channel first, not as a footnote.
+
+`guardian-pulse` runs `.claude/scripts/outbound-channel-check.py` every 8h to catch relapses
+(write-probe and distinct-value checks only, deduped to once per channel per day). Do not
+re-file the three `fb-*` reports above — they are the durable upstream record.
 
 ---
 

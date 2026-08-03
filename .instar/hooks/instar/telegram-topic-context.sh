@@ -103,25 +103,6 @@ else
     "http://localhost:${PORT}/telegram/topics/${TOPIC_ID}/messages?limit=15" 2>/dev/null)
 fi
 
-# Prepend the Topic Intent briefing. This is the actual delivery seam for the
-# topic / recent-arc / current-work awareness projection. It is best-effort:
-# a missing/disabled route leaves recent-history injection unchanged.
-TOPIC_BRIEFING=""
-if [ -n "$AUTH_TOKEN" ]; then
-  TOPIC_BRIEFING=$(curl -sf --max-time 2 \
-    -H "Authorization: Bearer ${AUTH_TOKEN}" \
-    -H "X-Instar-AgentId: ${AGENT_ID}" \
-    "http://localhost:${PORT}/topic-intent/${TOPIC_ID}/briefing" 2>/dev/null)
-else
-  TOPIC_BRIEFING=$(curl -sf --max-time 2 \
-    "http://localhost:${PORT}/topic-intent/${TOPIC_ID}/briefing" 2>/dev/null)
-fi
-
-if [ -n "$TOPIC_BRIEFING" ]; then
-  echo "$TOPIC_BRIEFING"
-  echo ""
-fi
-
 # Format and output context with unanswered message detection
 echo "$RECENT_MSGS" | python3 -c "
 import sys, json
