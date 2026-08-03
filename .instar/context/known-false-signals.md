@@ -50,6 +50,28 @@ re-anchors to the next cron slot. (It does **not** continue to +4h.)
   on every healthy empty-queue skip.
 - Gate exit 1 on its own proves nothing either way — it is the normal healthy path.
 
+**Before calling any past-due `nextScheduled` a wedge, run these two checks (2026-08-03):**
+
+1. **Look for recent `job_gate_skip` records for that slug** in `.instar/logs/activity-*.jsonl`.
+   ⚠ The slug lives at **`.metadata.slug`, NOT top-level `.slug`** — a naive `.slug` read returns
+   `null` for every gate-skip record and makes a healthy gated job look dead. On 2026-08-03
+   `evolution-proposal-evaluate` and `evolution-proposal-implement` were both past-due and both
+   provably alive via gate-skip records at 14:52/15:00/15:01Z.
+2. **Compare against other jobs firing at the same minute.** A genuine silent miss is **per-job,
+   not scheduler-wide.** When `imessage-fork-maintenance` (cron `30 7 * * *` = 14:30Z) silently
+   did not run on 2026-08-03, the scheduler spawned `health-check` and `scheduler-health-notify`
+   within 0.4s of that same 14:30:00 tick. **If siblings fired, stop investigating the scheduler
+   and investigate the single job entry.** Last `scheduler_start` was 08:04:51Z, hours earlier —
+   so it was not a restart race either.
+
+A genuine silent miss looks like: `state.lastRun` frozen on the prior day, `state.nextScheduled`
+frozen at the already-passed slot, `consecutiveFailures: 0`, **zero** activity-log records, and no
+`job-<slug>-*` session in `GET /sessions?include=all`. Restarting the server clears it.
+
+Side effect worth knowing: gate skips ride the retry ladder, so one skip generates ~6 job attempts
+over ~112 min. Cheap (shell, no LLM) but it pollutes the retry-exhaustion telemetry that
+`scheduler-health-notify` keys on.
+
 ## 4. `GET /jobs` top-level `lastRun` / `nextScheduled` are ALWAYS null
 
 Verified 2026-08-02: **0 of 52** jobs populate the top-level fields; **34 of 52** populate
@@ -79,7 +101,8 @@ Each of those files now opens with an inline `⛔ DEAD FILE` banner naming its r
 so the warning is visible in the editor at the moment of the edit (EVO-059). `tcc-permission-check.md`
 was deleted — no such job exists anywhere.
 
-A job's real prompt comes from one of three places — check which before editing:
+A job's real prompt comes from one of three places. **These are ordered by precedence, not
+alternatives — check 1 first and stop if it matches.**
 
 1. **`.instar/jobs/schedule/<slug>.json` has `execute.type: "agentmd"`** → the body is
    `.instar/jobs/<origin>/<slug>.md`, where `origin` is a field *in that manifest*. It is
@@ -88,7 +111,16 @@ A job's real prompt comes from one of three places — check which before editin
    update, so an edit there is reverted by the next daily deploy — put the repair in the deploy
    (see the `REPAIRED_MD` block in the `imessage-fork-maintenance` skill), not just in the file.
 2. **The slug is in legacy `.instar/jobs.json`** (`execute.type: "prompt"`) → that `execute.value`
-   string is the prompt. The `.md` is documentation only.
+   string is the prompt **only if rule 1 did not already match**. The `.md` is documentation only.
+
+   ⚠ **Rule 1 beats rule 2, and 13 slugs match both.** Measured 2026-08-03 by diffing
+   `.instar/jobs.json` against live `GET /jobs`: **13 of 32** `jobs.json` entries declare
+   `execute.type: "prompt"` while the loaded job runs `execute.type: "agentmd"` — their
+   `execute.value` is dead code. They are `health-check`, `reflection-trigger`,
+   `relationship-maintenance`, `insight-harvest`, `evolution-overdue-check`, `identity-review`,
+   `evolution-proposal-evaluate`, `evolution-proposal-implement`, and all five `overseer-*`.
+   All 13 have a `schedule/<slug>.json` declaring `agentmd`. Editing the `jobs.json` prompt for
+   any of them changes nothing and raises no error.
 3. **Neither** → the job does not exist at all (e.g. `user/tcc-permission-check.md`).
 
 This cost real time twice: a health-check fix applied to `user/health-check.md` on 2026-08-02 had

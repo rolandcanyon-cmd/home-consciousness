@@ -25,7 +25,40 @@ if [ -n "$INSTAR_TELEGRAM_TOPIC" ]; then
   if [ -f "$CONFIG_FILE" ]; then
     PORT=$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$CONFIG_FILE" | head -1 | grep -oE '[0-9]+' | head -1)
     if [ -n "$PORT" ]; then
-      TOPIC_CTX=$(curl -s "http://localhost:${PORT}/topic/context/${TOPIC_ID}?recent=20" 2>/dev/null)
+      # Restore the temporal awareness projection before the ordinary topic
+      # summary. Compaction may occur without another UserPromptSubmit, so this
+      # is a distinct delivery seam rather than a duplicate convenience.
+      AWARENESS_TOKEN="${INSTAR_AUTH_TOKEN:-}"
+      if [ -z "$AWARENESS_TOKEN" ]; then
+        AWARENESS_TOKEN=$(python3 -c "import json; v=json.load(open('$CONFIG_FILE')).get('authToken',''); print(v if isinstance(v, str) else '')" 2>/dev/null)
+      fi
+      AWARENESS_AGENT_ID="${INSTAR_AGENT_ID:-}"
+      if [ -z "$AWARENESS_AGENT_ID" ]; then
+        AWARENESS_AGENT_ID=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE')).get('projectName',''))" 2>/dev/null)
+      fi
+      if [ -n "$AWARENESS_TOKEN" ]; then
+        TOPIC_BRIEFING=$(curl -sf --max-time 2 \
+          -H "Authorization: Bearer ${AWARENESS_TOKEN}" \
+          -H "X-Instar-AgentId: ${AWARENESS_AGENT_ID}" \
+          "http://localhost:${PORT}/topic-intent/${TOPIC_ID}/briefing" 2>/dev/null)
+      else
+        TOPIC_BRIEFING=$(curl -sf --max-time 2 \
+          "http://localhost:${PORT}/topic-intent/${TOPIC_ID}/briefing" 2>/dev/null)
+      fi
+      if [ -n "$TOPIC_BRIEFING" ]; then
+        echo "$TOPIC_BRIEFING"
+        echo ""
+      fi
+
+      if [ -n "$AWARENESS_TOKEN" ]; then
+        TOPIC_CTX=$(curl -sf --max-time 2 \
+          -H "Authorization: Bearer ${AWARENESS_TOKEN}" \
+          -H "X-Instar-AgentId: ${AWARENESS_AGENT_ID}" \
+          "http://localhost:${PORT}/topic/context/${TOPIC_ID}?recent=20" 2>/dev/null)
+      else
+        TOPIC_CTX=$(curl -sf --max-time 2 \
+          "http://localhost:${PORT}/topic/context/${TOPIC_ID}?recent=20" 2>/dev/null)
+      fi
       if [ -n "$TOPIC_CTX" ] && echo "$TOPIC_CTX" | grep -q '"totalMessages"'; then
         TOTAL=$(echo "$TOPIC_CTX" | grep -o '"totalMessages":[0-9]*' | cut -d':' -f2)
         TOPIC_NAME=$(echo "$TOPIC_CTX" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('topicName') or 'Unknown')" 2>/dev/null || echo "Unknown")
@@ -195,7 +228,7 @@ except: pass
     if [ -f "$DISPATCH_FILE" ]; then
       echo ""
       echo "--- CONTEXT DISPATCH (when X arises, read Y) ---"
-      cat "$DISPATCH_FILE" | head -20
+      cat "$DISPATCH_FILE"
       echo "--- END CONTEXT DISPATCH ---"
     fi
   else

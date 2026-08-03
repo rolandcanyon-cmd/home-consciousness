@@ -18,8 +18,8 @@ echo ""
 
 # On compaction, delegate to the dedicated recovery hook
 if [ "$EVENT" = "compact" ]; then
-  if [ -x "$INSTAR_DIR/hooks/compaction-recovery.sh" ]; then
-    exec bash "$INSTAR_DIR/hooks/compaction-recovery.sh"
+  if [ -x "$INSTAR_DIR/hooks/instar/compaction-recovery.sh" ]; then
+    exec bash "$INSTAR_DIR/hooks/instar/compaction-recovery.sh"
   fi
 fi
 
@@ -451,7 +451,7 @@ except: pass
     if [ -f "$DISPATCH_FILE" ]; then
       echo ""
       echo "--- CONTEXT DISPATCH (when X arises, read Y) ---"
-      cat "$DISPATCH_FILE" | head -20
+      cat "$DISPATCH_FILE"
       echo "--- END CONTEXT DISPATCH ---"
     fi
   else
