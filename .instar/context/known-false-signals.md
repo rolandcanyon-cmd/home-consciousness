@@ -163,9 +163,57 @@ re-file the three `fb-*` reports above — they are the durable upstream record.
 
 ---
 
-## Two general rules that produced most of the above
+## 8. `{"result":"queued"}` with no session for MINUTES is normal — the job queue is SERIALIZED
+
+`POST /jobs/<slug>/trigger` returns `{"result":"queued"}` and the job may not spawn for many
+**minutes**. The queue drains one job at a time through `.instar/state/active-job.json`.
+Measured 2026-08-03: a manual trigger at 15:03 sat behind `job-insight-harvest` and did not
+drain until 15:09:37 — six minutes. This was briefly misread as reproducing the silent
+slot-miss bug (§3). It was not.
+
+**Machine load and session count are NOT the constraint.** During that wait, load was fine
+(76% idle, 2 running sessions) — the queue was simply serialized. Do not cite load.
+
+**How to wait correctly:** grep the slug in `.instar/logs/activity-*.jsonl`. Do *not* poll
+`GET /sessions` for ~60s and call the absence a failure.
+
+⚠ **Observability hole that makes this genuinely ambiguous:** a `job_triggered` record is
+written at **drain** time, not at enqueue time, and **there is no enqueue event at all**. So a
+job that was enqueued and then dropped is indistinguishable in the logs from a job that was
+never enqueued. That gap is why the 14:30 scheduled miss in §3 is hard to attribute — the
+evidence to tell the two apart does not exist. Say "cannot attribute", not "dropped".
+
+---
+
+## 9. A suppressed error channel manufactures a healthy signal
+
+Three incidents, all the same defect: an error was routed to `/dev/null` or a suppressed
+stderr, so a hard failure became a **false success** — strictly worse than the failure, because
+the failure would have been noticed.
+
+- **`reflection-trigger`** suppressed stderr on a `jq` filter that does not compile. Every run
+  fed an Opus session an empty activity feed and reported healthy. Ran blind for weeks.
+- **Filing EVO-062** POSTed `type: "process"`, which is not in the enum. The server returned
+  **400 and created nothing**; the response was piped to `/dev/null`, so the job believed it
+  had filed. Valid types: `capability`, `infrastructure`, `voice`, `workflow`, `philosophy`,
+  `integration`, `performance`. A rejected enum value is the common cause.
+- **`PATCH /evolution/...`** silently drops unknown fields and still returns `ok:true` — the
+  same class, with the suppression built into the server rather than the caller.
+
+**TELL:** any `curl` in a job script ending in `>/dev/null` or `2>/dev/null` **on a write call**.
+
+**THE RULE: silence is not confirmation.** Let write responses print and check `ok`/`id` in
+them. Note the second incident happened *inside the job that was harvesting the first one* —
+knowing about this class does not protect you from it; only reading the response does.
+
+---
+
+## Three general rules that produced most of the above
 
 - **An API read is implicitly "now".** Do not compare a live API read against pre-restart log
   lines; check the most recent `scheduler_start` first, or the mismatch is an artifact.
 - **A constant is not a signal.** Before reporting a field, ask whether it has *ever* held a
   different value. If it cannot vary, it cannot be evidence.
+- **An absent error is not a passing result.** Distinguish "the check ran and found nothing"
+  from "the check could not report". Absence of a complaint is only evidence if the complaint
+  channel is known to work (§7, §9).
