@@ -4,60 +4,6 @@
   "notifications": [
     {
       "type": "weekly",
-      "level": "warning",
-      "percentUsed": 75,
-      "timestamp": "2026-07-14T13:03:35.684Z"
-    },
-    {
-      "type": "weekly",
-      "level": "warning",
-      "percentUsed": 75,
-      "timestamp": "2026-08-03T03:31:41.413Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 85,
-      "timestamp": "2026-08-03T20:02:29.875Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T03:08:14.987Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T03:10:27.855Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T03:12:41.487Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T03:14:54.708Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T03:18:16.397Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T03:20:30.159Z"
-    },
-    {
-      "type": "weekly",
       "level": "critical",
       "percentUsed": 93,
       "timestamp": "2026-08-04T03:22:43.601Z"
@@ -535,7 +481,127 @@
       "level": "limit",
       "percentUsed": 95,
       "timestamp": "2026-08-04T07:10:46.946Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:13:01.719Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:16:13.709Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:18:27.480Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:20:40.221Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:22:55.625Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:26:17.196Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:28:31.338Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:30:44.412Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:32:59.458Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:36:16.906Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:38:31.035Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:40:44.272Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 95,
+      "timestamp": "2026-08-04T07:42:56.921Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T07:46:18.808Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T07:48:33.660Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T07:50:47.779Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T07:53:02.020Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T07:56:16.978Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T07:58:28.633Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T08:00:39.875Z"
     }
   ],
-  "lastNotifiedAt": "2026-08-04T07:10:46.946Z"
+  "lastNotifiedAt": "2026-08-04T08:00:39.875Z"
 }
