@@ -151,7 +151,175 @@
       "level": "critical",
       "percentUsed": 93,
       "timestamp": "2026-08-04T04:00:32.665Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:02:46.102Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:04:57.680Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:08:17.310Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:10:30.366Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:12:45.224Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:14:55.987Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:18:18.278Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:20:31.253Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:22:44.305Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:24:55.528Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:28:17.650Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:30:30.626Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:32:43.870Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:34:56.617Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 93,
+      "timestamp": "2026-08-04T04:38:18.753Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T04:40:32.003Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T04:42:44.201Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T04:44:57.152Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T04:48:17.474Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T04:50:29.850Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T04:52:44.813Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T04:54:55.773Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T04:58:16.488Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T05:00:30.381Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T05:02:45.367Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T05:04:59.007Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T05:08:15.838Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 94,
+      "timestamp": "2026-08-04T05:10:28.109Z"
     }
   ],
-  "lastNotifiedAt": "2026-08-04T04:00:32.665Z"
+  "lastNotifiedAt": "2026-08-04T05:10:28.109Z"
 }
