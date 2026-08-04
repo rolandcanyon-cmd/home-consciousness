@@ -1,607 +1,607 @@
 {
-  "lastWeeklyLevel": "limit",
+  "lastWeeklyLevel": null,
   "lastFiveHourLevel": null,
   "notifications": [
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:08:26.564Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:24:21.067Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:10:40.127Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:26:32.598Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:12:53.627Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:28:44.184Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:15:06.564Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:30:58.594Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:18:21.312Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:34:16.555Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:20:34.240Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:36:29.514Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:22:48.583Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:38:41.758Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:25:01.186Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:40:54.777Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:28:15.781Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:44:18.485Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:30:27.861Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:46:30.378Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:32:40.599Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:48:45.443Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:34:53.853Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:50:57.799Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:38:15.452Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:54:14.421Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:40:27.553Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:56:27.976Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:42:42.342Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T18:58:39.921Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:44:55.026Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:00:51.797Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:48:16.084Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:03:04.087Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:50:29.599Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:06:17.384Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:52:41.714Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:08:31.581Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:54:53.631Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:10:45.312Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T08:57:06.024Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:12:57.075Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:00:19.508Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:16:17.512Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:02:33.737Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:18:30.871Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:04:46.725Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:20:45.465Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:07:01.562Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:22:59.079Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:10:16.851Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:26:17.186Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:12:30.649Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:28:31.492Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:14:42.364Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:30:42.730Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:16:55.562Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:32:56.418Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:20:16.047Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:36:18.036Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:22:27.859Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:38:29.814Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:24:41.340Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:40:42.992Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:26:53.983Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:42:56.495Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:30:15.667Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:46:16.385Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:32:27.935Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:48:30.101Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:34:41.874Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:50:41.134Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:36:55.905Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:52:53.131Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:40:16.074Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:55:03.805Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:42:30.474Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T19:58:16.319Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:44:42.092Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:00:29.105Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 96,
-      "timestamp": "2026-08-04T09:46:55.210Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:02:40.577Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T09:50:17.294Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:04:53.776Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T09:52:29.426Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:08:15.860Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T09:54:41.460Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:10:30.797Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T09:56:52.883Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:12:44.225Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T09:59:06.323Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:14:57.377Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:02:20.209Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:18:13.842Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:04:32.150Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:20:24.959Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:06:45.579Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:22:37.589Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:08:59.947Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:24:50.629Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:12:16.317Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:27:02.758Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:14:30.031Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:30:17.931Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:16:42.023Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:32:30.992Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:18:55.121Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:34:45.085Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:24:38.063Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:36:57.333Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:26:51.681Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:40:19.748Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:29:05.353Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:42:32.341Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:32:14.992Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:44:47.754Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:34:27.534Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:47:01.115Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:36:38.483Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:50:13.896Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:38:53.069Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:52:24.468Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:41:05.127Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:54:35.733Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:44:19.166Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:56:47.273Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:46:32.081Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T20:58:59.512Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:48:42.463Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:02:16.485Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:50:54.988Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:04:30.060Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:54:18.015Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:06:43.199Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:56:31.245Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:08:55.549Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T10:58:44.890Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:12:15.621Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 97,
-      "timestamp": "2026-08-04T12:04:00.883Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:14:29.306Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:08:14.338Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:16:44.149Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:18:34.911Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:18:58.040Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:20:47.800Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:22:15.084Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:23:00.570Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:24:29.844Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:26:14.918Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:26:43.058Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:28:28.237Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:28:55.905Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:30:41.424Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:32:14.992Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:32:54.429Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:34:26.858Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:36:16.605Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:36:43.321Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:38:28.629Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:38:56.951Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:40:41.975Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:42:16.090Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:42:53.843Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:44:28.704Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:46:14.149Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:46:44.518Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:48:26.113Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:48:57.782Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:50:37.981Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:52:16.876Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:52:49.550Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:54:29.689Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:55:01.597Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:56:42.649Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T13:58:14.788Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T21:58:53.779Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T14:00:27.499Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:02:11.346Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T14:02:38.929Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:04:25.743Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 98,
-      "timestamp": "2026-08-04T14:04:50.574Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:06:36.630Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 99,
-      "timestamp": "2026-08-04T14:07:04.838Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:08:48.646Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 99,
-      "timestamp": "2026-08-04T14:10:51.398Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:11:01.643Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 99,
-      "timestamp": "2026-08-04T14:13:05.361Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:14:16.126Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 99,
-      "timestamp": "2026-08-04T14:16:21.614Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:16:29.951Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 99,
-      "timestamp": "2026-08-04T14:18:35.317Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:18:42.991Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 99,
-      "timestamp": "2026-08-04T14:20:48.991Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:20:56.820Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 99,
-      "timestamp": "2026-08-04T14:23:00.793Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:24:16.673Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 99,
-      "timestamp": "2026-08-04T14:26:18.349Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:26:28.587Z"
     },
     {
       "type": "weekly",
       "level": "limit",
-      "percentUsed": 99,
-      "timestamp": "2026-08-04T15:00:10.181Z"
+      "percentUsed": 100,
+      "timestamp": "2026-08-04T22:49:46.103Z"
     }
   ],
-  "lastNotifiedAt": "2026-08-04T15:00:10.181Z"
+  "lastNotifiedAt": "2026-08-04T22:49:46.103Z"
 }
