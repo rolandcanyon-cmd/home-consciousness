@@ -5,150 +5,6 @@
     {
       "type": "weekly",
       "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T04:30:30.626Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T04:32:43.870Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T04:34:56.617Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 93,
-      "timestamp": "2026-08-04T04:38:18.753Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T04:40:32.003Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T04:42:44.201Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T04:44:57.152Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T04:48:17.474Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T04:50:29.850Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T04:52:44.813Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T04:54:55.773Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T04:58:16.488Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:00:30.381Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:02:45.367Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:04:59.007Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:08:15.838Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:10:28.109Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:12:42.671Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:14:55.795Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:18:16.166Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:20:29.107Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:22:42.595Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:24:56.516Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
-      "percentUsed": 94,
-      "timestamp": "2026-08-04T05:28:18.199Z"
-    },
-    {
-      "type": "weekly",
-      "level": "critical",
       "percentUsed": 94,
       "timestamp": "2026-08-04T05:30:31.816Z"
     },
@@ -601,7 +457,151 @@
       "level": "limit",
       "percentUsed": 96,
       "timestamp": "2026-08-04T09:07:01.562Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:10:16.851Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:12:30.649Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:14:42.364Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:16:55.562Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:20:16.047Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:22:27.859Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:24:41.340Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:26:53.983Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:30:15.667Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:32:27.935Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:34:41.874Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:36:55.905Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:40:16.074Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:42:30.474Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:44:42.092Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 96,
+      "timestamp": "2026-08-04T09:46:55.210Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 97,
+      "timestamp": "2026-08-04T09:50:17.294Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 97,
+      "timestamp": "2026-08-04T09:52:29.426Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 97,
+      "timestamp": "2026-08-04T09:54:41.460Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 97,
+      "timestamp": "2026-08-04T09:56:52.883Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 97,
+      "timestamp": "2026-08-04T09:59:06.323Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 97,
+      "timestamp": "2026-08-04T10:02:20.209Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 97,
+      "timestamp": "2026-08-04T10:04:32.150Z"
+    },
+    {
+      "type": "weekly",
+      "level": "limit",
+      "percentUsed": 97,
+      "timestamp": "2026-08-04T10:06:45.579Z"
     }
   ],
-  "lastNotifiedAt": "2026-08-04T09:07:01.562Z"
+  "lastNotifiedAt": "2026-08-04T10:06:45.579Z"
 }
