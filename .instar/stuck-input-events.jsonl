@@ -79,3 +79,4 @@
 {"ts":"2026-07-22T16:10:34.466Z","session":"Roland-im-b93de418","promptText":"Check the other repos too","attempt":0,"action":"ghost-text-skip","outcome":"skipped"}
 {"ts":"2026-07-27T06:57:00.352Z","session":"Roland-im-b93de418","promptText":"Yes, go ahead","attempt":0,"action":"ghost-text-skip","outcome":"skipped"}
 {"ts":"2026-07-27T14:56:51.223Z","session":"Roland-im-b93de418","promptText":"Yes, raise it to 85%","attempt":0,"action":"ghost-text-skip","outcome":"skipped"}
+{"ts":"2026-08-04T14:05:50.075Z","session":"Roland-im-b93de418","promptText":"[IMPORTANT: Read /tmp/instar-imessage/bootstrap-84424360-1785852330192-l9n972.txt — it contains your full session context, conversation history, and the user's latest message. You MUST read this","attempt":0,"action":"Enter","outcome":"fired"}
