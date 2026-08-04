@@ -1,71 +1,16 @@
 {
   "lastMigration": {
-    "triggeredAt": "2026-08-04T14:04:50.578Z",
-    "reason": "weekly quota at 98% (threshold: 92%)",
+    "triggeredAt": "2026-08-04T15:00:10.182Z",
+    "reason": "weekly quota at 99% (threshold: 92%)",
     "previousAccount": null,
     "newAccount": null,
     "sessionsHalted": [],
     "sessionsRestarted": [],
     "result": "no_alternative",
-    "completedAt": "2026-08-04T14:04:50.578Z",
+    "completedAt": "2026-08-04T15:00:10.182Z",
     "durationMs": 0
   },
   "migrations": [
-    {
-      "triggeredAt": "2026-08-04T04:16:04.204Z",
-      "reason": "weekly quota at 93% (threshold: 92%)",
-      "previousAccount": null,
-      "newAccount": null,
-      "sessionsHalted": [],
-      "sessionsRestarted": [],
-      "result": "no_alternative",
-      "completedAt": "2026-08-04T04:16:04.204Z",
-      "durationMs": 0
-    },
-    {
-      "triggeredAt": "2026-08-04T04:26:04.385Z",
-      "reason": "weekly quota at 93% (threshold: 92%)",
-      "previousAccount": null,
-      "newAccount": null,
-      "sessionsHalted": [],
-      "sessionsRestarted": [],
-      "result": "no_alternative",
-      "completedAt": "2026-08-04T04:26:04.385Z",
-      "durationMs": 0
-    },
-    {
-      "triggeredAt": "2026-08-04T04:36:04.499Z",
-      "reason": "weekly quota at 93% (threshold: 92%)",
-      "previousAccount": null,
-      "newAccount": null,
-      "sessionsHalted": [],
-      "sessionsRestarted": [],
-      "result": "no_alternative",
-      "completedAt": "2026-08-04T04:36:04.499Z",
-      "durationMs": 0
-    },
-    {
-      "triggeredAt": "2026-08-04T04:46:04.759Z",
-      "reason": "weekly quota at 94% (threshold: 92%)",
-      "previousAccount": null,
-      "newAccount": null,
-      "sessionsHalted": [],
-      "sessionsRestarted": [],
-      "result": "no_alternative",
-      "completedAt": "2026-08-04T04:46:04.759Z",
-      "durationMs": 0
-    },
-    {
-      "triggeredAt": "2026-08-04T04:58:16.489Z",
-      "reason": "weekly quota at 94% (threshold: 92%)",
-      "previousAccount": null,
-      "newAccount": null,
-      "sessionsHalted": [],
-      "sessionsRestarted": [],
-      "result": "no_alternative",
-      "completedAt": "2026-08-04T04:58:16.490Z",
-      "durationMs": 1
-    },
     {
       "triggeredAt": "2026-08-04T05:10:28.110Z",
       "reason": "weekly quota at 94% (threshold: 92%)",
@@ -559,6 +504,61 @@
       "sessionsRestarted": [],
       "result": "no_alternative",
       "completedAt": "2026-08-04T14:04:50.578Z",
+      "durationMs": 0
+    },
+    {
+      "triggeredAt": "2026-08-04T14:16:21.615Z",
+      "reason": "weekly quota at 99% (threshold: 92%)",
+      "previousAccount": null,
+      "newAccount": null,
+      "sessionsHalted": [],
+      "sessionsRestarted": [],
+      "result": "no_alternative",
+      "completedAt": "2026-08-04T14:16:21.615Z",
+      "durationMs": 0
+    },
+    {
+      "triggeredAt": "2026-08-04T14:27:19.208Z",
+      "reason": "weekly quota at 99% (threshold: 92%)",
+      "previousAccount": null,
+      "newAccount": null,
+      "sessionsHalted": [],
+      "sessionsRestarted": [],
+      "result": "no_alternative",
+      "completedAt": "2026-08-04T14:27:19.208Z",
+      "durationMs": 0
+    },
+    {
+      "triggeredAt": "2026-08-04T14:37:29.318Z",
+      "reason": "weekly quota at 99% (threshold: 92%)",
+      "previousAccount": null,
+      "newAccount": null,
+      "sessionsHalted": [],
+      "sessionsRestarted": [],
+      "result": "no_alternative",
+      "completedAt": "2026-08-04T14:37:29.318Z",
+      "durationMs": 0
+    },
+    {
+      "triggeredAt": "2026-08-04T14:47:38.154Z",
+      "reason": "weekly quota at 99% (threshold: 92%)",
+      "previousAccount": null,
+      "newAccount": null,
+      "sessionsHalted": [],
+      "sessionsRestarted": [],
+      "result": "no_alternative",
+      "completedAt": "2026-08-04T14:47:38.154Z",
+      "durationMs": 0
+    },
+    {
+      "triggeredAt": "2026-08-04T15:00:10.182Z",
+      "reason": "weekly quota at 99% (threshold: 92%)",
+      "previousAccount": null,
+      "newAccount": null,
+      "sessionsHalted": [],
+      "sessionsRestarted": [],
+      "result": "no_alternative",
+      "completedAt": "2026-08-04T15:00:10.182Z",
       "durationMs": 0
     }
   ]
