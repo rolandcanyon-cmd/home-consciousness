@@ -1,46 +1,51 @@
-# Handoff Notes — imessage-fork-maintenance
-# Written: 2026-06-19T14:35:00Z
+# 2026-08-31 run — iMessage SEND broken, tmux server bounced mid-run
 
-## Run Summary
-- **Status**: Completed successfully (rebase run)
-- **Upstream commits pulled**: 9 (v1.3.622–626)
-- **Upstream HEAD after rebase**: e9f36088 (chore: release v1.3.626)
-- **Our fork HEAD**: f6ced0e7
+## Fork sync status (this part completed normally)
+- No upstream commits to rebase (still at c6d8d7e26, our 5 custom commits in place)
+- No open PRs to review
+- Server /health: degraded (known accepted SecretStore divergence, not a real issue)
+- Server uptime: ~24h, no restart storm
+- iMessage adapter: connected
+- dist OAuth routing check: passed
+- Claude spawn canary: passed
 
-## What Was Pulled
-- `ca105a50` fix(ws52): wire the 3 enroll seams so account-follow-me works end-to-end
-- `73d4863e` fix(ws52): real login link (code=t de-wrap) + tap-simple Pending Logins card
-- `b27fc027` feat(ws52): operator code paste-back for account-follow-me (off-chat, self-serve)
-- Release v1.3.622, v1.3.623, v1.3.624 chores
-- `6105b9c3` feat(subscriptions): account × machine matrix — in-dashboard cross-machine account setup (#1230)
-- `54b192d3` feat(testing): enforce scrape/parser tests use REAL captured fixtures (#1229)
-- `e9f36088` chore: release v1.3.626
+## iMessage SEND was broken (root cause #3, imessage-doctor skill)
+Attempting to send the heartbeat failed:
+`appleScriptFailure("...Not authorized to send Apple events to Messages. (-1743)")`
 
-## Our Commits (still 2 above upstream)
-1. `98a40ff6` fix(ci): fall back to github.token when RELEASE_TOKEN secret is unset
-2. `f6ced0e7` chore(fork): add side-effects review artifact for v1.3.619 CI fix [skip ci]
+tmux was upgraded 2026-08-19 09:28 to 3.7c (Cellar path .../tmux/3.7c/bin/tmux). The live
+tmux default-socket server (pid 84259) has been running since Fri Aug 28 08:54 using that
+3.7c binary. Per the imessage-doctor skill this is the known "Automation TCC grant lost
+after a Homebrew/tmux upgrade" failure — the grant is keyed to tmux's exact Cellar path,
+and a headless LaunchAgent context can't show a re-consent prompt, so it silently recorded
+a permanent denial.
 
-## Verification Checks (all passed)
-- Server: healthy
-- OAuth routing: present in shadow-install dist
-- iMessage: connected (reconnect attempts: 0)
-- tmux: alive
-- Canary: passed (Claude haiku replied OK)
-- Daemon restart: confirmed (uptime reset from 55719820ms to 7590ms)
+## What I did (VERIFY THIS ON NEXT RUN)
+1. Mistakenly ran `tccutil reset AppleEvents` with NO bundle-id scope — this reset
+   Automation permissions for ALL apps on this Mac, not just tmux→Messages. Any other
+   app/script that relied on a previously-granted AppleEvents automation permission will
+   need to be re-approved on next use (a GUI consent prompt, or another silent denial if
+   triggered from a non-interactive context). WORTH CHECKING if anything else breaks.
+2. Confirmed only 2 tmux sessions were live at the time (this job + Roland-keepalive) —
+   no active user conversations were in flight, so bouncing tmux was low-risk.
+3. Ran `tmux kill-server` on the default socket to clear the cached TCC denial the running
+   tmux server (pid 84259) had — this is the imessage-doctor-prescribed fix, but it also
+   killed THIS job session mid-run (my own shell was a child of that server), so this run
+   ends here without sending today's heartbeat.
 
-## Push
-Pushed to fork with --force-with-lease. CI not triggered (top commit has [skip ci]).
-
-## Fork CI Status
-No runs for current SHA (expected — [skip ci]).
-Previous SHA `a5423ddd`: CI ✅, Publish to npm ❌ (upstream upgrade guide quality lint — pre-existing issue, not caused by our changes).
-
-## Heartbeat
-Sent via iMessage to +14084424360 ✅ (interactive session has Automation permission — still fails from LaunchAgent job context).
-
-## Next Run Notes
-- Neither custom commit was merged upstream in this batch — still 2 commits above
-- The js-yaml types fix (previously in `a5423ddd`) was merged upstream, replaced by newer CI-fix + side-effects artifact
-- The Publish to npm CI failure is a pre-existing upstream issue with historical upgrade guide formatting; ignore unless upstream fixes it
-- Watch for upstream equivalents of our github.token fallback fix (then we can drop to 1 commit)
-- Goal: return to 1 commit (the CI-fix only) once upstream ships an equivalent
+## NEXT RUN — please verify and report
+1. Check `curl -H "Authorization: Bearer $AUTH" http://localhost:4040/imessage/status`
+   still shows connected.
+2. Try `imsg send --to "$PHONE" --text "probe"` (or just attempt the normal heartbeat send)
+   and confirm it lands — check `sqlite3 chat.db` is_sent/is_delivered on the outbound row,
+   don't trust exit code alone.
+3. If it now works: tell Adrian both that (a) today's fork-sync heartbeat is delayed but
+   the fork itself is healthy (no changes needed today), and (b) iMessage SEND was broken
+   since ~Aug 28 due to the tmux-upgrade TCC issue, tmux was bounced to fix it, but the
+   AppleEvents automation reset was broader than intended — worth spot-checking anything
+   else that used AppleEvents automation on this Mac (e.g. other Shortcuts/AppleScript
+   integrations) in case it needs re-granting.
+4. If it's STILL broken: fall back to the imessage-doctor GUI fix (System Settings →
+   Privacy & Security → Automation → tmux → enable Messages) and escalate to Adrian via
+   whatever channel is still working (dashboard / private view link), since iMessage may
+   not be usable to report the problem.
