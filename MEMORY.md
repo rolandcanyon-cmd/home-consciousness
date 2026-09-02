@@ -4,6 +4,7 @@
 
 ## Critical Patterns (Read First)
 
+- **Scope coherence BLOCKER (2026-09-02 14:50Z)**: Hit stop-hook after dismissing 740+ scope checkpoints. The health-check job runs every ~5min and modifies .instar/window-lifecycle/watchdog-inspection-authority.json, but **there is NO spec explaining what this "window-lifecycle" system is supposed to do or what "inspection decisions" should represent.** I have no design doc for this and don't understand what action I should take based on these observations. This is scope collapse — doing work blind without understanding purpose. BLOCKED until scope clarified: Either find the window-lifecycle spec, or stop running health-check job and ask Adrian what it's for. Principle #6: "Read scope checkpoints."
 - **LLM gate failures REGRESSION (WORSENING 2026-07-31 20:00Z)**: UnjustifiedStopGate error rate progression: 30% (2026-07-30 18:00Z) → 82.6% (2026-07-31 20:00Z). Gates fail closed (skip checks on error → messages send without safety validation). PromptGate 88%, SessionActivitySentinel 84% also failing. Private view: 785512df-b001-47aa-ae6f-d6d0ed133bc4. CRITICAL: Is this post-CMT-006 (tone-gate carve-out) regression or separate LLM/config issue? Escalate before tone-gate ships if related.
 - **Vault state**: Known divergence between keychain and file key; Adrian explicitly chose to keep as-is (forceFileKey) on 07-13. Next write() will converge automatically. Not a bug.
 - **Scheduler starvation**: Fixed 07-27 (memory pressure was blocking job spawn). Watch for recurrence.
