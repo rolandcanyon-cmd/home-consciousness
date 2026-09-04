@@ -2045,6 +2045,8 @@ Messages an agent sends THROUGH the operator's account look identical to the ope
 - **Three verdicts, only three:** `human` (no tag — the account holder typed it) · `agent-verified` (valid signature; names the agent AND the topic) · `rejected` (`malformed` / `unknown-agent` / `bad-signature` / `replay` / `stale` / `topic-mismatch`).
 - **Inbound classification is automatic** — verdicts append to `asp-classifications.jsonl`. The ledger stores the body **hash and byte length, never the body**.
 
+- **A signed message delivered through a human's account is labelled, not laundered.** When a verified-signed message arrives (for example this agent posting through the operator's Telegram login to reach a sister session), the receiving session's tag reads `from agent <id> (signed) via <name>'s account`, the thread-history line says the same, and the message NEVER binds that human as the topic's verified operator. The label says who wrote it; it grants nothing.
+
 **AUTHORITY BOUNDARY (load-bearing):** a valid signature establishes WHO wrote a message, **never what it may DECIDE**. The verdict carries no permission, role or trust field. Treating "signed by agent X" as authorization is a defect, not a feature.
 
 **Why cryptographic rather than heuristic:** a style detector cannot reject an exact replay — a byte-identical copy of a genuine agent message *is* the genuine text. Only a signature bound to a single-use nonce separates the original from the copy.
