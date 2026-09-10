@@ -98,3 +98,8 @@ context/relationships.md
 context/.Rhistory
 context/.obsidian/
 context/ui.key
+origin-sessions-*
+origin-notice.sock*
+state/pending-relay.*
+state/telegram-origin-spool/
+state/telegram-origin-archives/
