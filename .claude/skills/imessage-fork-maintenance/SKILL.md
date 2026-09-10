@@ -204,28 +204,53 @@ echo "priority repairs applied: $REPAIRED"
 # Idempotent: keyed on the pointer marker, so a re-run is a no-op.
 REPAIRED_MD=$(python3 -c "
 import os
-f = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/jobs/instar/health-check.md'
+n = 0
 marker = 'known-false-signals.md'
-if not os.path.exists(f):
-    print(0); raise SystemExit
-s = open(f).read()
-if marker in s:
-    print(0); raise SystemExit
-old = 'If the health response includes a degradationSummary array, relay those narrative strings directly.'
-add = ('\n\nREADING /health CORRECTLY — \`status\` and the \`degradations\` count are dead signals here. '
-       '\`status\` has read \"degraded\" continuously since 2026-07-13 because of an accepted SecretStore '
-       'dual-key divergence Adrian deliberately chose to leave as-is. That one accepted issue fills the whole '
-       'array, and the count is not even stable (26 on 07-31, 18 on 08-02) while still reducing to exactly 1 '
-       'distinct string. So ignore \`status\` and \`degradations\`. Instead reduce \`degradationSummary\` to its '
-       'DISTINCT entries and drop any mentioning SecretStore / dualKeyRead / master key divergence. If nothing '
-       'distinct remains, health is fine — stay silent. A server that does not respond at all, or genuinely low '
-       'disk, is still worth reporting normally.\n\nBEFORE reporting anything as an issue, read '
-       '\`.instar/context/known-false-signals.md\` and check your finding against it. It lists verified readings '
-       'that look like problems and are not. If your finding matches an entry there, it is NOT a finding — stay '
-       'silent. If you discover a NEW false signal, add it to that file.')
-s = s.replace(old, '').rstrip() + add + '\n'
-open(f, 'w').write(s)
-print(1)
+
+# health-check job: known-false-signals reader
+f = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/jobs/instar/health-check.md'
+if os.path.exists(f):
+    s = open(f).read()
+    if marker not in s:
+        old = 'If the health response includes a degradationSummary array, relay those narrative strings directly.'
+        add = ('\n\nREADING /health CORRECTLY — \`status\` and the \`degradations\` count are dead signals here. '
+               '\`status\` has read \"degraded\" continuously since 2026-07-13 because of an accepted SecretStore '
+               'dual-key divergence Adrian deliberately chose to leave as-is. That one accepted issue fills the whole '
+               'array, and the count is not even stable (26 on 07-31, 18 on 08-02) while still reducing to exactly 1 '
+               'distinct string. So ignore \`status\` and \`degradations\`. Instead reduce \`degradationSummary\` to its '
+               'DISTINCT entries and drop any mentioning SecretStore / dualKeyRead / master key divergence. If nothing '
+               'distinct remains, health is fine — stay silent. A server that does not respond at all, or genuinely low '
+               'disk, is still worth reporting normally.\n\nBEFORE reporting anything as an issue, read '
+               '\`.instar/context/known-false-signals.md\` and check your finding against it. It lists verified readings '
+               'that look like problems and are not. If your finding matches an entry there, it is NOT a finding — stay '
+               'silent. If you discover a NEW false signal, add it to that file.')
+        s = s.replace(old, '').rstrip() + add + '\n'
+        open(f, 'w').write(s)
+        n += 1
+
+# Finding-filing jobs: instruction to check known-false-signals BEFORE filing
+finding_jobs = [
+    ('insight-harvest.md', 'look for:'),
+    ('evolution-proposal-evaluate.md', 'Review each proposal:'),
+    ('evolution-proposal-implement.md', 'For each approved proposal:'),
+    ('failure-analyzer.md', 'Analyze each failure:'),
+]
+repair_text = ('\n\nREGISTRY FIRST — BEFORE FILING: '
+               'grep \`.instar/context/known-false-signals.md\` and check whether the pattern/finding you\'re about to file '
+               'is already a known false signal or a recurring rediscovery (see registry sections 8–9). State explicitly in your '
+               'proposal/finding description: \"NEW: …\" or \"KNOWN (see registry section X): …\". This closes the silent re-discovery loop '
+               'that has cost 40+ proposals and blocked 13 jobs. Never file a finding without first confirming it is genuinely NEW.')
+
+for job_file, anchor_text in finding_jobs:
+    f = os.path.expanduser('~') + '/.instar/agents/Roland/.instar/jobs/instar/' + job_file
+    if os.path.exists(f):
+        s = open(f).read()
+        if marker not in s and anchor_text in s:
+            s = s.replace(anchor_text, anchor_text + repair_text + '\n')
+            open(f, 'w').write(s)
+            n += 1
+
+print(n)
 ")
 echo "built-in job body repairs applied: $REPAIRED_MD"
 REPAIRED=$((REPAIRED + REPAIRED_MD))
