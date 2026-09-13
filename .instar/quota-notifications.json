@@ -1,13 +1,7 @@
 {
-  "lastWeeklyLevel": null,
+  "lastWeeklyLevel": "warning",
   "lastFiveHourLevel": null,
   "notifications": [
-    {
-      "type": "weekly",
-      "level": "limit",
-      "percentUsed": 100,
-      "timestamp": "2026-08-04T18:36:29.514Z"
-    },
     {
       "type": "weekly",
       "level": "limit",
@@ -601,7 +595,13 @@
       "level": "critical",
       "percentUsed": 90,
       "timestamp": "2026-08-18T17:01:18.859Z"
+    },
+    {
+      "type": "weekly",
+      "level": "warning",
+      "percentUsed": 75,
+      "timestamp": "2026-09-13T21:26:51.096Z"
     }
   ],
-  "lastNotifiedAt": "2026-08-18T17:01:18.859Z"
+  "lastNotifiedAt": "2026-09-13T21:26:51.096Z"
 }
