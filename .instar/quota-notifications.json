@@ -6,12 +6,6 @@
       "type": "weekly",
       "level": "limit",
       "percentUsed": 100,
-      "timestamp": "2026-08-04T18:40:54.777Z"
-    },
-    {
-      "type": "weekly",
-      "level": "limit",
-      "percentUsed": 100,
       "timestamp": "2026-08-04T18:44:18.485Z"
     },
     {
@@ -601,7 +595,13 @@
       "level": "critical",
       "percentUsed": 85,
       "timestamp": "2026-09-14T08:43:26.825Z"
+    },
+    {
+      "type": "weekly",
+      "level": "critical",
+      "percentUsed": 85,
+      "timestamp": "2026-09-14T10:33:56.538Z"
     }
   ],
-  "lastNotifiedAt": "2026-09-14T08:43:26.825Z"
+  "lastNotifiedAt": "2026-09-14T10:33:56.538Z"
 }
