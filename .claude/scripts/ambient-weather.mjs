@@ -44,6 +44,10 @@
 
 import * as path from 'node:path';
 import { createRequire } from 'node:module';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 
 const require = createRequire(import.meta.url);
 const AGENT_HOME = process.env.INSTAR_AGENT_HOME || path.resolve(process.cwd());
@@ -182,37 +186,58 @@ const DRIFT_RATIO_THRESHOLD = 3; // sensor >3x the reference ⇒ treat as drifte
 // regional reference (11.4 µg/m³) closely, i.e. trusted, not drifted.
 //
 // Latency quirk (observed 2026-07-13): the FIRST request after the device has been
-// idle usually takes ~8.5s to answer (it builds the JSON on demand), but has been seen
-// to exceed even a 15s ceiling once (a real morning-job run timed out on attempt 1,
-// then answered normally on immediate retry). So this retries once on any failure
-// before giving up — a device that's merely slow to wake shouldn't read as unreachable.
+// idle usually takes ~8.5s to answer (it builds the JSON on demand), and has been
+// observed to take up to ~15-25s on a cold start (verified 2026-09-23: curl succeeded
+// at 8.1s on one cold attempt, and needed a full 30s window on another). So this
+// retries once on any failure before giving up — a device that's merely slow to wake
+// shouldn't read as unreachable.
+//
+// Node-fetch bug (CMT, discovered 2026-09-23): Node's fetch()/http/net all get an
+// immediate `EHOSTUNREACH` connecting to this host specifically — 100% reproducible
+// across many attempts, at every layer (fetch, http.get, raw net.Socket, with an
+// explicit family:4 + localAddress) — while `curl` to the exact same host:port from
+// the exact same shell reaches it reliably (ARP resolves fine; `ping` shows ~50%
+// packet loss consistent with a flaky/overloaded embedded webserver, not an
+// unreachable one). Root cause of the Node-vs-curl split is unconfirmed, but the
+// symptom is 100% reproducible and curl is not affected, so route through curl
+// instead of chasing the low-level networking mismatch further.
 const PURPLEAIR_HOST = '10.0.0.140';
 const CHANNEL_DISAGREEMENT_RATIO = 2; // A vs B beyond this ⇒ one laser channel is failing
 
 async function fetchPurpleAirLocalOnce() {
+  let stdout;
   try {
-    const res = await fetch(`http://${PURPLEAIR_HOST}/json`, { signal: AbortSignal.timeout(15000) });
-    if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
-    const j = await res.json();
-    const a = j.pm2_5_atm;
-    const b = j.pm2_5_atm_b;
-    if (typeof a !== 'number' || typeof b !== 'number') {
-      return { ok: false, error: 'response missing pm2_5_atm/pm2_5_atm_b fields' };
-    }
-    const lo = Math.min(a, b);
-    const hi = Math.max(a, b);
-    const channelsDisagree = lo > 0 ? hi / lo > CHANNEL_DISAGREEMENT_RATIO : hi > 5;
-    return {
-      ok: true,
-      channelA: a,
-      channelB: b,
-      pm25: Number(((a + b) / 2).toFixed(1)),
-      channelsDisagree,
-      coords: j.lat != null && j.lon != null ? { lat: j.lat, lon: j.lon } : null,
-    };
+    ({ stdout } = await execFileAsync(
+      'curl',
+      ['-s', '-m', '20', '--fail', `http://${PURPLEAIR_HOST}/json`],
+      { timeout: 22000 },
+    ));
   } catch (e) {
-    return { ok: false, error: scrub(e.message ?? e.name ?? 'request failed').slice(0, 160) };
+    const detail = e.code === 22 ? 'HTTP error' : e.signal === 'SIGTERM' ? 'timed out' : (e.message ?? 'curl failed');
+    return { ok: false, error: scrub(detail).slice(0, 160) };
   }
+  let j;
+  try {
+    j = JSON.parse(stdout);
+  } catch {
+    return { ok: false, error: 'response was not valid JSON' };
+  }
+  const a = j.pm2_5_atm;
+  const b = j.pm2_5_atm_b;
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    return { ok: false, error: 'response missing pm2_5_atm/pm2_5_atm_b fields' };
+  }
+  const lo = Math.min(a, b);
+  const hi = Math.max(a, b);
+  const channelsDisagree = lo > 0 ? hi / lo > CHANNEL_DISAGREEMENT_RATIO : hi > 5;
+  return {
+    ok: true,
+    channelA: a,
+    channelB: b,
+    pm25: Number(((a + b) / 2).toFixed(1)),
+    channelsDisagree,
+    coords: j.lat != null && j.lon != null ? { lat: j.lat, lon: j.lon } : null,
+  };
 }
 
 async function fetchPurpleAirLocal() {
