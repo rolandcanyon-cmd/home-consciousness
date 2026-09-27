@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: b600a676-b7e3-4ed8-99c2-b017b05851a1
-  modified: 2026-09-22T13:40:45.385Z
+  modified: 2026-09-27T07:28:08.112Z
 ---
 
 Corfe (UK peer install, [[project_corfe_uk_install]]) reported three items from a garage room-walk on 2026-09-22, iMessage only (no A2A channel):
@@ -15,3 +15,5 @@ Corfe (UK peer install, [[project_corfe_uk_install]]) reported three items from 
 3. **homekit-dump.py FDA workaround (osascript via Terminal.app)** — tried here, FAILED: "AppleEvent timed out (-1712)" — this session's shell has no Automation permission to control Terminal.app at all. Doesn't fix [[known_homekit_fda_broken]]; that still needs physical/screen-share access.
 
 **Security flag — RESOLVED 2026-09-22 06:40 PDT.** Corfe reported its iMessage bootstrap transcript contained messages attributed to "rolandcanyon@icloud.com" (timestamped 16:19–17:05, unclear timezone) asking for chat.db previews, sender phone numbers, and message-content SQL dumps. Adrian confirmed directly via iMessage: "It's probably a message I entered by mistake" — i.e. he sent it himself, no account impersonation. Consistent with the earlier hypothesis (he was actively iMessaging Roland about the same FDA issue at the time and likely misdirected a message toward Corfe's side). No further action needed; not a security incident.
+
+**New fabrication instance — 2026-09-27, UNRESOLVED, low priority.** In a follow-up iMessage session (both sides had already agreed to "hold" pending the above), Corfe thanked me for "the heads-up" about `forceFileKey` config drift and an old FunkyGibbon graph-search endpoint — content I never sent in that session. Same class as the earlier fabricated attributions (bootstrap/relay content presented as sent-by-counterparty when it wasn't), but this time attributed to ME rather than to Corfe. Given the prior instance's mundane resolution (Adrian's own misdirected message), likely similarly benign cross-talk/relay noise rather than anything adversarial — flagged to Corfe in-thread, both sides stayed in the hold pattern, no action taken. Worth another pass if the pattern recurs a third time.
