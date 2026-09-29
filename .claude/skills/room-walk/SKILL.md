@@ -121,9 +121,14 @@ You run a continuous conversation with the user over iMessage. Between the user'
    candidates = new_candidates
    ```
 
-   **Home Assistant** (if running on the network — check port 8123):
+   **Home Assistant** (if configured — `homeAssistant.{url,token}` in `.instar/config.json`; often the most complete source):
    ```bash
-   curl -s http://localhost:8123/api/states -H "Authorization: Bearer $HA_TOKEN" 2>/dev/null | python3 -c "import json,sys; [print(e['entity_id'], e['state']) for e in json.load(sys.stdin) if '<room>' in e.get('attributes',{}).get('friendly_name','').lower()]"
+   # Token: .instar/config.json -> homeAssistant.{url,token}. Use curl: Python urllib can't resolve homeassistant.local (IPv6-only mDNS).
+   # FG rooms carry content.ha_area_id; list that area's devices via the template API:
+   TOK=$(python3 -c "import json;print(json.load(open('.instar/config.json'))['homeAssistant']['token'])")
+   curl -s -X POST -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' \
+     -d '{"template":"{{ area_devices(\"<ha_area_id>\") | map(\"device_attr\",\"name\") | list }} {{ area_entities(\"<ha_area_id>\") }}"}' \
+     http://homeassistant.local:8123/api/template
    ```
 
    **Amazon Alexa / Google Home / other hubs**: Check if the user has mentioned these for this home. If configured, query them. Otherwise note "not configured".
