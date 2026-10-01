@@ -20,7 +20,7 @@
   const path = await import('node:path');
   const http = await import('node:http');
 
-const STATE_FILE = path.join('.instar', 'state', 'scope-coherence.json');
+const STATE_FILE = path.join(process.env.CLAUDE_PROJECT_DIR || '.', '.instar', 'state', 'scope-coherence.json');
 const DEPTH_THRESHOLD = 20;
 const COOLDOWN_MS = 30 * 60 * 1000;  // 30 minutes
 const MIN_AGE_MS = 5 * 60 * 1000;    // 5 minutes

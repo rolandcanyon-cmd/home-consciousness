@@ -26,7 +26,7 @@
   const fs = await import('node:fs');
   const path = await import('node:path');
 
-const STATE_DIR = path.join('.instar', 'state');
+const STATE_DIR = path.join(process.env.CLAUDE_PROJECT_DIR || '.', '.instar', 'state');
 const RATE_FILE = path.join(STATE_DIR, '.claim-intercept-last.tmp');
 const RATE_LIMIT_MS = 10000; // 10 seconds between checks
 const LOG_FILE = path.join(STATE_DIR, 'claim-intercept.log');

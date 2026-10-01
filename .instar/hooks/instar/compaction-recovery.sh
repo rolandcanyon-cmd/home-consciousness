@@ -386,6 +386,55 @@ except Exception:
   fi
 fi
 
+# JEV MEMORY PICKER twin (Compaction Parity). MEMORY.md is loaded again after a
+# compaction, so the picker ranks again for the post-compaction context.
+if [ -f "$INSTAR_DIR/config.json" ]; then
+  MEM_PORT=${PORT:-$(grep -oE '"port"[[:space:]]*:[[:space:]]*[0-9]+' "$INSTAR_DIR/config.json" | head -1 | grep -oE '[0-9]+' | head -1)}
+  MEM_TOKEN="${INSTAR_AUTH_TOKEN:-}"
+  if [ -z "$MEM_TOKEN" ]; then
+    MEM_TOKEN=$(python3 -c "import json; v=json.load(open('$INSTAR_DIR/config.json')).get('authToken',''); print(v if isinstance(v, str) else '')" 2>/dev/null)
+  fi
+  MEM_EVENT="compact"
+fi
+# JEV MEMORY PICKER — docs/specs/jev-memory-picker.md. MEMORY.md loads by
+# position (the first ~25,000 characters); Jev ranks the entries past that cut
+# against this session's topic. Shadow mode (the default) only logs on the
+# server and prints nothing; inject mode prints the ranked entries. The index is
+# keyed on the git root (Claude Code keys worktree sessions there too).
+# Fail-open: route 503 (disabled) / unreachable / timeout -> silent skip.
+if [ -n "$MEM_PORT" ] && [ -n "$MEM_TOKEN" ]; then
+  MEM_PROJ="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+  MEM_COMMON=$(git -C "$MEM_PROJ" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+  if [ -n "$MEM_COMMON" ] && [ "$(basename "$MEM_COMMON")" = ".git" ]; then
+    MEM_PROJ=$(dirname "$MEM_COMMON")
+  fi
+  MEM_BODY=$(MEM_PROJ="$MEM_PROJ" MEM_CFG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}" MEM_EVENT="$MEM_EVENT" python3 -c "
+import json, os
+print(json.dumps({'configDir': os.environ['MEM_CFG'], 'projectDir': os.environ['MEM_PROJ'], 'topicId': os.environ.get('INSTAR_TELEGRAM_TOPIC') or None, 'source': os.environ['MEM_EVENT']}))
+" 2>/dev/null)
+  if [ -n "$MEM_BODY" ]; then
+    MEM_RESPONSE=$(curl -sf --max-time 4 -X POST -H "Authorization: Bearer $MEM_TOKEN" -H 'Content-Type: application/json' \
+      -d "$MEM_BODY" "http://localhost:${MEM_PORT}/memory-picker/session-context" 2>/dev/null)
+    if [ -n "$MEM_RESPONSE" ]; then
+      MEM_BLOCK=$(echo "$MEM_RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    if d.get('present') and d.get('block'):
+        print(d['block'])
+except Exception:
+    pass
+" 2>/dev/null)
+      if [ -n "$MEM_BLOCK" ]; then
+        echo ""
+        echo "$MEM_BLOCK"
+        echo ""
+      fi
+    fi
+  fi
+fi
+
+
 # WORKING-SET ARTIFACT grounding twin (Compaction Parity — intelligent-working-set-lazy-sync
 # Layer-3). Mirrors the session-start injection so after a compaction the agent is RE-grounded
 # on the interactive artifacts it recorded for this conversation. ADVISORY only (a path is

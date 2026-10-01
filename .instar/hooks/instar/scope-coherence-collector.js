@@ -17,7 +17,7 @@
   const fs = await import('node:fs');
   const path = await import('node:path');
 
-const STATE_FILE = path.join('.instar', 'state', 'scope-coherence.json');
+const STATE_FILE = path.join(process.env.CLAUDE_PROJECT_DIR || '.', '.instar', 'state', 'scope-coherence.json');
 const SCOPE_DOC_PATTERNS = [
   'docs/', 'specs/', 'SPEC', 'PROPOSAL', 'DESIGN', 'ARCHITECTURE',
   'README', '.instar/AGENT.md', '.instar/USER.md', '.claude/context/',
