@@ -208,6 +208,29 @@ knowing about this class does not protect you from it; only reading the response
 
 ---
 
+## 10. The deploy-canary `-p "reply OK"` spawn often does NOT contain the literal word "OK"
+
+The imessage-fork-maintenance verify step spawns `claude --dangerously-skip-permissions
+--model haiku -p "reply OK"` in a scratch tmux session and greps the output for `OK`
+(case-insensitive) as proof the build/OAuth-key path works. In practice the spawned
+session frequently ignores the literal instruction and instead produces a full
+identity-oriented greeting (e.g. "Ready. I'm Roland, your house consciousness agent...
+What's the task?") — because this agent's CLAUDE.md + SessionStart hooks inject a large
+block of identity/orientation context ahead of the `-p` prompt, and the model prioritizes
+orienting over a terse literal reply. None of that greeting text contains the substring
+"OK", so the grep fails even though the spawn genuinely succeeded (exit 0, correct
+`CLAUDE_CODE_OAUTH_TOKEN` env var consumed, coherent on-brand response).
+
+**TELL:** `/tmp/canary.txt` has real, coherent, on-topic text and the process exited 0,
+but `grep -qi "OK"` still reports FAIL.
+
+**THE RULE:** treat a canary "failure" as real only if the output is EMPTY, an error
+message, or an auth/key failure — not merely because it lacks the literal word "OK". A
+substantive on-brand response is itself the proof the session spawn + key routing works;
+the literal-string check is a heuristic that this agent's own verbose hooks defeat.
+
+---
+
 ## Three general rules that produced most of the above
 
 - **An API read is implicitly "now".** Do not compare a live API read against pre-restart log
