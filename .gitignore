@@ -104,3 +104,8 @@ commitment-detection-bookmark.json
 
 # Judgment-call provenance rows (machine-local decision context — never commit)
 state/judgment-provenance/
+.instar/origin-sessions-*
+.instar/origin-notice.sock*
+.instar/state/pending-relay.*
+.instar/state/telegram-origin-spool/
+.instar/state/telegram-origin-archives/
