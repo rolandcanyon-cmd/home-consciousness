@@ -231,6 +231,25 @@ the literal-string check is a heuristic that this agent's own verbose hooks defe
 
 ---
 
+## 11. `GET /health` LLM reliability raw error counts (e.g. `UnjustifiedStopGate: 169/169`) are historical totals, not current rates
+
+The `/health` response's `llmReliability` section shows raw lifetime error/call counts *without a
+time window*. A gate showing `errors: 169, realCalls: 169, errorRate: 1` looks like a
+catastrophic 100% failure **today**, but those may be historical counters from a transient
+outage **weeks ago** that has long since healed.
+
+Verified by incident: UnjustifiedStopGate showed `169/169` on 2026-07-31 (100% failure),
+recovered by 2026-08-02 (4% over 24h), but `/health` still showed the raw `169` count weeks
+later (on 2026-10-05 health checks). The health endpoint does not reset lifetime counters.
+
+- **Do NOT treat a raw count as a current rate.**
+- **The only authoritative current rate is `GET /metrics/features?feature=<name>`** (windowed:
+  24h, 6h, 1h).
+- `/health` is useful for checking whether a gate exists and has *any* activity; it is not
+  useful for diagnosing its current health.
+
+---
+
 ## Three general rules that produced most of the above
 
 - **An API read is implicitly "now".** Do not compare a live API read against pre-restart log
