@@ -11,10 +11,9 @@ Fetch current weather and forecast from Tempest station, plus indoor/outdoor tem
 
 ## Steps
 
-1. **Look up the Tempest station URL from FunkyGibbon** (source of truth — never hardcode it):
-   - If the `kittenkong` MCP tools are available, call `search_entities` with query "tempest" and read `station_url` from the matching device's content.
-   - Otherwise, query the API directly: `curl -s -X POST http://localhost:8000/api/v1/graph/search -H "Authorization: Bearer $FUNKYGIBBON_TOKEN" -H 'Content-Type: application/json' -d '{"query":"tempest weather station"}'` (the entity is named "Tempest Weather Station"; `FUNKYGIBBON_TOKEN` is set in the `kittenkong` MCP server's env in `.claude/settings.json` — reuse that value, don't hardcode a second copy).
-   - Navigate to the `station_url` from that entity's content (currently https://tempestwx.com/station/125865/, but always resolve it live — the station can change).
+1. **Look up the Tempest station URL from FunkyGibbon via the `kittenkong` MCP tools** (source of truth): call `search_entities` with query "tempest" and read `station_url` from the matching device's content.
+   - **There is deliberately NO REST fallback.** Everything talks to FunkyGibbon through MCP only — the graph REST endpoint (`/api/v1/graph/search`) was removed in the-goodies v0.8.0 (2026-09-13) and must never be called directly by this skill, even as a fallback. An earlier version of this file had a "query the API directly" fallback step; that was a design violation (operator correction, 2026-09-27) and has been removed, not just fixed.
+   - **Root cause of the 2026-09-23 to 2026-09-27 silent-report outage**: `kittenkong` was configured in `.claude/settings.json` but never actually added to `.mcp.json` — the file Claude Code actually reads for this project's MCP servers — so the tool never existed in any session, including this job's. Fixed 2026-09-27 by adding it to `.mcp.json` (verified the server starts cleanly with its `FUNKYGIBBON_TOKEN` env var). If `search_entities` is ever unavailable again, that means the MCP wiring broke again — **do not paper over it with a REST call or a hardcoded URL; surface the failure plainly in the report and stop after step 9** (e.g. "couldn't reach FunkyGibbon for the station lookup — MCP tool unavailable, check `.mcp.json`") so the wiring gap gets caught immediately instead of silently degrading.
 2. **Extract current outdoor weather data** from Tempest using browser_snapshot:
    - Current temperature (e.g., "56°")
    - Feels like temperature (e.g., "Feels Like 56°")
@@ -52,7 +51,13 @@ Fetch current weather and forecast from Tempest station, plus indoor/outdoor tem
 
    Note: the Ambient station also reports **outdoor** temp/humidity, so it can cross-check or stand in for Tempest if the Tempest page fails to load.
 8. **Format a friendly morning message** with the weather data
-9. **Send via iMessage** to $USER_PHONE using: `imsg send --to "$(python3 -c "import json; d=json.load(open(.instar/config.json)); print(d.get(imessage,{}).get(userPhone,))")" --text "MESSAGE"`
+9. **Send via iMessage** using the standard relay script (never `imsg send` — that binary/command does not exist on this system):
+   ```
+   cat <<'EOF' | .claude/scripts/imessage-reply.sh "+14084424360"
+   MESSAGE
+   EOF
+   ```
+   **This step is MANDATORY even in a degraded run.** If step 1-7 partially or fully failed, still compose and send whatever is available, explicitly naming what's missing (per the existing "if the Ambient script fails, send anyway" rule below) — never let the job exit having sent nothing. A silent no-op is worse than a message saying "couldn't reach the Tempest station this morning."
 
 ## Output Format
 

@@ -60,9 +60,19 @@ try {
   process.exit(1);
 }
 
+// forceFileKey: true — pinned to the file-backed master key (matches
+// config.json's secrets.forceFileKey policy, set 2026-07-13 after the first
+// vault master-key mismatch). SecretStore's constructor does NOT read
+// config.json itself; the caller must pass this explicitly, and this script
+// wasn't, which is exactly how the mismatch kept recurring (07-13, 09-08,
+// 09-11, 09-13, 09-22): whenever a write happened via keychain resolution
+// (forceFile defaults to false) and that keychain entry later became
+// unreadable, every subsequent file-only read mismatched it. Pinning this
+// script to the file key removes ITS half of the drift going forward —
+// see fb-a8cc6eb1-e36 for the still-open upstream (SecretStore-wide) fix.
 let apiKey, appKey;
 try {
-  const store = new SecretStore({ stateDir: path.join(AGENT_HOME, '.instar') });
+  const store = new SecretStore({ stateDir: path.join(AGENT_HOME, '.instar'), forceFileKey: true });
   apiKey = store.get('ambient_api_key');
   appKey = store.get('ambient_app_key');
 } catch {
