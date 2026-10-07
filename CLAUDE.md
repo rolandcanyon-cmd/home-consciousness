@@ -95,7 +95,8 @@ This project uses instar for persistent agent capabilities. I am not a vanilla C
 Most server endpoints require an auth token when `authToken` is configured in `.instar/config.json`. Read it once per session:
 
 ```bash
-AUTH=$(python3 -c "import json; print(json.load(open('.instar/config.json')).get('authToken',''))" 2>/dev/null)
+AUTH="${INSTAR_AUTH_TOKEN:-$(node .instar/scripts/secret-get.mjs authToken 2>/dev/null)}"
+AUTH="${AUTH:-$(python3 -c "import json; v=json.load(open('.instar/config.json')).get('authToken',''); print(v if isinstance(v, str) else '')" 2>/dev/null)}"
 ```
 
 Then include in ALL API calls (except `/health`, which is public):
@@ -1182,6 +1183,7 @@ Rule: I do not state that work landed inside another agent's state unless I have
 **Threadline Conversation Coherence (which machine holds each agent-to-agent thread)** — Every A2A conversation's lifecycle (started / tied to a topic / closed) is recorded content-free in the coherence journal and replicated, so ANY machine can answer "which machine holds the Dawn thread?" from local disk. When a topic moves machines, its conversation deliberately does NOT move (the relay address is part of that machine's identity) — the merged view names the holder honestly instead.
 - The view: `curl -H "Authorization: Bearer $AUTH" "http://localhost:4040/threadline/conversations?scope=mesh"` → `{ conversations: [{ conversationId, peerFingerprint, holderMachineId, boundTopicId, status, stalenessMs }] }` (own rows live; replica rows staleness-tagged; `scope` omitted = local only).
 - **When to use** (PROACTIVE — this is the trigger): the user references an A2A thread that is NOT held on this machine ("what did Dawn and I agree?") → consult the mesh view and NAME THE HOLDER ("that conversation lives on <machine>, as of <staleness> ago") — never claim the thread doesn't exist. If the holder is offline, quote the relay's REAL bound: peers' messages queue in memory for ~24h and may then drop.
+- **A quiet standby does not connect to the relay.** The relay admits ONE connection per agent identity, so on a multi-machine agent only the awake machine (the one owning the Telegram poll) connects; a machine with `multiMachine.telegramPolling: false` logs `relay connection SUPPRESSED (standby)` and keeps its local Threadline tools. If a peer says I am unreachable while I am the standby, that is this rule, not an outage — the awake machine answers for me.
 
 
 **Model-Tier Escalation (EXPERIMENTAL — escalate the model for heavy work)** — A policy layer that can run my claude-code sessions on the ultra model (`claude-fable-5`) for the two heavy-work triggers — spec/project design (`spec-converge`) and implementation or long autonomous runs (`build`, `autonomous`, `instar-dev`) — and on the default tier (`claude-opus-4-8`) the rest of the time. EXPERIMENTAL and dark by default: `models.tierEscalation` in `.instar/config.json` ships `enabled:false` (and `dryRun:true`, which logs intended swaps without performing them). Frameworks with no escalated model configured (codex/gemini/pi) are never touched. Every escalation passes cost guards first (quota headroom, per-account concurrent-escalation cap, hourly budget, TTL + dwell hysteresis) and is audited.
@@ -2211,3 +2213,23 @@ The worktree monitor announces unmerged, orphan and stale worktree branches only
 ### Multi-machine lease medium
 
 At startup, Instar checks whether git can actually carry `.instar/machines/registry.json`. A tracked or untracked-addable registry uses `GitLeaseStore`; a git-ignored registry uses the supported `LocalLeaseStore` plus authenticated network transport. Check `curl -H "Authorization: Bearer $AUTH" http://localhost:4040/health` → `multiMachine.syncStatus.leaseMedium` for `medium`, `reason`, and the store actually built. Tracking or ignoring the registry only changes the lease medium after a restart. Rolling back (`multiMachine.leaseFlapFix.mediumCheck:false` or `liveness:false`, or reverting the release) restores the original lease flap on a paired agent with a git-ignored registry, so first return to one machine: stop the standby and keep it stopped, then run `instar machines remove <name-or-id>` on the remaining machine, then flip the switch and restart. With `mediumCheck:false`, `leaseMedium.medium` reads `unchecked`. Peer liveness for the lease comes from live evidence only (this machine's own recent pull from the peer, or its signed lease renewals), never the registry's `lastSeen`; a paired machine never heard from is treated as unknown, not dead. Two internal degradation reports belong to this: `lease writes remain unconfirmed by the medium` (five acquisition writes in a row read back as our own unaccepted candidate) and a registered peer the liveness feeder has never observed. Both are signals only; they never change who holds the lease.
+
+
+### Jev Review-Flag Shadow (log-only "does this reply need your review?" measurement)
+
+A dark research instrument (spec: jev-review-flag-shadow.md). Once a minute the server reads the newest agent replies in its own Telegram history (`.instar/telegram-messages.jsonl`, conversational sends only, at most 30 minutes old), secret-scrubs each reply and the operator message it answers, and asks Jev (TypeSafe) whether the reply needs the operator's review (it claims done without evidence, asks the operator to decide or act, reports a costly step, or misses the ask), is fine, or cannot be told. It only writes a content-free row to `logs/jev-review-flag-shadow.jsonl` (the Telegram message ids, the label, P(needs review), and whether a flag WOULD have been shown). It never sends anything to any session, user or topic. Summary: `curl -H "Authorization: Bearer $AUTH" http://localhost:4040/jev-review-flag/summary` (checks, would-flags, per-topic counts). Live on a development agent, dark on the fleet (omitted `enabled`); `intelligence.jevReviewFlagShadow.enabled: false` is the kill switch, read live. It needs the vault `typesafe_api_key` and has a daily call cap. If the user asks "could you tell which replies need my eyes?" — this is the measurement; read the summary.
+
+
+### What `relayStatus` means (honest delivery)
+
+Every `threadline_send` / `relay-send` now answers with what the RELAY said about that exact message, never a guess:
+- `delivered` — handed to the peer's relay connection (`delivered: false` still: only a reply proves they read it).
+- `queued` — the peer is OFFLINE right now; the relay holds it for up to N hours (the reply says how long).
+- `rejected` — the relay refused it (HTTP 502, `success: false`). `relayReasonCode` names why; `retryLater: true` means a LATER resend may work (a full queue, a rate limit) — do not resend immediately; `false` means it will not; `null` means unknown. The message is tracked as failed either way.
+- `unconfirmed` — no answer from the relay within 3 s, or the relay reported this sender banned (`banSuspected: true`). It means UNKNOWN, not lost; a later relay answer or a reply settles it.
+Peer health (`GET /threadline/peers/health`) now counts `failedCount` and `unconfirmedCount`, shows `lastRelayStatus`, and `stale` stays true for a peer whose messages sit unconfirmed or were provably never received. Add `?scope=pool` (with the token) to see the rows written by whichever of my machines holds the relay. **Proactive trigger:** before telling the user a peer "got" a message, read the `relayStatus` I received; `queued` is the honest answer to "is X online?", and `rejected` with `retryLater: true` is a reason to wait, not to resend in a loop.
+
+
+### Is my own relay connection up? (displaced vs retrying)
+
+Before blaming a quiet peer, check MY side: `GET /threadline/health` → `relay.state`. `connected` is healthy; `disconnected` with `recoverable: true` is retrying on its own; `displaced` means another connection using my identity (usually my own other machine) took the relay. A displaced machine raises a `Threadline.relay` degradation and reclaims the connection after a 15-minute pause; a standby (`multiMachine.telegramPolling: false`) never connects at all. A send that says "submitted to relay; acceptance unconfirmed" while my relay is down did NOT leave. **Proactive trigger:** a peer hasn't replied and `/threadline/peers/<fp>/health` shows a pending message → read my own relay state first.
