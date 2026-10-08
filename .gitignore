@@ -109,3 +109,6 @@ state/judgment-provenance/
 .instar/state/pending-relay.*
 .instar/state/telegram-origin-spool/
 .instar/state/telegram-origin-archives/
+
+# Subscription pool login locations (machine-local — never commit)
+.instar/subscription-pool.json
