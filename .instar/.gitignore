@@ -103,3 +103,17 @@ origin-notice.sock*
 state/pending-relay.*
 state/telegram-origin-spool/
 state/telegram-origin-archives/
+identity.json*
+threadline/identity.json*
+threadline/inbox-hmac.key*
+threadline/invitation-secret.key*
+threadline/secure-invitations.json*
+machine-ssh/
+state/inbound-delivery.hmac-key*
+relay-tokens.json*
+local-state/
+state/conversation-bind-token.secret*
+state/.manifest-key*
+machine/
+remediation-keys.age*
+telemetry/local-secret*

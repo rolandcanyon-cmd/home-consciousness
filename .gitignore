@@ -112,3 +112,16 @@ state/judgment-provenance/
 
 # Subscription pool login locations (machine-local — never commit)
 .instar/subscription-pool.json
+.instar/identity.json*
+.instar/threadline/identity.json*
+.instar/threadline/inbox-hmac.key*
+.instar/threadline/invitation-secret.key*
+.instar/threadline/secure-invitations.json*
+.instar/machine-ssh/
+.instar/state/inbound-delivery.hmac-key*
+.instar/relay-tokens.json*
+.instar/local-state/
+.instar/state/conversation-bind-token.secret*
+.instar/state/.manifest-key*
+.instar/remediation-keys.age*
+.instar/telemetry/local-secret*
