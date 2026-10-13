@@ -117,3 +117,6 @@ state/.manifest-key*
 machine/
 remediation-keys.age*
 telemetry/local-secret*
+state/lifeline-ingress-secret*
+state/telegram-callback-seen.json*
+state/lifeline-restart-requested.json*
