@@ -125,3 +125,6 @@ state/judgment-provenance/
 .instar/state/.manifest-key*
 .instar/remediation-keys.age*
 .instar/telemetry/local-secret*
+.instar/state/lifeline-ingress-secret*
+.instar/state/telegram-callback-seen.json*
+.instar/state/lifeline-restart-requested.json*
