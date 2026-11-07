@@ -20,3 +20,6 @@ Auto-login is NOT possible: **FileVault is On**, and macOS forbids automatic log
 The "database disk image is malformed" poll errors in server.log were all from 2026-07-02 and are historical/resolved — do not re-diagnose as current.
 
 Restart lever if needed: `launchctl kickstart -k gui/$(id -u)/ai.instar.Roland` (see [[project_instar_launchagent]]). Related: [[feedback_never_delete_chat_db]].
+
+
+**Recurrence 2026-11-06:** Mac rebooted Mon Nov 2 14:28; rolandcanyon not logged in until Fri Nov 6 16:17 → ~4 days fully down (no jobs, one incoming iMessage at Nov 6 00:10 went unanswered). (FileVault rules out auto-login; unlock AS rolandcanyon at boot.) The adriancockcroft user's imagent/IMDPersistenceAgent pair is a separate GUI user, NOT an orphan (check `ps -o user`).
