@@ -259,3 +259,19 @@ later (on 2026-10-05 health checks). The health endpoint does not reset lifetime
 - **An absent error is not a passing result.** Distinguish "the check ran and found nothing"
   from "the check could not report". Absence of a complaint is only evidence if the complaint
   channel is known to work (§7, §9).
+
+## 6. `df -h` shows 98% on CoreSimulator / VidyoConnect volumes is not disk pressure (verified 2026-11-07)
+
+`df -h` lists several small mounts at 98% capacity: `/Library/Developer/CoreSimulator/Volumes/iOS_*`,
+`/Library/Developer/CoreSimulator/Cryptex/Images/...`, `/Volumes/VidyoConnect Installer`.
+
+- They are read-only, sealed disk images (`mount` shows `sealed, read-only` / `read-only`). Full by design.
+- The real data volume (`/`, `/System/Volumes/Data`) is the one to judge: at last check it was 87% used with ~120Gi free.
+- Time Machine local snapshot mounts show the same capacity as the data volume and are not extra space.
+- Only the data volume dropping to low free space is a real disk finding.
+
+## 7b. `df -h` shows 100% on `/dev` is devfs, not disk pressure (verified 2026-11-10)
+
+`/dev` is a devfs mount. It reports 100% capacity with 0 bytes available by design, because it
+holds device nodes, not data. Judge only the data volume (`/`), which was 12% used with 103Gi free
+on 2026-11-10. The `/dev` line is never a disk finding.
