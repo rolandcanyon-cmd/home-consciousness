@@ -275,3 +275,11 @@ later (on 2026-10-05 health checks). The health endpoint does not reset lifetime
 `/dev` is a devfs mount. It reports 100% capacity with 0 bytes available by design, because it
 holds device nodes, not data. Judge only the data volume (`/`), which was 12% used with 103Gi free
 on 2026-11-10. The `/dev` line is never a disk finding.
+
+## 12. `df -h` prints `getattrlist failed ... AppTranslocation: Permission denied` on stderr (verified 2026-11-16)
+
+A `df` run can emit this warning for `/private/var/folders/.../AppTranslocation/...` (a
+quarantined app launched from a translocated path, e.g. VidyoConnect). It is a sandboxing
+artifact of `df` walking a path it cannot stat, not a disk or server problem. Its `/`,
+`/System/Volumes/Data` and Time Machine lines are the only ones to read. On 2026-11-16 the data
+volume was 13% used on `/` with 93Gi free, so there was no disk finding.
