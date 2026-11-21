@@ -283,3 +283,14 @@ quarantined app launched from a translocated path, e.g. VidyoConnect). It is a s
 artifact of `df` walking a path it cannot stat, not a disk or server problem. Its `/`,
 `/System/Volumes/Data` and Time Machine lines are the only ones to read. On 2026-11-16 the data
 volume was 13% used on `/` with 93Gi free, so there was no disk finding.
+
+## 13. A `Shell cwd was reset to ...` line in `/health` degradationSummary is a harness notice, not a degradation (verified 2026-11-20)
+
+After the SecretStore divergence is dropped, `GET /health` → `degradationSummary` can still show one
+distinct entry reading `Shell cwd was reset to /Users/rolandcanyon/.instar/agents/Roland`. That is the
+shell harness reporting that the working directory was reset between commands. It is informational:
+no service is failing and nothing needs Adrian. On 2026-11-20 the server answered `/health` with 200,
+the only other distinct entry was the accepted SecretStore divergence, and `/` was 15% used with 77Gi free.
+
+- Drop it when reducing `degradationSummary` to distinct entries, alongside the SecretStore entries.
+- Only a real service degradation (a named subsystem failing, a repeated error) is a finding.
